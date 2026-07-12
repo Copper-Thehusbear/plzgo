@@ -8,34 +8,80 @@ const props = defineProps({
   yepCount:  { type: Number,  default: 0 },
   remaining: { type: Number,  default: 0 },
 })
-const emit = defineEmits(['yep', 'nope'])
+const emit = defineEmits(['yep', 'nope', 'drag-progress'])
 
-// ── Swipe gesture ───────────────────────────────────────────────────
+// ── Swipe gesture — Physics Spec v2 ─────────────────────────────────
+// Feel = follow the finger instantly / respect momentum / spring back.
 const dragX        = ref(0)
+const dragY        = ref(0)   // raw dy — damped ×0.35 at render time
 const isDragging   = ref(false)
 const isExiting    = ref(false)
 const exitDir      = ref(0)
 const startX       = ref(0)
 const startY       = ref(0)
 const gestureLock  = ref(null) // 'h' | 'v' | null
-const THRESHOLD    = 75
 const LOCK_TOL     = 8
 
+const cardRef = ref(null)
+
+// Non-reactive physics state: written every pointermove — keeping it out of
+// Vue reactivity keeps the hot path to two ref writes per frame.
+let moveHistory = []   // recent {x, y, t}, trimmed to a ~100ms window
+let grabFactor  = 1    // +1 grabbed top half, −1 bottom half (real-card torque)
+let cardWidth   = 320  // measured once at pointerdown
+
+const exitX        = ref(0)
+const exitY        = ref(0)
+const exitRot      = ref(0)
+const exitDuration = ref(400)
+
+const reducedMotion = typeof window !== 'undefined'
+  && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+// Exit keeps release speed (linear-out); snap-back overshoots (spring).
+// These two must never share an easing — different emotions.
+const EXIT_EASE   = 'cubic-bezier(0.17, 0.67, 0.35, 1)'
+const SPRING_EASE = 'cubic-bezier(0.175, 0.885, 0.32, 1.15)'
+
 const cardStyle = computed(() => {
-  const tx  = isExiting.value ? exitDir.value * (window.innerWidth + 300) : dragX.value
-  const rot = isExiting.value ? exitDir.value * 28 : dragX.value * 0.08
+  if (isExiting.value) {
+    if (reducedMotion) {
+      return {
+        transform:  `translateX(${exitDir.value * 40}px)`,
+        opacity:    0,
+        transition: 'transform 150ms ease-out, opacity 150ms ease-out',
+        willChange: 'transform',
+      }
+    }
+    return {
+      transform:  `translate(${exitX.value}px, ${exitY.value}px) rotate(${exitRot.value}deg)`,
+      transition: `transform ${exitDuration.value}ms ${EXIT_EASE}`,
+      willChange: 'transform',
+    }
+  }
+  if (isDragging.value && gestureLock.value === 'h') {
+    const rot = reducedMotion ? 0 : (dragX.value / cardWidth) * 14 * grabFactor
+    return {
+      transform:  `translate(${dragX.value}px, ${dragY.value * 0.35}px) rotate(${rot}deg)`,
+      transition: 'none',
+      willChange: 'transform',
+    }
+  }
   return {
-    transform:  `translateX(${tx}px) rotate(${rot}deg)`,
-    transition: isDragging.value && gestureLock.value === 'h'
-      ? 'none'
-      : 'transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    transform:  'translate(0px, 0px) rotate(0deg)',
+    transition: reducedMotion ? 'transform 150ms ease-out' : `transform 300ms ${SPRING_EASE}`,
     willChange: 'transform',
   }
 })
 
-const dragProgress = computed(() => isExiting.value ? 1 : Math.min(Math.abs(dragX.value) / THRESHOLD, 1))
+// Commit distance is relative to card width, not a fixed pixel count.
+const dragProgress = computed(() =>
+  isExiting.value ? 1 : Math.min(Math.abs(dragX.value) / (0.28 * cardWidth), 1))
 const showYep      = computed(() => dragX.value > 14 || (isExiting.value && exitDir.value === 1))
 const showNope     = computed(() => dragX.value < -14 || (isExiting.value && exitDir.value === -1))
+
+// Deck breathing: the back card scales with the top card's progress.
+watch(dragProgress, v => { if (props.isTop) emit('drag-progress', v) })
 
 // ── Multi-image state ───────────────────────────────────────────────
 const imgIndex     = ref(0)
@@ -84,6 +130,10 @@ function onPointerDown(e) {
   startX.value = e.clientX
   startY.value = e.clientY
   gestureLock.value = null
+  const rect = e.currentTarget.getBoundingClientRect()
+  cardWidth  = rect.width || 320
+  grabFactor = e.clientY < rect.top + rect.height / 2 ? 1 : -1
+  moveHistory = [{ x: e.clientX, y: e.clientY, t: e.timeStamp }]
   try { e.currentTarget.setPointerCapture(e.pointerId) } catch {}
   tapStartX = e.clientX
   tapStartY = e.clientY
@@ -114,7 +164,22 @@ function onPointerMove(e) {
 
   if (gestureLock.value === 'h') {
     dragX.value = dx
+    dragY.value = dy
+    // Velocity window: keep only samples from the last 100ms (max 5)
+    moveHistory.push({ x: e.clientX, y: e.clientY, t: e.timeStamp })
+    while (moveHistory.length > 5 || (moveHistory.length > 1 && e.timeStamp - moveHistory[0].t > 100)) {
+      moveHistory.shift()
+    }
   }
+}
+
+// px/ms across the sample window at release
+function releaseVelocity() {
+  if (moveHistory.length < 2) return 0
+  const first = moveHistory[0]
+  const last  = moveHistory[moveHistory.length - 1]
+  const dt = last.t - first.t
+  return dt > 0 ? (last.x - first.x) / dt : 0
 }
 
 function onPointerUp(e) {
@@ -133,26 +198,56 @@ function onPointerUp(e) {
     }
   }
 
-  // Swipe completion
+  // Swipe completion — commit on distance OR a short fast flick
   if (gestureLock.value === 'h') {
-    if      (dragX.value >  THRESHOLD) triggerExit( 1, 'yep')
-    else if (dragX.value < -THRESHOLD) triggerExit(-1, 'nope')
-    else dragX.value = 0
+    const vx = releaseVelocity()
+    const dir = dragX.value !== 0 ? Math.sign(dragX.value) : Math.sign(vx)
+    const byDistance = Math.abs(dragX.value) > 0.28 * cardWidth
+    const byFlick    = Math.abs(vx) > 0.55 && Math.sign(vx) === dir && dir !== 0
+    if (dir !== 0 && (byDistance || byFlick)) {
+      triggerExit(dir, dir > 0 ? 'yep' : 'nope', vx)
+    } else {
+      dragX.value = 0
+      dragY.value = 0
+    }
   }
 }
 
 function onPointerCancel() {
   isDragging.value = false
   isTap = false // a cancelled gesture must never register as a tap
-  if (gestureLock.value !== 'v') dragX.value = 0
+  moveHistory = []
+  if (gestureLock.value !== 'v') { dragX.value = 0; dragY.value = 0 }
 }
 
-function triggerExit(dir, event) {
+function triggerExit(dir, event, vx = 0) {
   if (isExiting.value) return
+  const fromX    = dragX.value
+  const targetX  = dir * (window.innerWidth + 100)
+  const remaining = Math.abs(targetX - fromX)
+  // Faster release = shorter flight; button-triggered exits get the full 400ms
+  const duration = reducedMotion
+    ? 150
+    : Math.round(Math.min(400, Math.max(200, remaining / Math.max(Math.abs(vx), 1.2))))
+
+  // Continue along the drag vector (damped y, extrapolated + capped)
+  const dampedY = dragY.value * 0.35
+  exitX.value = targetX
+  exitY.value = fromX !== 0
+    ? Math.max(-160, Math.min(160, dampedY * (targetX / fromX)))
+    : dampedY
+  exitRot.value = Math.max(-22, Math.min(22, (targetX / cardWidth) * 14 * grabFactor))
+  exitDuration.value = duration
+
   isExiting.value = true
   exitDir.value   = dir
-  dragX.value     = 0
-  setTimeout(() => emit(event), 430)
+
+  // Emit on transitionend; setTimeout is only the fallback (background tabs
+  // may never fire the event).
+  let done = false
+  const finish = () => { if (!done) { done = true; emit(event) } }
+  cardRef.value?.addEventListener('transitionend', finish, { once: true })
+  setTimeout(finish, duration + 80)
 }
 defineExpose({ triggerExit })
 
@@ -227,6 +322,7 @@ const footerLocation = computed(() =>
 
 <template>
   <div
+    ref="cardRef"
     class="sc-card"
     :style="isTop ? cardStyle : {}"
     @pointerdown="onPointerDown"
@@ -348,14 +444,14 @@ const footerLocation = computed(() =>
     <!-- ── YEP / NOPE stamps (above scroll, fixed on card) ─── -->
     <Transition name="stamp">
       <div v-if="isTop && showYep" class="sc-stamp sc-stamp-yep"
-        :style="{ opacity: Math.min(dragProgress * 1.4, 1) }">
+        :style="{ opacity: Math.max(0, (dragProgress - 0.1) / 0.9) }">
         <span>ADD</span>
       </div>
     </Transition>
 
     <Transition name="stamp">
       <div v-if="isTop && showNope" class="sc-stamp sc-stamp-nope"
-        :style="{ opacity: Math.min(dragProgress * 1.4, 1) }">
+        :style="{ opacity: Math.max(0, (dragProgress - 0.1) / 0.9) }">
         <span>NOPE</span>
       </div>
     </Transition>

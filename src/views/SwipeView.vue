@@ -19,6 +19,14 @@ const topCardRef   = ref(null)
 
 const currentCard = computed(() => cards.value[currentIndex.value] ?? null)
 const nextCard    = computed(() => cards.value[currentIndex.value + 1] ?? null)
+
+// Deck breathing: back card follows the top card's drag progress linearly —
+// at progress 1 (exit) it sits at scale 1 / y 0, so the reveal never "pops".
+const topProgress = ref(0)
+const backCardStyle = computed(() => ({
+  transform: `scale(${0.94 + 0.06 * topProgress.value}) translateY(${14 * (1 - topProgress.value)}px)`,
+  opacity: 0.36 + 0.64 * topProgress.value,
+}))
 const isDeckEmpty = computed(() => !loading.value && currentIndex.value >= cards.value.length)
 const yepCount    = computed(() => store.swipedPlaces.length)
 const remaining   = computed(() => Math.max(0, cards.value.length - currentIndex.value - 1))
@@ -49,6 +57,7 @@ function handleSwipe(direction) {
     }
   }
   currentIndex.value++
+  topProgress.value = 0
 }
 
 function triggerButtonSwipe(dir) {
@@ -143,7 +152,7 @@ function bangkokFallback() {
 
         <!-- Card stack -->
         <div class="sw-stage">
-          <div v-if="nextCard" class="sw-card-back">
+          <div v-if="nextCard" class="sw-card-back" :style="backCardStyle">
             <SwipeCard :place="nextCard" />
           </div>
           <div v-if="currentCard" :key="currentCard.id" class="sw-card-top">
@@ -155,6 +164,7 @@ function bangkokFallback() {
               :remaining="remaining"
               @yep="handleSwipe('yep')"
               @nope="handleSwipe('nope')"
+              @drag-progress="topProgress = $event"
             />
           </div>
         </div>

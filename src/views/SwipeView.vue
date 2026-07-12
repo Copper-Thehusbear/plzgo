@@ -110,7 +110,7 @@ function bangkokFallback() {
                 :class="{ 'sw-seg--on': i <= yepCount }"
               />
             </div>
-            <span class="sw-count">
+            <span class="sw-count data-mono">
               <span class="sw-count-curr">{{ yepCount }}</span><span class="sw-count-sep">/</span>{{ store.modeConfig.yepCap }}
             </span>
           </div>
@@ -141,9 +141,9 @@ function bangkokFallback() {
       <!-- Empty deck -->
       <div v-else-if="isDeckEmpty" class="sw-state">
         <div class="sw-empty">
-          <p class="sw-empty-title">You've swiped through everything!</p>
-          <p class="sw-empty-sub">No worries — explore another vibe.</p>
-          <button class="btn-ios h-12 rounded-xl text-base shadow-lg mt-2" @click="$router.push('/plan')">Start over</button>
+          <p class="sw-empty-title display-cond">Last stop.</p>
+          <p class="sw-empty-sub">You've swiped through everything — try another line.</p>
+          <button class="btn-ios sw-empty-btn" @click="$router.push('/plan')">Start over</button>
         </div>
       </div>
 
@@ -169,12 +169,12 @@ function bangkokFallback() {
           </div>
         </div>
 
-        <!-- Actions -->
+        <!-- Actions: Skip stop (left) / Board (right) -->
         <div class="sw-actions">
           <button
             class="sw-action sw-action-pass"
             @click="triggerButtonSwipe('nope')"
-            aria-label="Pass"
+            aria-label="Skip stop"
           >
             <i class="fa-solid fa-xmark"></i>
           </button>
@@ -182,14 +182,14 @@ function bangkokFallback() {
           <button
             class="sw-action sw-action-add"
             @click="triggerButtonSwipe('yep')"
-            aria-label="Add to route"
+            aria-label="Board"
           >
-            <i class="fa-solid fa-heart"></i>
+            <i class="fa-solid fa-plus"></i>
           </button>
         </div>
 
         <!-- Hint text -->
-        <p class="sw-hint">
+        <p class="sw-hint data-mono">
           <span class="sw-hint-line">Swipe · drag to scroll · tap photo</span>
         </p>
 
@@ -199,38 +199,33 @@ function bangkokFallback() {
 </template>
 
 <style scoped>
-/* ─── Navy background (swipe screen only) ─── */
+/* ─── Tunnel mode: the swipe screen keeps a dark ink background ─── */
 .sw-navy {
-  background: var(--navy-swipe);
+  background: var(--ink);
 }
 
-/* ─── Nav (dark glass on navy) ───
-   Only recolour; blur/saturate stays owned by the global .glass-nav rule. */
+/* Nav — solid ink strip, hairline below. No blur, no transparency tricks. */
 .glass-nav {
-  background: color-mix(in srgb, var(--navy-swipe) 72%, transparent);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--ink);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 .sw-icon-btn {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   color: #fff;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: border-color 0.15s, transform 0.08s ease-out;
   flex-shrink: 0;
 }
-.sw-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-}
-.sw-icon-btn:active { transform: scale(0.94); }
+.sw-icon-btn:hover  { border-color: rgba(255, 255, 255, 0.6); }
+.sw-icon-btn:active { transform: translateY(1px); }
 .sw-icon-btn-placeholder {
   width: 38px;
   height: 38px;
@@ -255,17 +250,15 @@ function bangkokFallback() {
   transition: background 0.3s, transform 0.3s;
 }
 .sw-seg--on {
-  background: var(--orange);
+  background: var(--line-1);
   transform: scaleY(1.4);
 }
 .sw-count {
   font-size: 12px;
-  font-weight: 800;
   color: rgba(255, 255, 255, 0.55);
-  letter-spacing: 0.02em;
   white-space: nowrap;
 }
-.sw-count-curr { color: var(--orange); }
+.sw-count-curr { color: var(--line-1); }
 .sw-count-sep  { color: rgba(255, 255, 255, 0.3); margin: 0 1px; }
 
 .sw-route-btn {
@@ -277,25 +270,16 @@ function bangkokFallback() {
   border-radius: 999px;
   border: none;
   background: #fff;
-  color: var(--navy);
+  color: var(--ink);
   font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.25);
+  transition: transform 0.08s ease-out;
   flex-shrink: 0;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.sw-route-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
-}
-.sw-route-btn:active { transform: scale(0.96); }
+.sw-route-btn:active { transform: translateY(1px); }
 .sw-route-btn i { font-size: 11px; }
-.sw-route-label {
-  font-family: 'Inter', sans-serif;
-}
 @media (max-width: 380px) {
   .sw-route-label { display: none; }
   .sw-route-btn { padding: 0 12px; }
@@ -324,8 +308,8 @@ function bangkokFallback() {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 3px solid rgba(255, 140, 66, 0.18);
-  border-top-color: var(--orange);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--line-1);
   animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -335,29 +319,31 @@ function bangkokFallback() {
   margin: 0;
 }
 .sw-empty {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(255, 255, 255, 0.8);
-  border-radius: 28px;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
   padding: 36px 30px;
   text-align: center;
   max-width: 360px;
   width: 100%;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
 }
 .sw-empty-title {
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--navy);
-  letter-spacing: -0.01em;
+  font-size: 22px;
+  color: var(--ink);
   margin-bottom: 8px;
 }
 .sw-empty-sub {
   font-size: 14px;
-  color: rgba(30, 41, 59, 0.5);
+  color: var(--muted);
   line-height: 1.5;
   margin-bottom: 16px;
+}
+.sw-empty-btn {
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  margin-top: 8px;
 }
 
 /* ─── Swipe area ─── */
@@ -408,70 +394,43 @@ function bangkokFallback() {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s;
+  transition: transform 0.08s ease-out, border-color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .sw-action:active {
-  transform: scale(0.92);
+  transform: translateY(1px);
 }
 
-/* Pass — subtle, secondary */
+/* Skip stop — subtle, secondary */
 .sw-action-pass {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: #fff;
-  border: 1.5px solid rgba(30, 41, 59, 0.12);
-  color: rgba(30, 41, 59, 0.4);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 22px;
-  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.06);
 }
 .sw-action-pass:hover {
-  border-color: rgba(30, 41, 59, 0.25);
-  color: rgba(30, 41, 59, 0.7);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(30, 41, 59, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #fff;
 }
 
-/* Add — primary, orange filled w/ glow */
+/* Board — the ONE orange element in tunnel mode. Flat block, no glow. */
 .sw-action-add {
   width: 68px;
   height: 68px;
   border-radius: 50%;
-  background: var(--orange);
+  background: var(--line-1);
   color: white;
   font-size: 26px;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.25) inset,
-    0 8px 22px rgba(255, 140, 66, 0.5),
-    0 2px 6px rgba(255, 140, 66, 0.3);
-  position: relative;
 }
-.sw-action-add::before {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 140, 66, 0.25) 0%, transparent 70%);
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.sw-action-add:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.25) inset,
-    0 14px 30px rgba(255, 140, 66, 0.6),
-    0 4px 10px rgba(255, 140, 66, 0.35);
-}
-.sw-action-add:hover::before { opacity: 1; }
+.sw-action-add:hover { background: #F07E33; }
 
 /* ─── Hint ─── */
 .sw-hint {
   margin-top: 14px;
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.4);
   text-align: center;

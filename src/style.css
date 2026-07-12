@@ -3,14 +3,26 @@
 @tailwind utilities;
 
 /* ══════════════════════════════════
-   Design tokens
+   Design tokens — Transit Diagram (locked 2026-07)
+   The visual language is a transit map: continuous colored lines,
+   station dots, wayfinding labels, numbered stops. Every visual
+   element must encode real data — no decorative-only elements.
 ══════════════════════════════════ */
 :root {
-  --navy:        #1E293B; /* Midnight Blue — body text, headings, structural UI */
-  --navy-swipe:  #1B2B4B; /* Navy — SwipeView background only */
-  --orange:      #FF8C42; /* Vibrant Orange — CTA, one prominent element per screen */
-  --glass-bg:    rgba(255, 255, 255, 0.4);
-  --glass-border:rgba(255, 255, 255, 0.5);
+  --paper:    #F6F5F1;  /* page background (map paper) */
+  --ink:      #1C273D;  /* text, structure, header bars */
+  --line-1:   #FF8C42;  /* Day 1 + primary CTA */
+  --line-2:   #12796F;  /* Day 2 */
+  --line-3:   #C2497D;  /* Day 3 */
+  --signal:   #FFD235;  /* unmarked stop / golden pins */
+  --hairline: #DEDACF;  /* dividers, card borders */
+  --muted:    #6B7280;  /* secondary text */
+  --orange-text: #C2540A; /* orange TEXT on light bg (AA contrast) */
+
+  /* legacy aliases — old views still reference these; same family */
+  --navy:        var(--ink);
+  --navy-swipe:  #1C273D;
+  --orange:      var(--line-1);
 }
 
 *, *::before, *::after {
@@ -18,12 +30,12 @@
   box-sizing: border-box;
 }
 
-html { background: #FDFCF8; }
+html { background: var(--paper); }
 
 body {
-  font-family: 'IBM Plex Sans Thai', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #FDFCF8;
-  color: var(--navy);
+  font-family: 'IBM Plex Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
   margin: 0;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -32,243 +44,262 @@ body {
 
 #app { background: transparent; }
 
-/* ══════════════════════════════════
-   Animated mesh background
-══════════════════════════════════ */
-.liquid-bg {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%; z-index: -2;
-  background: linear-gradient(120deg, #e0e7ff 0%, #fde6d7 50%, #f5f3ff 100%);
-  filter: blur(80px);
-  animation: meshMove 20s ease infinite alternate;
-  pointer-events: none;
-}
-@keyframes meshMove {
-  0%   { transform: scale(1)   translate(0,   0); }
-  50%  { transform: scale(1.1) translate(-5%, 5%); }
-  100% { transform: scale(1)   translate(5%, -5%); }
-}
-.liquid-blob {
-  position: fixed;
-  width: 500px; height: 500px;
-  background: var(--navy);
-  filter: blur(120px); opacity: 0.08;
-  border-radius: 50%; top: -100px; right: -100px;
-  z-index: -1; pointer-events: none;
-}
-.bg-depth {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background-image: url('https://images.unsplash.com/photo-1563492065599-3520f775eeed?auto=format&fit=crop&q=80&w=1920');
-  background-size: cover;
-  background-position: center 30%;
-  opacity: 0.08;
-  mix-blend-mode: luminosity;
-  pointer-events: none;
-}
-
-/* ══════════════════════════════════
-   Glass utilities
-══════════════════════════════════ */
-.glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  border: 1.5px solid var(--glass-border);
-  border-radius: 32px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.04);
-}
-.glass-nav {
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(25px) saturate(180%);
-  -webkit-backdrop-filter: blur(25px) saturate(180%);
-  border-bottom: 1px solid rgba(255,255,255,0.4);
-}
-
-/* ══════════════════════════════════
-   iOS Button
-══════════════════════════════════ */
-.btn-ios {
-  background: var(--orange);
-  color: white;
-  transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  border: none;
-  font-family: 'IBM Plex Sans Thai', 'Inter', sans-serif;
+/* Typography roles */
+.display-cond {
+  font-family: 'IBM Plex Sans Condensed', 'IBM Plex Sans Thai', sans-serif;
   font-weight: 700;
 }
-.btn-ios:hover  { transform: scale(1.02) translateY(-2px); box-shadow: 0 15px 30px rgba(255,140,66,0.4); }
-.btn-ios:active { transform: scale(0.96); }
+/* Every data number (times, S1/S2 codes, distances, minutes, prices) is Mono —
+   this is the "timetable" smell of the whole system. */
+.data-mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 /* ══════════════════════════════════
-   Tab Bar
+   Cards & nav — flat map-paper surfaces
+   (class names kept from the old system so existing views keep working;
+   the look is fully replaced: no glass, no blur, no shadows)
+══════════════════════════════════ */
+.glass-panel {
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+}
+.glass-nav {
+  background: var(--paper);
+  border-bottom: 1px solid var(--hairline);
+}
+
+/* ══════════════════════════════════
+   Primary button — solid block, presses down 1px. No float, no glow.
+══════════════════════════════════ */
+.btn-ios {
+  background: var(--line-1);
+  color: white;
+  transition: transform 0.08s ease-out, background 0.15s ease-out;
+  position: relative;
+  cursor: pointer;
+  border: none;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-weight: 700;
+}
+.btn-ios:hover  { background: #F07E33; }
+.btn-ios:active { transform: translateY(1px); }
+
+/* ══════════════════════════════════
+   Tab bar — full-width signage strip pinned to the bottom edge.
+   Hairline on top. Never floats, never blurs.
 ══════════════════════════════════ */
 .tab-bar {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%);
-  padding: 8px; display: flex; gap: 8px; z-index: 100;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 6px 16px max(env(safe-area-inset-bottom), 6px);
+  display: flex; gap: 8px; justify-content: center;
+  z-index: 100;
+  background: var(--paper);
+  border-top: 1px solid var(--hairline);
 }
 .nav-icon {
-  width: 52px; height: 52px;
+  width: 52px; height: 44px;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 16px; transition: all 0.3s;
-  color: var(--navy); opacity: 0.6;
+  border-radius: 8px; transition: background 0.15s, color 0.15s;
+  color: var(--muted);
   text-decoration: none;
 }
-.nav-icon.active { background: var(--navy); color: white; opacity: 1; }
+.nav-icon.active { background: var(--ink); color: white; }
 
 /* ══════════════════════════════════
-   Vibe bento (desktop)
+   Vibe picker — "pick your line": flat white cells, hairline borders,
+   selected cell = solid ink block (like an active line badge)
 ══════════════════════════════════ */
 .vibe-bento { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
 .vibe-card {
-  background: rgba(255,255,255,0.35);
-  border: 1.5px solid rgba(255,255,255,0.55);
-  border-radius: 20px; padding: 14px 10px 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 14px 10px 12px;
   text-align: center; cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.175,0.885,0.32,1.275);
+  transition: border-color 0.15s, background 0.15s;
 }
-.vibe-card:hover { background: rgba(255,255,255,0.6); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(30,41,59,0.08); }
-.vibe-card.active { background: var(--orange); border-color: var(--orange); }
+.vibe-card:hover { border-color: var(--ink); }
+.vibe-card.active { background: var(--ink); border-color: var(--ink); }
 .vibe-card.active .vibe-icon,
 .vibe-card.active .vibe-name { color: white; }
-.vibe-card.active .vibe-desc { color: rgba(255,255,255,0.75); }
-.vibe-icon { font-size: 22px; color: var(--navy); margin-bottom: 6px; display: block; }
-.vibe-name { font-size: 12px; font-weight: 700; color: var(--navy); display: block; }
-.vibe-desc { font-size: 9.5px; color: rgba(30,41,59,0.45); margin-top: 3px; line-height: 1.35; display: block; }
+.vibe-card.active .vibe-desc { color: rgba(255,255,255,0.7); }
+.vibe-icon { font-size: 22px; color: var(--ink); margin-bottom: 6px; display: block; }
+.vibe-name { font-size: 12px; font-weight: 700; color: var(--ink); display: block; }
+.vibe-desc { font-size: 9.5px; color: var(--muted); margin-top: 3px; line-height: 1.35; display: block; }
 
 /* ══════════════════════════════════
-   Date inputs (desktop)
+   Date inputs
 ══════════════════════════════════ */
 .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .date-field {
-  background: rgba(255,255,255,0.45);
-  border: 1.5px solid rgba(255,255,255,0.65);
-  border-radius: 18px; padding: 12px 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 12px 14px;
   display: flex; flex-direction: column; gap: 4px;
-  cursor: pointer; transition: background 0.2s;
+  cursor: pointer; transition: border-color 0.15s;
 }
-.date-field:hover { background: rgba(255,255,255,0.65); }
+.date-field:hover { border-color: var(--ink); }
 .date-field label {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.08em; color: rgba(30,41,59,0.45); cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 500; text-transform: uppercase;
+  color: var(--muted); cursor: pointer;
 }
 .date-field input[type="date"] {
   background: transparent; border: none; outline: none;
-  font-size: 13px; font-weight: 600; color: var(--navy);
-  font-family: 'IBM Plex Sans Thai','Inter',sans-serif;
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  font-family: 'IBM Plex Mono', monospace;
   cursor: pointer; width: 100%;
 }
 .date-field input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.4; cursor: pointer; }
 
 /* ══════════════════════════════════
-   Trip summary pill
+   Trip summary strip
 ══════════════════════════════════ */
 .trip-summary {
   display: flex; align-items: center; justify-content: space-between;
-  background: rgba(30,41,59,0.06);
-  border-radius: 14px; padding: 10px 14px;
-  font-size: 12px; color: rgba(30,41,59,0.6);
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 12px; color: var(--muted);
 }
-.trip-summary strong { color: var(--navy); font-weight: 700; }
-.trip-summary .highlight { color: var(--orange); font-weight: 700; }
+.trip-summary strong { color: var(--ink); font-weight: 700; }
+.trip-summary .highlight { color: var(--orange-text); font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
 
 /* ══════════════════════════════════
    Flight field
 ══════════════════════════════════ */
 .flight-field {
-  background: rgba(255,255,255,0.35);
-  border: 1.5px solid rgba(255,255,255,0.5);
-  border-radius: 18px; padding: 12px 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 12px 14px;
   display: flex; align-items: center; gap: 10px;
-  transition: background 0.2s;
+  transition: border-color 0.15s;
 }
-.flight-field:focus-within { background: rgba(255,255,255,0.6); border-color: var(--orange); }
-.flight-field i { color: rgba(30,41,59,0.35); font-size: 14px; flex-shrink: 0; }
+.flight-field:focus-within { border-color: var(--ink); }
+.flight-field i { color: var(--muted); font-size: 14px; flex-shrink: 0; }
 .flight-field input {
   background: transparent; border: none; outline: none;
-  font-size: 13px; font-weight: 600; color: var(--navy);
-  font-family: 'IBM Plex Sans Thai','Inter',sans-serif; width: 100%;
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  font-family: 'IBM Plex Sans Thai', sans-serif; width: 100%;
 }
-.flight-field input::placeholder { color: rgba(30,41,59,0.3); font-weight: 400; }
+.flight-field input::placeholder { color: var(--muted); font-weight: 400; opacity: 0.6; }
 
 /* ══════════════════════════════════
    Flight reminder
 ══════════════════════════════════ */
 .flight-reminder {
   display: none;
-  background: rgba(255,140,66,0.12);
-  border: 1.5px solid rgba(255,140,66,0.35);
-  border-radius: 14px; padding: 10px 14px;
-  font-size: 12px; color: #b36020;
+  background: #FFFFFF;
+  border: 1px dashed var(--line-1);
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 12px; color: var(--orange-text);
   align-items: center; gap: 8px;
 }
 .flight-reminder.show { display: flex; }
 
 /* ══════════════════════════════════
-   Timeline (right col / ResultView)
+   Station rows (timeline) — a dot ON the line, mono time, name, insight
 ══════════════════════════════════ */
 .tl-item { display: grid; grid-template-columns: 58px 20px 1fr; gap: 0 12px; }
-.tl-time { text-align: right; padding-top: 2px; font-size: 10.5px; font-weight: 600; color: rgba(30,41,59,0.38); letter-spacing: 0.02em; white-space: nowrap; }
+.tl-time {
+  text-align: right; padding-top: 2px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px; font-weight: 500; color: var(--muted);
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}
 .tl-dot-col { display: flex; flex-direction: column; align-items: center; }
-.tl-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--orange); border: 2px solid white; box-shadow: 0 0 0 2px var(--orange); flex-shrink: 0; margin-top: 3px; z-index: 1; }
-.tl-dot.dim { background: rgba(255,255,255,0.8); border: 2px solid rgba(30,41,59,0.15); box-shadow: 0 0 0 2px rgba(30,41,59,0.1); }
-.tl-line { width: 1.5px; flex: 1; background: rgba(30,41,59,0.1); margin: 4px 0; }
+.tl-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #fff; border: 3px solid var(--line-1);
+  flex-shrink: 0; margin-top: 3px; z-index: 1;
+}
+.tl-dot.dim { background: #fff; border: 2px solid var(--hairline); }
+.tl-line { width: 3px; flex: 1; background: var(--line-1); margin: 0; }
+.tl-line.dim { background: var(--hairline); width: 1.5px; }
 .tl-body { padding-bottom: 20px; }
-.tl-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 9px; border-radius: 99px; margin-bottom: 5px; }
-.badge-coffee { background: rgba(255,140,66,0.15); color: #c86a20; }
-.badge-spot   { background: rgba(30,41,59,0.08);   color: rgba(30,41,59,0.6); }
-.badge-food   { background: rgba(20,130,80,0.08);  color: #0f6e4a; }
-.badge-night  { background: rgba(60,30,90,0.08);   color: #4a3a6a; }
-.tl-name    { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
-.tl-insight { font-size: 12px; color: rgba(30,41,59,0.52); line-height: 1.6; margin-bottom: 6px; }
-.tl-meta    { display: flex; gap: 10px; font-size: 11px; color: rgba(30,41,59,0.42); flex-wrap: wrap; }
+.tl-badge {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 500; padding: 2px 8px;
+  border-radius: 999px; /* pill = station-code badge */
+  margin-bottom: 5px;
+  border: 1px solid var(--hairline); color: var(--muted); background: #fff;
+}
+.badge-coffee { border-color: rgba(255,140,66,0.5); color: var(--orange-text); }
+.badge-spot   { }
+.badge-food   { border-color: rgba(18,121,111,0.5); color: #0E5F57; }
+.badge-night  { border-color: rgba(194,73,125,0.5); color: #A33966; }
+.tl-name    { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.tl-insight { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 6px; }
+.tl-meta    { display: flex; gap: 10px; font-size: 11px; color: var(--muted); flex-wrap: wrap; }
 .tl-meta i  { margin-right: 3px; font-size: 10px; }
-.tl-transit { display: inline-flex; align-items: center; gap: 6px; background: rgba(26,95,170,0.07); border-radius: 10px; padding: 6px 11px; font-size: 11px; color: #1a5faa; margin: 2px 0; }
+.tl-transit {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fff; border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 6px 11px;
+  font-size: 11px; color: var(--ink); margin: 2px 0;
+}
+.tl-transit i { color: var(--line-2); }
 
 /* ══════════════════════════════════
-   Itinerary card (Basecamp)
+   Itinerary card
 ══════════════════════════════════ */
-.itinerary-card { transition: transform 0.3s ease; }
-.itinerary-card:hover { transform: scale(1.01); }
+.itinerary-card { transition: border-color 0.15s; }
+.itinerary-card:hover { border-color: var(--ink); }
 
 /* ══════════════════════════════════
    Mobile: vibe bento
 ══════════════════════════════════ */
 .m-vibe-bento { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
 .m-vibe-card {
-  background: rgba(255,255,255,0.45);
-  border: 1.5px solid rgba(255,255,255,0.7);
-  border-radius: 18px; padding: 12px 8px 10px;
-  text-align: center; cursor: pointer; transition: all 0.2s;
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 12px 8px 10px;
+  text-align: center; cursor: pointer; transition: border-color 0.15s;
 }
-.m-vibe-card:active { transform: scale(0.96); }
-.m-vibe-card.active { background: var(--orange); border-color: var(--orange); }
+.m-vibe-card:active { border-color: var(--ink); }
+.m-vibe-card.active { background: var(--ink); border-color: var(--ink); }
 .m-vibe-card.active .m-vibe-icon,
 .m-vibe-card.active .m-vibe-name { color: white; }
-.m-vibe-card.active .m-vibe-desc { color: rgba(255,255,255,0.75); }
-.m-vibe-icon { font-size: 20px; color: var(--navy); margin-bottom: 5px; display: block; }
-.m-vibe-name { font-size: 11px; font-weight: 700; color: var(--navy); display: block; }
-.m-vibe-desc { font-size: 9px; color: rgba(30,41,59,0.45); margin-top: 2px; line-height: 1.3; display: block; }
+.m-vibe-card.active .m-vibe-desc { color: rgba(255,255,255,0.7); }
+.m-vibe-icon { font-size: 20px; color: var(--ink); margin-bottom: 5px; display: block; }
+.m-vibe-name { font-size: 11px; font-weight: 700; color: var(--ink); display: block; }
+.m-vibe-desc { font-size: 9px; color: var(--muted); margin-top: 2px; line-height: 1.3; display: block; }
 
 /* ══════════════════════════════════
    Mobile: date fields
 ══════════════════════════════════ */
 .m-date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .m-date-field {
-  background: rgba(255,255,255,0.55);
-  border: 1.5px solid rgba(255,255,255,0.75);
-  border-radius: 16px; padding: 12px 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 12px 14px;
   display: flex; flex-direction: column; gap: 3px;
 }
-.m-date-field label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(30,41,59,0.4); }
+.m-date-field label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 500; text-transform: uppercase; color: var(--muted);
+}
 .m-date-field input[type="date"] {
   background: transparent; border: none; outline: none;
-  font-size: 13px; font-weight: 600; color: var(--navy);
-  font-family: 'IBM Plex Sans Thai','Inter',sans-serif; width: 100%;
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  font-family: 'IBM Plex Mono', monospace; width: 100%;
 }
 .m-date-field input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.4; }
 
@@ -276,42 +307,43 @@ body {
    Mobile: trip summary
 ══════════════════════════════════ */
 .m-trip-summary {
-  background: rgba(30,41,59,0.05);
-  border-radius: 14px; padding: 10px 14px;
-  font-size: 12px; color: rgba(30,41,59,0.6);
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 12px; color: var(--muted);
   display: flex; justify-content: space-between; align-items: center;
 }
-.m-trip-summary strong { color: var(--navy); }
-.m-trip-summary .hl { color: var(--orange); font-weight: 700; }
+.m-trip-summary strong { color: var(--ink); }
+.m-trip-summary .hl { color: var(--orange-text); font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
 
 /* ══════════════════════════════════
    Mobile: flight field
 ══════════════════════════════════ */
 .m-flight-field {
-  background: rgba(255,255,255,0.45);
-  border: 1.5px solid rgba(255,255,255,0.65);
-  border-radius: 16px; padding: 12px 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: 8px; padding: 12px 14px;
   display: flex; align-items: center; gap: 10px;
 }
-.m-flight-field:focus-within { background: rgba(255,255,255,0.7); border-color: var(--orange); }
-.m-flight-field i { color: rgba(30,41,59,0.35); font-size: 14px; }
+.m-flight-field:focus-within { border-color: var(--ink); }
+.m-flight-field i { color: var(--muted); font-size: 14px; }
 .m-flight-field input {
   background: transparent; border: none; outline: none;
-  font-size: 13px; font-weight: 600; color: var(--navy);
-  font-family: 'IBM Plex Sans Thai','Inter',sans-serif; width: 100%;
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  font-family: 'IBM Plex Sans Thai', sans-serif; width: 100%;
 }
-.m-flight-field input::placeholder { color: rgba(30,41,59,0.3); font-weight: 400; }
+.m-flight-field input::placeholder { color: var(--muted); font-weight: 400; opacity: 0.6; }
 
 /* ══════════════════════════════════
    Mobile: back button
 ══════════════════════════════════ */
 .m-back-btn {
-  background: rgba(255,255,255,0.5);
-  border: 1.5px solid rgba(255,255,255,0.7);
-  border-radius: 99px; padding: 8px 16px;
-  font-size: 13px; font-weight: 600; color: var(--navy);
+  background: #FFFFFF;
+  border: 1px solid var(--hairline);
+  border-radius: 999px; padding: 8px 16px;
+  font-size: 13px; font-weight: 600; color: var(--ink);
   cursor: pointer; display: flex; align-items: center; gap: 6px;
-  font-family: 'IBM Plex Sans Thai','Inter',sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
   text-decoration: none;
 }
 
@@ -319,10 +351,22 @@ body {
    Mobile layout helpers
 ══════════════════════════════════ */
 .m-header { padding: 24px 20px 8px; }
-.m-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--orange); margin-bottom: 6px; }
-.m-title { font-size: 28px; font-weight: 700; color: var(--navy); line-height: 1.2; }
+/* Wayfinding label: short mono sign, like "LAST STOP" on a platform board */
+.m-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 500; text-transform: uppercase;
+  color: var(--orange-text); margin-bottom: 6px;
+}
+.m-title {
+  font-family: 'IBM Plex Sans Condensed', 'IBM Plex Sans Thai', sans-serif;
+  font-size: 30px; font-weight: 700; color: var(--ink); line-height: 1.15;
+}
 .m-body { flex: 1; padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
-.m-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(30,41,59,0.4); margin-bottom: 10px; }
+.m-section-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 500; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+}
 .m-footer { padding: 16px 20px; padding-bottom: max(env(safe-area-inset-bottom), 28px); }
 
 /* ══════════════════════════════════
@@ -335,35 +379,72 @@ body {
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 
 /* ══════════════════════════════════
-   Leaflet popup overrides
+   Leaflet — station markers, flat popups, route lines
 ══════════════════════════════════ */
 .plzgo-popup .leaflet-popup-content-wrapper {
-  background: #fff; border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18); padding: 0;
+  background: #fff; border-radius: 8px;
+  border: 1px solid var(--hairline);
+  box-shadow: none; padding: 0;
 }
 .plzgo-popup .leaflet-popup-content { margin: 0; }
-.plzgo-popup .leaflet-popup-tip { background: #fff; }
-.plzgo-popup-inner { padding: 14px 16px 12px; font-family: 'IBM Plex Sans Thai','Inter',sans-serif; }
-.plzgo-popup-name { font-size: 13px; font-weight: 700; color: var(--navy); margin: 0 0 5px; line-height: 1.3; }
-.plzgo-popup-desc { font-size: 11px; color: #64748B; margin: 0 0 11px; line-height: 1.45; }
-.plzgo-popup-cta  { display: inline-block; padding: 7px 16px; background: var(--orange); color: #fff; border-radius: 999px; font-size: 12px; font-weight: 600; text-decoration: none; transition: opacity 0.15s; border: none; cursor: pointer; font-family: 'IBM Plex Sans Thai','Inter',sans-serif; }
-.plzgo-popup-cta:hover { opacity: 0.85; }
+.plzgo-popup .leaflet-popup-tip { background: #fff; border: 1px solid var(--hairline); }
+.plzgo-popup-inner { padding: 14px 16px 12px; font-family: 'IBM Plex Sans Thai', sans-serif; }
+.plzgo-popup-name { font-size: 13px; font-weight: 700; color: var(--ink); margin: 0 0 5px; line-height: 1.3; }
+.plzgo-popup-desc { font-size: 11px; color: var(--muted); margin: 0 0 11px; line-height: 1.45; }
+.plzgo-popup-cta  {
+  display: inline-block; padding: 7px 16px;
+  background: var(--line-1); color: #fff;
+  border-radius: 999px; font-size: 12px; font-weight: 600;
+  text-decoration: none; border: none; cursor: pointer;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  transition: transform 0.08s ease-out;
+}
+.plzgo-popup-cta:active { transform: translateY(1px); }
+
+/* Station circle marker: white core + colored ring (per-day line color set inline) */
+.plzgo-station {
+  border-radius: 50%;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500; color: var(--ink);
+}
 
 .plzgo-golden-pin {
-  width: 32px; height: 32px;
-  background: #FFD235;
+  width: 30px; height: 30px;
+  background: var(--signal);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; color: #B45309;
-  box-shadow: 0 2px 10px rgba(255,210,53,0.5);
-  border: 2px solid #fff;
+  font-size: 13px; color: var(--ink);
+  border: 2px solid var(--ink);
+}
+/* the only pulse allowed in the system */
+@keyframes signalPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,210,53,0.55); }
+  50%      { box-shadow: 0 0 0 8px rgba(255,210,53,0); }
+}
+.plzgo-golden-pin { animation: signalPulse 2s ease-in-out infinite; }
+
+/* Signature motion: the route line draws itself when the itinerary loads.
+   MapCanvas adds .plzgo-route-draw to each day polyline. */
+.plzgo-route-draw {
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  animation: routeDraw 0.7s ease-out forwards;
+}
+@keyframes routeDraw {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plzgo-route-draw { stroke-dasharray: none; stroke-dashoffset: 0; animation: none; }
+  .plzgo-golden-pin { animation: none; }
 }
 
 /* ══════════════════════════════════
-   Page transitions
+   Page transitions — instant state changes; a short slide only
 ══════════════════════════════════ */
 .slide-up-enter-active, .slide-up-leave-active {
-  transition: transform 0.32s cubic-bezier(0.32,0.72,0,1), opacity 0.25s ease;
+  transition: transform 0.22s ease-out, opacity 0.18s ease;
 }
-.slide-up-enter-from { transform: translateY(28px); opacity: 0; }
-.slide-up-leave-to   { transform: translateY(-16px); opacity: 0; }
+.slide-up-enter-from { transform: translateY(16px); opacity: 0; }
+.slide-up-leave-to   { opacity: 0; }

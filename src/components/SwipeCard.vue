@@ -298,23 +298,6 @@ const transit = computed(() => {
   return { station, note }
 })
 
-const VIBE_STYLES = {
-  foodie:    { bg: 'rgba(251,191,36,0.12)',  border: 'rgba(251,191,36,0.35)',  color: '#B45309' },
-  chill:     { bg: 'rgba(20,184,166,0.12)',  border: 'rgba(20,184,166,0.35)',  color: '#0F766E' },
-  photo:     { bg: 'rgba(167,139,250,0.12)', border: 'rgba(167,139,250,0.35)', color: '#7C3AED' },
-  spiritual: { bg: 'rgba(244,114,182,0.12)', border: 'rgba(244,114,182,0.35)', color: '#BE185D' },
-  party:     { bg: 'rgba(251,113,133,0.12)', border: 'rgba(251,113,133,0.35)', color: '#BE123C' },
-  luxury:    { bg: 'rgba(251,191,36,0.12)',  border: 'rgba(251,191,36,0.35)',  color: '#B45309' },
-  'gay-vibe':{ bg: 'rgba(244,114,182,0.12)', border: 'rgba(244,114,182,0.35)', color: '#BE185D' },
-  wellness:  { bg: 'rgba(244,114,182,0.12)', border: 'rgba(244,114,182,0.35)', color: '#BE185D' },
-  budget:    { bg: 'rgba(74,222,128,0.12)',  border: 'rgba(74,222,128,0.35)',  color: '#15803D' },
-  shopping:  { bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.35)',  color: '#2563EB' },
-  adventure: { bg: 'rgba(251,146,60,0.12)',  border: 'rgba(251,146,60,0.35)',  color: '#C2410C' },
-  local:     { bg: 'rgba(30,41,59,0.06)',    border: 'rgba(30,41,59,0.15)',    color: 'rgba(30,41,59,0.6)' },
-}
-const DEFAULT_VIBE = { bg: 'rgba(30,41,59,0.06)', border: 'rgba(30,41,59,0.15)', color: 'rgba(30,41,59,0.5)' }
-function vibeStyle(tag) { return VIBE_STYLES[tag] ?? DEFAULT_VIBE }
-
 const footerLocation = computed(() =>
   [props.place.zone_en || props.place.zone, props.place.city].filter(Boolean).join(' · ')
 )
@@ -354,21 +337,18 @@ const footerLocation = computed(() =>
           <span class="sc-placeholder-label">{{ place.type || 'place' }}</span>
         </div>
 
-        <!-- gradient overlay -->
-        <div class="sc-image-gradient" />
-
         <!-- top-left: time tag -->
         <div class="sc-badges-tl">
-          <span class="sc-badge sc-badge-dark">{{ place.time_tag || place.match_time_of_day }}</span>
+          <span class="sc-badge sc-badge-dark data-mono">{{ place.time_tag || place.match_time_of_day }}</span>
         </div>
 
         <!-- top-right: counter + must-see -->
         <div class="sc-badges-tr">
-          <span v-if="images.length > 1" class="sc-badge sc-badge-dark">
-            {{ imgIndex + 1 }} / {{ images.length }}
+          <span v-if="images.length > 1" class="sc-badge sc-badge-dark data-mono">
+            {{ imgIndex + 1 }}/{{ images.length }}
           </span>
-          <span v-if="place.is_universal" class="sc-badge sc-badge-mustsee">Must-see</span>
-          <span v-else-if="place.is_hidden_gem" class="sc-badge sc-badge-gem">Hidden gem</span>
+          <span v-if="place.is_universal" class="sc-badge sc-badge-mustsee data-mono">Must-see</span>
+          <span v-else-if="place.is_hidden_gem" class="sc-badge sc-badge-gem data-mono">Hidden gem</span>
         </div>
 
         <!-- image progress dots -->
@@ -377,7 +357,7 @@ const footerLocation = computed(() =>
         </div>
 
         <!-- Scroll hint (only visible on tall photo) -->
-        <div class="sc-scroll-hint">
+        <div class="sc-scroll-hint data-mono">
           <i class="fa-solid fa-chevron-up"></i>
           <span>Scroll for more</span>
         </div>
@@ -387,17 +367,17 @@ const footerLocation = computed(() =>
       <div class="sc-info">
         <!-- Title block -->
         <div class="sc-title-block">
-          <h2 class="sc-name">{{ displayName }}</h2>
+          <h2 class="sc-name display-cond">{{ displayName }}</h2>
           <p v-if="subName" class="sc-sub">{{ subName }}</p>
         </div>
 
-        <!-- Meta pills -->
+        <!-- Meta pills — ticket data row, all Mono -->
         <div class="sc-meta-row">
-          <span v-if="displayPrice"    class="sc-pill sc-pill-gold">{{ displayPrice }}</span>
-          <span v-if="displayDuration" class="sc-pill sc-pill-dark">
+          <span v-if="displayPrice"    class="sc-pill sc-pill-gold data-mono">{{ displayPrice }}</span>
+          <span v-if="displayDuration" class="sc-pill sc-pill-dark data-mono">
             <i class="fa-regular fa-clock"></i> {{ displayDuration }}
           </span>
-          <span v-if="displayHours"    class="sc-pill sc-pill-dark">
+          <span v-if="displayHours"    class="sc-pill sc-pill-dark data-mono">
             {{ displayHours }}
           </span>
         </div>
@@ -410,8 +390,7 @@ const footerLocation = computed(() =>
           <span
             v-for="tag in place.vibe_tags"
             :key="tag"
-            class="sc-vibe-tag"
-            :style="{ background: vibeStyle(tag).bg, borderColor: vibeStyle(tag).border, color: vibeStyle(tag).color }"
+            class="sc-vibe-tag data-mono"
           >{{ tag }}</span>
         </div>
 
@@ -441,33 +420,32 @@ const footerLocation = computed(() =>
       </div>
     </div>
 
-    <!-- ── YEP / NOPE stamps (above scroll, fixed on card) ─── -->
+    <!-- ── BOARD / SKIP stamps (above scroll, fixed on card) ─── -->
     <Transition name="stamp">
-      <div v-if="isTop && showYep" class="sc-stamp sc-stamp-yep"
+      <div v-if="isTop && showYep" class="sc-stamp sc-stamp-yep data-mono"
         :style="{ opacity: Math.max(0, (dragProgress - 0.1) / 0.9) }">
-        <span>ADD</span>
+        <span>BOARD</span>
       </div>
     </Transition>
 
     <Transition name="stamp">
-      <div v-if="isTop && showNope" class="sc-stamp sc-stamp-nope"
+      <div v-if="isTop && showNope" class="sc-stamp sc-stamp-nope data-mono"
         :style="{ opacity: Math.max(0, (dragProgress - 0.1) / 0.9) }">
-        <span>NOPE</span>
+        <span>SKIP</span>
       </div>
     </Transition>
   </div>
 </template>
 
 <style scoped>
-/* ─── Card shell ─── */
+/* ─── Card shell — a ticket: sharp edges, flat, hairline border ─── */
 .sc-card {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 28px;
+  border-radius: 8px;
   background: #fff;
-  box-shadow: 0 20px 60px rgba(30, 41, 59, 0.18), 0 4px 16px rgba(30, 41, 59, 0.10);
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--hairline);
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
@@ -496,7 +474,8 @@ const footerLocation = computed(() =>
   aspect-ratio: 4 / 3;
   flex-shrink: 0;
   overflow: hidden;
-  background: linear-gradient(145deg, #1C1C1E 0%, #242426 60%, #1a1a1c 100%);
+  background: var(--ink);
+  border-bottom: 1px solid var(--hairline);
 }
 .sc-image {
   width: 100%;
@@ -511,21 +490,15 @@ const footerLocation = computed(() =>
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  opacity: 0.15;
+  opacity: 0.25;
 }
 .sc-placeholder-label {
   margin-top: 10px;
+  font-family: 'IBM Plex Mono', monospace;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
   color: rgba(255, 255, 255, 0.6);
-}
-.sc-image-gradient {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 35%, transparent 70%, rgba(0,0,0,0.2) 100%);
 }
 
 /* Badges */
@@ -547,33 +520,28 @@ const footerLocation = computed(() =>
   gap: 6px;
   pointer-events: none;
 }
+/* Badges — solid signage plates. No blur, no transparency. */
 .sc-badge {
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
   padding: 5px 11px;
-  border-radius: 9999px;
+  border-radius: 999px;
   white-space: nowrap;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  text-transform: uppercase;
 }
 .sc-badge-dark {
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.95);
-  text-transform: uppercase;
+  background: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
 }
 .sc-badge-mustsee {
-  background: rgba(52, 199, 89, 0.18);
-  border: 1px solid rgba(52, 199, 89, 0.5);
-  color: #1B9C45;
-  text-transform: uppercase;
+  background: var(--signal);
+  border: 1px solid var(--ink);
+  color: var(--ink);
 }
 .sc-badge-gem {
-  background: rgba(167, 139, 250, 0.18);
-  border: 1px solid rgba(167, 139, 250, 0.5);
-  color: #7C3AED;
-  text-transform: uppercase;
+  background: #fff;
+  border: 1px dashed var(--signal);
+  color: var(--ink);
 }
 
 .sc-image-progress {
@@ -596,29 +564,23 @@ const footerLocation = computed(() =>
 
 .sc-scroll-hint {
   position: absolute;
-  bottom: 22px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  gap: 3px;
-  color: rgba(255, 255, 255, 0.75);
+  gap: 6px;
+  color: #fff;
+  background: var(--ink);
+  padding: 4px 10px;
+  border-radius: 999px;
   font-size: 9px;
-  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
   z-index: 2;
   pointer-events: none;
-  animation: hint-bob 2.6s ease-in-out infinite;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 .sc-scroll-hint i {
-  font-size: 10px;
-}
-@keyframes hint-bob {
-  0%, 100% { transform: translate(-50%, 0); opacity: 0.85; }
-  50%      { transform: translate(-50%, -4px); opacity: 1; }
+  font-size: 9px;
 }
 
 /* ─── Info area ─── */
@@ -635,21 +597,18 @@ const footerLocation = computed(() =>
   gap: 2px;
 }
 .sc-name {
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--navy);
-  letter-spacing: -0.015em;
-  line-height: 1.18;
+  font-size: 23px;
+  color: var(--ink);
+  line-height: 1.15;
 }
 .sc-sub {
   font-size: 12px;
-  color: rgba(30, 41, 59, 0.42);
-  letter-spacing: 0.01em;
+  color: var(--muted);
   line-height: 1.3;
   margin-top: 2px;
 }
 
-/* Meta pills row */
+/* Meta pills row — ticket data */
 .sc-meta-row {
   display: flex;
   flex-wrap: wrap;
@@ -661,21 +620,20 @@ const footerLocation = computed(() =>
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  font-weight: 700;
   padding: 5px 11px;
-  border-radius: 9999px;
+  border-radius: 999px;
   white-space: nowrap;
+  background: #fff;
 }
 .sc-pill i { font-size: 10px; opacity: 0.8; }
-.sc-pill-gold { background: rgba(255, 140, 66, 0.13); color: #C2610A; }
-.sc-pill-dark { background: rgba(30, 41, 59, 0.06); color: rgba(30, 41, 59, 0.6); }
+.sc-pill-gold { border: 1px solid var(--line-1); color: var(--orange-text); }
+.sc-pill-dark { border: 1px solid var(--hairline); color: var(--muted); }
 
 /* Description — full text, scrollable */
 .sc-desc {
   font-size: 13.5px;
-  color: rgba(30, 41, 59, 0.75);
+  color: var(--ink);
   line-height: 1.62;
-  letter-spacing: 0.005em;
 }
 
 /* Vibe tags */
@@ -686,19 +644,18 @@ const footerLocation = computed(() =>
 }
 .sc-vibe-tag {
   font-size: 9.5px;
-  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
   padding: 4px 10px;
-  border-radius: 9999px;
-  border-width: 1px;
-  border-style: solid;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+  background: #fff;
 }
 
-/* Divider */
+/* Divider — ticket tear line */
 .sc-divider {
-  height: 1px;
-  background: rgba(30, 41, 59, 0.07);
+  height: 0;
+  border-top: 1px dashed var(--hairline);
   margin: 4px 0;
 }
 
@@ -713,51 +670,47 @@ const footerLocation = computed(() =>
   align-items: flex-start;
   gap: 10px;
   font-size: 12.5px;
-  color: rgba(30, 41, 59, 0.7);
+  color: var(--ink);
   line-height: 1.4;
   font-weight: 500;
 }
 .sc-detail i {
   font-size: 12px;
-  color: var(--orange);
+  color: var(--muted);
   margin-top: 2px;
   flex-shrink: 0;
   width: 14px;
   text-align: center;
 }
+.sc-detail i.fa-train-subway { color: var(--line-2); }
 
 .sc-bottom-spacer { height: 32px; }
 
-/* ─── Stamps (above scroll content) ─── */
+/* ─── Stamps — station-sign plates in system colors ─── */
 .sc-stamp {
   position: absolute;
   top: 60px;
   z-index: 30;
   pointer-events: none;
   padding: 8px 18px;
-  border-radius: 12px;
+  border-radius: 8px;
   border: 3px solid;
+  background: rgba(255, 255, 255, 0.92);
   font-size: 22px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
 }
 .sc-stamp-yep {
   left: 18px;
-  border-color: var(--orange);
-  color: var(--orange);
-  background: rgba(255, 140, 66, 0.12);
+  border-color: var(--line-2);
+  color: var(--line-2);
   transform: rotate(-15deg);
   transform-origin: left center;
-  text-shadow: 0 0 18px rgba(255, 140, 66, 0.5);
 }
 .sc-stamp-nope {
   right: 18px;
-  border-color: #FF3B30;
-  color: #FF3B30;
-  background: rgba(255, 59, 48, 0.08);
+  border-color: var(--ink);
+  color: var(--ink);
   transform: rotate(15deg);
   transform-origin: right center;
-  text-shadow: 0 0 18px rgba(255, 59, 48, 0.5);
 }
 
 .stamp-enter-active, .stamp-leave-active { transition: opacity 0.1s ease; }

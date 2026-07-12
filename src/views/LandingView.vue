@@ -69,17 +69,18 @@ const features = [
   { icon: 'fa-gem', label: 'Hidden gems near your itinerary' },
 ]
 
+// Chip dot colors — system tokens only (line-1/2/3, signal, ink)
 const typeConfig = {
-  food:       { icon: 'fa-bowl-rice',    color: '#FF8C42', bg: 'rgba(255,140,66,0.1)' },
-  attraction: { icon: 'fa-camera',       color: '#6B8CBA', bg: 'rgba(107,140,186,0.1)' },
-  nightlife:  { icon: 'fa-music',        color: '#9B7FD4', bg: 'rgba(155,127,212,0.1)' },
-  market:     { icon: 'fa-store',        color: '#5BAD8F', bg: 'rgba(91,173,143,0.1)' },
-  wellness:   { icon: 'fa-spa',          color: '#7BBFBF', bg: 'rgba(123,191,191,0.1)' },
-  shopping:   { icon: 'fa-bag-shopping', color: '#E86B8B', bg: 'rgba(232,107,139,0.1)' },
-  area:       { icon: 'fa-map-pin',      color: '#9BA8C4', bg: 'rgba(155,168,196,0.1)' },
+  food:       { icon: 'fa-bowl-rice',    color: '#FF8C42' },
+  attraction: { icon: 'fa-camera',       color: '#12796F' },
+  nightlife:  { icon: 'fa-music',        color: '#C2497D' },
+  market:     { icon: 'fa-store',        color: '#FFD235' },
+  wellness:   { icon: 'fa-spa',          color: '#12796F' },
+  shopping:   { icon: 'fa-bag-shopping', color: '#C2497D' },
+  area:       { icon: 'fa-map-pin',      color: '#1C273D' },
 }
 
-const defaultType = { icon: 'fa-location-dot', color: '#FF8C42', bg: 'rgba(255,140,66,0.1)' }
+const defaultType = { icon: 'fa-location-dot', color: '#FF8C42' }
 
 const marqueeRow1 = ref([])
 const marqueeRow2 = ref([])
@@ -124,8 +125,8 @@ onUnmounted(() => {
     <nav class="glass-nav fixed top-0 left-0 right-0 z-50 h-16"
       style="padding-top: max(env(safe-area-inset-top), 0px);">
       <div class="max-w-7xl mx-auto h-full px-4 md:px-6 lg:px-8 flex items-center justify-between gap-6">
-        <span class="text-2xl font-black tracking-tighter flex-shrink-0 flex items-center" style="color:var(--navy)">
-          plz<span style="color:var(--orange)">go</span><span class="logo-dot"></span>
+        <span class="text-2xl display-cond flex-shrink-0 flex items-center" style="color:var(--ink)">
+          plz<span style="color:var(--orange-text)">go</span><span class="logo-dot"></span>
         </span>
         <div class="hidden md:flex items-center gap-6 flex-1">
           <button class="nav-link-active text-sm font-bold" @click="router.push('/plan')">Plan a Trip</button>
@@ -133,7 +134,7 @@ onUnmounted(() => {
           <span class="nav-link-soon text-sm font-bold">Community <span class="soon-badge">Coming Soon</span></span>
         </div>
         <button
-          class="btn-ios btn-arrow h-10 px-6 rounded-full text-sm font-bold shadow-md shadow-orange-500/20 flex-shrink-0"
+          class="btn-ios btn-arrow h-10 px-6 rounded-full text-sm font-bold flex-shrink-0"
           @click="router.push('/plan')"
         >
           Get Started <i class="fa-solid fa-arrow-right ml-1.5 btn-arrow-icon"></i>
@@ -141,16 +142,8 @@ onUnmounted(() => {
       </div>
     </nav>
 
-    <!-- Hero -->
+    <!-- Hero — flat map paper, no stock photography -->
     <section class="hero-section relative flex items-center justify-center overflow-hidden">
-      <img
-        src="https://images.unsplash.com/photo-1563492065599-3520f775eeed?auto=format&fit=crop&q=80&w=1920"
-        class="absolute inset-0 w-full h-full object-cover"
-        style="opacity: 0.22;" alt="Bangkok"
-      />
-      <div class="absolute inset-0"
-        style="background: linear-gradient(180deg, rgba(30,41,59,0.1) 0%, rgba(253,252,248,1) 100%);" />
-
       <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
         <div class="hero-eyebrow live-chip">
           <span class="live-dot"></span>
@@ -160,23 +153,23 @@ onUnmounted(() => {
           <span class="live-sep">·</span>
           <span class="live-vibe">{{ bkkVibeNow }}</span>
         </div>
-        <h1 class="font-black tracking-tight mb-6" style="font-size: clamp(2.8rem, 8vw, 5.5rem); color: var(--navy);">
+        <h1 class="display-cond mb-6" style="font-size: clamp(2.8rem, 8vw, 5.5rem); color: var(--ink);">
           <span class="hero-line"><span>Stop overthinking.</span></span>
-          <span class="hero-line"><span class="fraunces-italic" style="color:var(--orange)">Just go.</span></span>
+          <span class="hero-line"><span class="accent-cond" style="color:var(--orange-text)">Just go.</span></span>
         </h1>
-        <p class="hero-sub text-slate-500 font-medium leading-relaxed mb-8 mx-auto"
-          style="font-size: clamp(1rem, 2.5vw, 1.15rem); max-width: 480px;">
+        <p class="hero-sub font-medium leading-relaxed mb-8 mx-auto"
+          style="font-size: clamp(1rem, 2.5vw, 1.15rem); max-width: 480px; color: var(--muted);">
           Swipe Bangkok spots. Get a map-optimised route. Share it with one link.
           No spreadsheets. No Pinterest boards. Just vibes.
         </p>
         <div class="hero-cta flex flex-col items-center gap-3">
           <button
-            class="btn-ios btn-arrow h-14 px-10 rounded-2xl text-lg font-bold shadow-2xl shadow-orange-500/25"
+            class="btn-ios btn-arrow h-14 px-10 rounded-lg text-lg font-bold"
             @click="router.push('/plan')"
           >
             Start Swiping <i class="fa-solid fa-arrow-right ml-2 btn-arrow-icon"></i>
           </button>
-          <p class="text-[11px] text-slate-400 font-bold tracking-wide">
+          <p class="data-mono text-[11px] uppercase" style="color:var(--muted)">
             Free · No sign-up · Works on any phone
           </p>
         </div>
@@ -202,9 +195,9 @@ onUnmounted(() => {
     <!-- Live Marquee -->
     <section v-if="marqueeRow1.length" class="marquee-section">
       <div class="marquee-header reveal">
-        <p class="text-[10px] font-black uppercase tracking-[0.2em] mb-2" style="color:var(--orange)">Real Bangkok spots</p>
-        <h2 class="text-2xl lg:text-3xl font-black tracking-tight" style="color:var(--navy)">
-          483 places. Handpicked. <span class="fraunces-italic">Not AI-hallucinated.</span>
+        <p class="data-mono text-[10px] uppercase mb-2" style="color:var(--orange-text)">Real Bangkok spots</p>
+        <h2 class="text-2xl lg:text-3xl display-cond" style="color:var(--ink)">
+          483 places. Handpicked. <span class="accent-cond">Not AI-hallucinated.</span>
         </h2>
       </div>
 
@@ -242,10 +235,10 @@ onUnmounted(() => {
     <section class="py-20 lg:py-24">
       <div class="max-w-5xl mx-auto px-4 md:px-6 lg:px-8">
         <div class="text-center mb-12 reveal">
-          <p class="text-[11px] font-black uppercase tracking-[0.2em] mb-3" style="color:var(--orange)">A short intervention</p>
-          <h2 class="text-3xl lg:text-5xl font-black tracking-tight leading-[0.95]" style="color:var(--navy)">
+          <p class="data-mono text-[11px] uppercase mb-3" style="color:var(--orange-text)">A short intervention</p>
+          <h2 class="text-3xl lg:text-5xl display-cond leading-[0.95]" style="color:var(--ink)">
             You can stop<br>
-            <span class="fraunces-italic" style="color:var(--orange)">doing all this now.</span>
+            <span class="accent-cond" style="color:var(--orange-text)">doing all this now.</span>
           </h2>
         </div>
 
@@ -265,7 +258,7 @@ onUnmounted(() => {
 
         <div class="kill-cta reveal" style="transition-delay: 0.4s">
           <p class="kill-arrow"><i class="fa-solid fa-arrow-down"></i></p>
-          <p class="kill-resolution">We did the work. <span class="fraunces-italic" style="color:var(--orange)">Just swipe.</span></p>
+          <p class="kill-resolution">We did the work. <span class="accent-cond" style="color:var(--orange-text)">Just swipe.</span></p>
         </div>
       </div>
     </section>
@@ -274,9 +267,9 @@ onUnmounted(() => {
     <section class="py-20 lg:py-28">
       <div class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div class="text-center mb-14 reveal">
-          <p class="text-[11px] font-black uppercase tracking-[0.2em] mb-3" style="color:var(--orange)">How it works</p>
-          <h2 class="text-3xl lg:text-4xl font-black tracking-tight" style="color:var(--navy)">
-            Three steps. <span class="fraunces-italic">Zero stress.</span>
+          <p class="data-mono text-[11px] uppercase mb-3" style="color:var(--orange-text)">How it works</p>
+          <h2 class="text-3xl lg:text-4xl display-cond" style="color:var(--ink)">
+            Three steps. <span class="accent-cond">Zero stress.</span>
           </h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -286,16 +279,16 @@ onUnmounted(() => {
           >
             <div class="glass-panel step-card p-8 flex flex-col gap-5">
               <div class="step-number-deco">{{ String(step.n).padStart(2, '0') }}</div>
-              <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
-                style="background: rgba(255,140,66,0.12);">
-                <i :class="`fa-solid ${step.icon} text-xl`" style="color:var(--orange)"></i>
+              <div class="w-12 h-12 rounded-lg flex items-center justify-center"
+                style="background: var(--paper); border: 1px solid var(--hairline);">
+                <i :class="`fa-solid ${step.icon} text-xl`" style="color:var(--orange-text)"></i>
               </div>
               <div>
-                <p class="text-[10px] font-black uppercase tracking-widest mb-1.5" style="color:var(--orange)">
+                <p class="data-mono text-[10px] uppercase mb-1.5" style="color:var(--orange-text)">
                   Step {{ step.n }}
                 </p>
-                <h3 class="text-lg font-black mb-2" style="color:var(--navy)">{{ step.title }}</h3>
-                <p class="text-sm text-slate-500 leading-relaxed font-medium">{{ step.desc }}</p>
+                <h3 class="text-lg font-black mb-2" style="color:var(--ink)">{{ step.title }}</h3>
+                <p class="text-sm lv-muted leading-relaxed font-medium">{{ step.desc }}</p>
               </div>
             </div>
           </div>
@@ -309,21 +302,21 @@ onUnmounted(() => {
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
           <div class="reveal">
-            <p class="text-[11px] font-black uppercase tracking-[0.2em] mb-3" style="color:var(--orange)">What you get</p>
-            <h2 class="text-3xl lg:text-4xl font-black tracking-tight mb-5 leading-tight" style="color:var(--navy)">
-              A plan so solid, your friends will think<br><span class="fraunces-italic">you live here.</span>
+            <p class="data-mono text-[11px] uppercase mb-3" style="color:var(--orange-text)">What you get</p>
+            <h2 class="text-3xl lg:text-4xl display-cond mb-5 leading-tight" style="color:var(--ink)">
+              A plan so solid, your friends will think<br><span class="accent-cond">you live here.</span>
             </h2>
-            <p class="text-slate-500 leading-relaxed font-medium mb-8 text-sm">
+            <p class="lv-muted leading-relaxed font-medium mb-8 text-sm">
               We group spots by neighbourhood, sort by time of day, drop them on a map.
               You stop screenshotting TikToks and actually show up.
             </p>
             <div class="flex flex-col gap-4">
               <div v-for="feat in features" :key="feat.label" class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style="background: rgba(255,140,66,0.1);">
-                  <i :class="`fa-solid ${feat.icon} text-sm`" style="color:var(--orange)"></i>
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style="background: var(--paper); border: 1px solid var(--hairline);">
+                  <i :class="`fa-solid ${feat.icon} text-sm`" style="color:var(--orange-text)"></i>
                 </div>
-                <span class="text-sm font-bold" style="color:var(--navy)">{{ feat.label }}</span>
+                <span class="text-sm font-bold" style="color:var(--ink)">{{ feat.label }}</span>
               </div>
             </div>
           </div>
@@ -331,7 +324,7 @@ onUnmounted(() => {
           <!-- Visual: vibe pills grid instead of static card -->
           <div class="reveal" style="transition-delay: 0.15s">
             <div class="glass-panel p-8">
-              <p class="text-[10px] font-black uppercase tracking-widest mb-5" style="color:var(--orange)">Pick up to 3 vibes</p>
+              <p class="data-mono text-[10px] uppercase mb-5" style="color:var(--orange-text)">Pick up to 3 vibes</p>
               <div class="grid grid-cols-2 gap-3">
                 <div v-for="vibe in [
                   { icon: 'fa-umbrella-beach', label: 'Chill',    sub: 'Pools & slow mornings' },
@@ -343,13 +336,13 @@ onUnmounted(() => {
                 ]" :key="vibe.label"
                   class="vibe-preview-card"
                 >
-                  <i :class="`fa-solid ${vibe.icon} text-base mb-2`" style="color:var(--orange)"></i>
-                  <span class="text-[13px] font-black block" style="color:var(--navy)">{{ vibe.label }}</span>
-                  <span class="text-[10px] font-bold opacity-50 block mt-0.5 leading-tight" style="color:var(--navy)">{{ vibe.sub }}</span>
+                  <i :class="`fa-solid ${vibe.icon} text-base mb-2`" style="color:var(--orange-text)"></i>
+                  <span class="text-[13px] font-black block" style="color:var(--ink)">{{ vibe.label }}</span>
+                  <span class="text-[10px] font-bold opacity-50 block mt-0.5 leading-tight" style="color:var(--ink)">{{ vibe.sub }}</span>
                 </div>
               </div>
               <button
-                class="btn-ios btn-arrow w-full h-12 rounded-xl mt-5 text-sm font-bold"
+                class="btn-ios btn-arrow w-full h-12 rounded-lg mt-5 text-sm font-bold"
                 @click="router.push('/plan')"
               >
                 Choose my vibe <i class="fa-solid fa-arrow-right ml-1.5 btn-arrow-icon"></i>
@@ -366,17 +359,16 @@ onUnmounted(() => {
       <div class="max-w-2xl mx-auto px-6">
         <div class="reveal">
           <div class="glass-panel p-10 lg:p-14 text-center relative overflow-hidden">
-            <div class="cta-glow"></div>
-            <p class="text-[11px] font-black uppercase tracking-[0.2em] mb-4 relative" style="color:var(--orange)">Bangkok is waiting</p>
-            <h2 class="text-3xl lg:text-4xl font-black tracking-tight mb-4 leading-tight relative" style="color:var(--navy)">
-              Your next trip starts<br>with <span class="fraunces-italic" style="color:var(--orange)">one swipe.</span>
+            <p class="data-mono text-[11px] uppercase mb-4 relative" style="color:var(--orange-text)">Bangkok is waiting</p>
+            <h2 class="text-3xl lg:text-4xl display-cond mb-4 leading-tight relative" style="color:var(--ink)">
+              Your next trip starts<br>with <span class="accent-cond" style="color:var(--orange-text)">one swipe.</span>
             </h2>
-            <p class="text-slate-500 text-sm font-medium leading-relaxed mb-8 relative">
+            <p class="lv-muted text-sm font-medium leading-relaxed mb-8 relative">
               Stop saving Instagram reels you'll never open again.<br>
               Just pick a vibe and go.
             </p>
             <button
-              class="btn-ios btn-arrow w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-orange-500/20 relative"
+              class="btn-ios btn-arrow w-full h-14 rounded-lg text-lg font-bold relative"
               @click="router.push('/plan')"
             >
               Plan My Bangkok Trip <i class="fa-solid fa-arrow-right ml-2 btn-arrow-icon"></i>
@@ -387,14 +379,14 @@ onUnmounted(() => {
     </section>
 
     <!-- Footer -->
-    <footer class="border-t py-12" style="border-color: rgba(255,255,255,0.4);">
+    <footer class="border-t py-12" style="border-color: var(--hairline);">
       <div class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-8">
           <div>
-            <span class="text-2xl font-black tracking-tighter block mb-1" style="color:var(--navy)">
-              plz<span style="color:var(--orange)">go</span>
+            <span class="text-2xl display-cond block mb-1" style="color:var(--ink)">
+              plz<span style="color:var(--orange-text)">go</span>
             </span>
-            <p class="text-xs text-slate-400 font-bold">Curated by people who actually live in Bangkok.</p>
+            <p class="text-xs lv-muted font-bold">Curated by people who actually live in Bangkok.</p>
           </div>
           <div class="flex flex-wrap gap-6">
             <a href="mailto:worapun.ld@gmail.com" class="footer-link">Contact Us</a>
@@ -403,13 +395,13 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="flex flex-col md:flex-row items-center justify-between gap-3 pt-6"
-          style="border-top: 1px solid rgba(30,41,59,0.06);">
-          <p class="text-xs text-slate-400 font-bold">© 2025 plzgo. All rights reserved.</p>
+          style="border-top: 1px solid var(--hairline);">
+          <p class="text-xs lv-muted font-bold">© 2025 plzgo. All rights reserved.</p>
           <div class="flex items-center gap-3 flex-wrap justify-center">
             <span class="version-badge">v0.2 · Beta</span>
-            <span class="text-xs text-slate-400 font-bold">Actively developed · Bangkok only for now</span>
-            <span class="text-xs text-slate-300">·</span>
-            <span class="text-xs text-slate-400 font-bold">Powered by Copper The Husbear.</span>
+            <span class="text-xs lv-muted font-bold">Actively developed · Bangkok only for now</span>
+            <span class="text-xs lv-muted">·</span>
+            <span class="text-xs lv-muted font-bold">Powered by Copper The Husbear.</span>
           </div>
         </div>
       </div>
@@ -422,93 +414,53 @@ onUnmounted(() => {
 .landing-root {
   min-height: 100vh;
   overflow-x: hidden;
+  background: var(--paper);
 }
 .hero-section {
   min-height: 100svh;
   padding-top: 64px;
   padding-bottom: 60px;
 }
+.lv-muted { color: var(--muted); }
 
-/* ============ KEYFRAMES ============ */
-@keyframes rise {
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  to { opacity: 1; }
-}
-@keyframes dot-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.35; transform: scale(1.7); }
-}
 @keyframes marquee-l {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
 
-/* ============ HERO ENTRANCE ============ */
 .hero-eyebrow {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.05s forwards;
   margin-bottom: 20px;
 }
 
-/* ── Live chip ── */
+/* ── Live chip — flat departure-board strip ── */
 .live-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.95);
+  background: #fff;
+  border: 1px solid var(--hairline);
   border-radius: 999px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.06);
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
   font-size: 10.5px;
-  font-weight: 900;
-  letter-spacing: 0.16em;
   text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
 }
 .live-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: #34C759;
-  box-shadow: 0 0 8px rgba(52, 199, 89, 0.7);
-  animation: dot-pulse 2s ease-in-out infinite;
+  background: var(--line-2);
   flex-shrink: 0;
 }
-.live-city { color: var(--navy); }
-.live-time { color: rgba(30, 41, 59, 0.5); font-variant-numeric: tabular-nums; }
-.live-vibe { color: var(--orange); }
-.live-sep  { color: rgba(30, 41, 59, 0.2); }
+.live-city { color: var(--ink); }
+.live-time { color: var(--muted); }
+.live-vibe { color: var(--orange-text); }
+.live-sep  { color: var(--hairline); }
 .hero-line {
   display: block;
-  overflow: hidden;
   line-height: 1.08;
   padding-bottom: 0.06em;
-}
-.hero-line span {
-  display: inline-block;
-  transform: translateY(110%);
-  animation: rise 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.hero-line:nth-child(1) span { animation-delay: 0.18s; }
-.hero-line:nth-child(2) span { animation-delay: 0.34s; }
-
-.hero-sub {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.54s forwards;
-}
-.hero-cta {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
-}
-.hero-stats {
-  opacity: 0;
-  animation: fadeIn 0.8s ease 1s forwards;
 }
 
 /* ============ STATS STRIP ============ */
@@ -519,30 +471,30 @@ onUnmounted(() => {
   max-width: 360px;
   margin: 32px auto 0;
   padding-top: 24px;
-  border-top: 1px solid rgba(30, 41, 59, 0.1);
+  border-top: 1px solid var(--hairline);
   text-align: left;
 }
 .stat-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   font-size: 26px;
-  font-weight: 900;
-  letter-spacing: -0.04em;
   line-height: 1;
-  color: var(--navy);
+  color: var(--ink);
 }
 .stat-num sup {
   font-size: 13px;
-  color: var(--orange);
-  font-weight: 800;
+  color: var(--orange-text);
   margin-left: 1px;
   vertical-align: top;
   line-height: 1.6;
 }
 .stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
   font-size: 10px;
-  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgba(30, 41, 59, 0.4);
+  color: var(--muted);
   margin-top: 5px;
 }
 
@@ -580,40 +532,32 @@ onUnmounted(() => {
 .marquee-l1 { animation: marquee-l 52s linear infinite; }
 .marquee-l2 { animation: marquee-l 72s linear infinite; }
 
-/* Single clean pill — dot + name only */
+/* Single clean pill — station dot + name, flat */
 .place-chip {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 11px 20px;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.95);
+  background: #fff;
+  border: 1px solid var(--hairline);
   border-radius: 999px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 1px 4px rgba(30, 41, 59, 0.06);
   white-space: nowrap;
   flex-shrink: 0;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
   cursor: default;
 }
-.place-chip:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(30, 41, 59, 0.1);
-}
 .chip-dot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: var(--dot-color, var(--orange));
-  box-shadow: 0 0 6px var(--dot-color, var(--orange));
+  background: #fff;
+  border: 3px solid var(--dot-color, var(--line-1));
+  box-sizing: content-box;
   flex-shrink: 0;
 }
 .chip-name {
   font-size: 13.5px;
-  font-weight: 800;
-  color: var(--navy);
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  color: var(--ink);
   line-height: 1;
 }
 
@@ -634,63 +578,42 @@ onUnmounted(() => {
   align-items: center;
   gap: 14px;
   padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  transition: border-color 0.15s;
 }
-.kill-card:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.75);
-  box-shadow: 0 8px 20px rgba(30, 41, 59, 0.06);
-}
+.kill-card:hover { border-color: var(--ink); }
 
 .kill-icon {
   width: 38px;
   height: 38px;
-  border-radius: 12px;
-  background: rgba(30, 41, 59, 0.04);
+  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   font-size: 14px;
-  color: rgba(30, 41, 59, 0.4);
-  transition: all 0.3s;
-}
-.kill-card:hover .kill-icon {
-  background: rgba(255, 140, 66, 0.12);
-  color: var(--orange);
+  color: var(--muted);
 }
 
 .kill-text {
   flex: 1;
   min-width: 0;
 }
+/* Struck-through like a cancelled service on a departure board */
 .kill-strike {
   font-size: 14px;
   font-weight: 700;
-  color: rgba(30, 41, 59, 0.7);
-  letter-spacing: -0.005em;
+  color: var(--muted);
   line-height: 1.35;
   position: relative;
   display: inline;
-}
-.kill-strike::after {
-  content: '';
-  position: absolute;
-  left: -2px; right: -2px;
-  top: 50%;
-  height: 2px;
-  background: rgba(255, 140, 66, 0.6);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.reveal.in .kill-strike::after {
-  transform: scaleX(1);
+  text-decoration: line-through;
+  text-decoration-color: var(--line-1);
+  text-decoration-thickness: 2px;
 }
 
 .kill-cta {
@@ -698,153 +621,106 @@ onUnmounted(() => {
   margin-top: 40px;
 }
 .kill-arrow {
-  color: var(--orange);
+  color: var(--orange-text);
   font-size: 18px;
   margin-bottom: 14px;
-  animation: arrow-bob 2s ease-in-out infinite;
-}
-@keyframes arrow-bob {
-  0%, 100% { transform: translateY(0); opacity: 0.6; }
-  50%      { transform: translateY(6px); opacity: 1; }
 }
 .kill-resolution {
+  font-family: 'IBM Plex Sans Condensed', 'IBM Plex Sans Thai', sans-serif;
+  font-weight: 700;
   font-size: clamp(20px, 4vw, 28px);
-  font-weight: 900;
-  color: var(--navy);
-  letter-spacing: -0.025em;
+  color: var(--ink);
 }
 
 /* ============ LOGO DOT ============ */
 .logo-dot {
   display: inline-block;
   width: 5px; height: 5px;
-  background: var(--orange);
+  background: var(--line-1);
   border-radius: 50%;
   margin-left: 1px;
   position: relative;
   top: -6px;
-  animation: dot-pulse 2.5s ease-in-out infinite;
   flex-shrink: 0;
 }
 
-/* ============ FRAUNCES ITALIC ============ */
-.fraunces-italic {
-  font-family: 'Fraunces', Georgia, serif;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.025em;
+/* Accent inside condensed headlines — line-1 color, no serif */
+.accent-cond {
+  color: var(--orange-text);
 }
 
-/* ============ SCROLL REVEAL ============ */
-.reveal {
-  opacity: 0;
-  transform: translateY(40px);
-  transition:
-    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.reveal.in {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* Scroll reveal disabled — state changes are instant in this system.
+   The .reveal class stays in the markup; the observer adding .in is harmless. */
+.reveal { opacity: 1; }
 
 /* ============ STEP CARDS ============ */
 .step-card {
   position: relative;
   overflow: hidden;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
-}
-.step-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 28px 52px -16px rgba(30, 41, 59, 0.14), 0 8px 16px -8px rgba(255, 140, 66, 0.1);
 }
 .step-number-deco {
   position: absolute;
   top: 18px; right: 22px;
-  font-family: 'Fraunces', Georgia, serif;
-  font-style: italic;
-  font-size: 46px;
-  font-weight: 400;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 38px;
   line-height: 1;
-  color: rgba(255, 140, 66, 0.15);
-  letter-spacing: -0.04em;
+  color: var(--hairline);
   pointer-events: none;
   user-select: none;
 }
 
 /* ============ VIBE PREVIEW GRID ============ */
 .vibe-preview-card {
-  background: rgba(255, 255, 255, 0.5);
-  border: 1.5px solid rgba(255, 255, 255, 0.8);
-  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
   padding: 16px;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.15s;
   cursor: default;
 }
-.vibe-preview-card:hover {
-  transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(255, 140, 66, 0.25);
-}
-
-/* ============ BOTTOM CTA GLOW ============ */
-.cta-glow {
-  position: absolute;
-  top: -50%; left: -10%;
-  width: 120%; height: 120%;
-  background: radial-gradient(circle, rgba(255, 140, 66, 0.12) 0%, transparent 60%);
-  pointer-events: none;
-}
+.vibe-preview-card:hover { border-color: var(--ink); }
 
 /* ============ BUTTON MICRO ============ */
-.btn-arrow {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-.btn-arrow:hover {
-  transform: translateY(-2px) !important;
-}
 .btn-arrow-icon {
   display: inline-block;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.btn-arrow:hover .btn-arrow-icon {
-  transform: translateX(4px);
 }
 
 /* Nav */
 .nav-link-active {
-  color: var(--navy);
+  color: var(--ink);
   background: none; border: none; cursor: pointer;
   transition: color 0.2s; padding: 0;
-  font-family: 'IBM Plex Sans Thai', 'Inter', sans-serif;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.nav-link-active:hover { color: var(--orange); }
+.nav-link-active:hover { color: var(--orange-text); }
 .nav-link-soon {
-  color: rgba(30,41,59,0.3);
+  color: var(--muted);
   cursor: default;
   display: flex; align-items: center; gap: 6px;
 }
 .soon-badge {
-  font-size: 9px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  padding: 2px 7px; border-radius: 99px;
-  background: rgba(30,41,59,0.06); color: rgba(30,41,59,0.35);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px; font-weight: 500;
+  text-transform: uppercase;
+  padding: 2px 7px; border-radius: 999px;
+  background: #fff; border: 1px solid var(--hairline); color: var(--muted);
 }
 
 /* Footer */
 .footer-link {
   font-size: 13px; font-weight: 700;
-  color: rgba(30,41,59,0.5);
+  color: var(--muted);
   text-decoration: none;
   transition: color 0.2s;
 }
-.footer-link:hover { color: var(--orange); }
+.footer-link:hover { color: var(--ink); }
 .version-badge {
-  font-size: 10px; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 0.1em;
-  padding: 3px 9px; border-radius: 99px;
-  background: rgba(255,140,66,0.1); color: var(--orange);
-  border: 1px solid rgba(255,140,66,0.2);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px;
+  background: #fff; color: var(--orange-text);
+  border: 1px solid var(--line-1);
 }
 </style>

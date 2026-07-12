@@ -72,10 +72,10 @@ function starStr(stars) {
   <div class="glass-panel bc-card">
     <!-- Header -->
     <div class="mb-4">
-      <p class="bc-eyebrow">
-        <i class="fa-solid fa-bed"></i> Base Camp
+      <p class="bc-eyebrow data-mono">
+        <span class="bc-ring" aria-hidden="true"></span> Base camp · Interchange
       </p>
-      <h2 class="bc-title">Stay in {{ zoneName }}</h2>
+      <h2 class="bc-title display-cond">Stay in {{ zoneName }}</h2>
       <p v-if="zoneCopy" class="bc-copy">{{ zoneCopy }}</p>
       <p v-else class="bc-copy">
         Best zone for your route. Walkable to most of your spots, easy BTS access.
@@ -106,10 +106,10 @@ function starStr(stars) {
           </div>
           <div class="bc-hotel-meta">
             <span v-if="hotel.star_rating" class="bc-stars">{{ starStr(hotel.star_rating) }}</span>
-            <span v-if="hotel.rating_average" class="bc-rating">{{ hotel.rating_average.toFixed(1) }} / 10</span>
-            <span v-if="!hotel.star_rating && !hotel.rating_average" class="bc-zone">{{ hotel.zone }}</span>
-            <span v-if="hotel.rates_from" class="bc-price">
-              <span v-if="hotel.discount_percentage" class="bc-discount">-{{ Math.round(hotel.discount_percentage) }}%</span>
+            <span v-if="hotel.rating_average" class="bc-rating data-mono">{{ hotel.rating_average.toFixed(1) }}/10</span>
+            <span v-if="!hotel.star_rating && !hotel.rating_average" class="bc-zone data-mono">{{ hotel.zone }}</span>
+            <span v-if="hotel.rates_from" class="bc-price data-mono">
+              <span v-if="hotel.discount_percentage" class="bc-discount data-mono">-{{ Math.round(hotel.discount_percentage) }}%</span>
               {{ hotel.rates_currency || 'THB' }} {{ Math.round(hotel.rates_from).toLocaleString() }}
               <span class="bc-price-suffix">/night</span>
             </span>
@@ -154,17 +154,24 @@ function starStr(stars) {
   padding: 22px 22px 18px;
 }
 .bc-eyebrow {
-  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.18em;
-  color: var(--orange); margin-bottom: 6px;
-  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; text-transform: uppercase;
+  color: var(--orange-text); margin-bottom: 6px;
+  display: flex; align-items: center; gap: 7px;
 }
-.bc-eyebrow i { font-size: 10px; }
+/* Interchange symbol — double ring, like a transfer station on a transit map */
+.bc-ring {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  box-shadow: inset 0 0 0 2px #fff, inset 0 0 0 4px var(--ink);
+  flex-shrink: 0;
+}
 .bc-title {
-  font-size: 22px; font-weight: 900; color: var(--navy); letter-spacing: -0.02em;
+  font-size: 22px; color: var(--ink);
   line-height: 1.15; margin-bottom: 8px;
 }
 .bc-copy {
-  font-size: 13px; color: #64748B; line-height: 1.5; margin: 0;
+  font-size: 13px; color: var(--muted); line-height: 1.5; margin: 0;
 }
 
 /* Hotel list (5 rows) */
@@ -172,112 +179,110 @@ function starStr(stars) {
 
 .bc-hotel-row {
   display: flex; align-items: center; gap: 12px;
-  padding: 10px; border-radius: 16px;
-  background: rgba(255,255,255,0.45);
-  border: 1.5px solid rgba(255,255,255,0.7);
-  transition: all 0.2s;
+  padding: 10px; border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  transition: border-color 0.15s;
 }
-.bc-hotel-row:hover { background: rgba(255,255,255,0.65); border-color: var(--orange); }
+.bc-hotel-row:hover { border-color: var(--ink); }
 
 .bc-hotel-img {
-  width: 52px; height: 52px; border-radius: 12px; object-fit: cover; flex-shrink: 0;
+  width: 52px; height: 52px; border-radius: 6px; object-fit: cover; flex-shrink: 0;
+  border: 1px solid var(--hairline);
 }
 .bc-hotel-img-placeholder {
-  background: linear-gradient(135deg, rgba(255,140,66,0.15) 0%, rgba(255,140,66,0.05) 100%);
+  background: var(--paper);
   display: flex; align-items: center; justify-content: center;
-  color: var(--orange); font-size: 18px;
+  color: var(--muted); font-size: 18px;
 }
 .bc-zone {
-  font-size: 10.5px; font-weight: 700; color: rgba(30,41,59,0.45);
-  text-transform: uppercase; letter-spacing: 0.08em;
+  font-size: 10px; color: var(--muted);
+  text-transform: uppercase;
 }
 .bc-hotel-name-row {
   display: flex; align-items: center; gap: 6px;
   min-width: 0;
 }
 .bc-hotel-name {
-  font-size: 13px; font-weight: 800; color: var(--navy); margin: 0;
+  font-size: 13px; font-weight: 700; color: var(--ink); margin: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   flex: 1; min-width: 0;
 }
 .bc-badge {
-  font-size: 8.5px; font-weight: 900; letter-spacing: 0.06em;
-  padding: 2px 6px; border-radius: 4px; text-transform: uppercase;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8.5px; font-weight: 500;
+  padding: 2px 6px; border-radius: 999px; text-transform: uppercase;
   flex-shrink: 0;
 }
-.bc-badge-live { background: rgba(34,197,94,0.12); color: #15803D; }
-.bc-badge-sponsored { background: rgba(255,140,66,0.18); color: #C2610A; }
+.bc-badge-live { border: 1px solid var(--line-2); color: #0E5F57; background: #fff; }
+.bc-badge-sponsored { border: 1px solid var(--line-1); color: var(--orange-text); background: #fff; }
 
 .bc-hotel-meta {
-  font-size: 11px; color: #94A3B8; font-weight: 600;
+  font-size: 11px; color: var(--muted); font-weight: 500;
   display: flex; align-items: center; gap: 6px; margin-top: 4px;
   flex-wrap: wrap;
 }
-.bc-stars { color: #F59E0B; letter-spacing: 1px; }
-.bc-rating { color: #0F766E; font-weight: 700; font-size: 10px; }
+.bc-stars { color: var(--ink); letter-spacing: 1px; }
+.bc-rating { color: #0E5F57; font-size: 10px; }
 .bc-price {
-  color: var(--navy); font-weight: 800; font-size: 11px;
+  color: var(--ink); font-size: 11px;
   display: inline-flex; align-items: center; gap: 4px;
 }
-.bc-price-suffix { color: #94A3B8; font-weight: 600; font-size: 10px; }
+.bc-price-suffix { color: var(--muted); font-size: 10px; }
 .bc-discount {
-  background: #DC2626; color: #fff;
-  font-size: 9px; font-weight: 900;
-  padding: 1px 5px; border-radius: 4px;
+  background: var(--ink); color: var(--signal);
+  font-size: 9px;
+  padding: 1px 5px; border-radius: 999px;
 }
 
 .bc-book-btn {
-  padding: 7px 16px; border-radius: 99px;
-  background: var(--orange); color: #fff;
-  font-size: 12px; font-weight: 800; border: none; cursor: pointer;
-  box-shadow: 0 4px 12px rgba(255,140,66,0.3);
-  transition: all 0.2s;
+  padding: 7px 16px; border-radius: 999px;
+  background: var(--ink); color: #fff;
+  font-size: 12px; font-weight: 700; border: none; cursor: pointer;
+  transition: transform 0.08s ease-out;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.bc-book-btn:active { transform: scale(0.94); }
+.bc-book-btn:active { transform: translateY(1px); }
 
 /* Empty state */
 .bc-empty {
   display: flex; align-items: center; gap: 12px;
   padding: 14px 16px; margin-bottom: 12px;
-  background: rgba(255,140,66,0.06);
-  border: 1px dashed rgba(255,140,66,0.25);
-  border-radius: 14px;
+  background: #fff;
+  border: 1px dashed var(--hairline);
+  border-radius: 8px;
 }
 .bc-empty-icon {
   width: 36px; height: 36px; flex-shrink: 0;
-  border-radius: 10px;
-  background: rgba(255,140,66,0.12);
+  border-radius: 8px;
+  background: var(--paper);
   display: flex; align-items: center; justify-content: center;
-  color: var(--orange); font-size: 14px;
+  color: var(--muted); font-size: 14px;
 }
 .bc-empty-text {
-  font-size: 12.5px; line-height: 1.5; color: rgba(30,41,59,0.65);
-  font-weight: 600; margin: 0;
+  font-size: 12.5px; line-height: 1.5; color: var(--ink);
+  font-weight: 500; margin: 0;
 }
-.bc-empty-em { color: var(--orange); font-weight: 800; }
+.bc-empty-em { color: var(--orange-text); font-weight: 700; }
 
-/* "Find more on Agoda" — primary outbound CTA */
+/* "Find more on Agoda" — the ONE orange CTA on the result screen (main revenue) */
 .bc-agoda-more {
   display: flex; align-items: center; justify-content: center;
   gap: 10px;
   width: 100%;
   padding: 13px 16px;
-  border-radius: 14px;
-  border: 1.5px solid rgba(255,140,66,0.45);
-  background: rgba(255,140,66,0.08);
-  color: #C2610A;
-  font-size: 13px; font-weight: 800;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 12px;
-}
-.bc-agoda-more:hover {
-  background: var(--orange);
-  border-color: var(--orange);
+  border-radius: 8px;
+  border: none;
+  background: var(--line-1);
   color: #fff;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(255,140,66,0.3);
+  font-size: 13px; font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.08s ease-out, background 0.15s ease-out;
+  margin-bottom: 12px;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
+.bc-agoda-more:hover  { background: #F07E33; }
+.bc-agoda-more:active { transform: translateY(1px); }
 .bc-agoda-more i { font-size: 11px; }
 
 /* SIM upsell row — Klook */
@@ -285,38 +290,37 @@ function starStr(stars) {
   display: flex; align-items: center; gap: 12px;
   width: 100%;
   padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(15,118,110,0.18);
-  background: rgba(15,118,110,0.05);
-  color: var(--navy);
+  border-radius: 8px;
+  border: 1px solid var(--hairline);
+  background: #fff;
+  color: var(--ink);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.15s;
   text-align: left;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.bc-sim-row:hover {
-  background: rgba(15,118,110,0.1);
-  border-color: rgba(15,118,110,0.35);
-}
+.bc-sim-row:hover { border-color: var(--line-2); }
 .bc-sim-icon {
   width: 36px; height: 36px;
   flex-shrink: 0;
-  border-radius: 10px;
-  background: rgba(15,118,110,0.12);
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--line-2);
   display: flex; align-items: center; justify-content: center;
-  color: #0F766E; font-size: 15px;
+  color: var(--line-2); font-size: 15px;
 }
 .bc-sim-body { flex: 1; min-width: 0; }
 .bc-sim-title {
-  font-size: 12.5px; font-weight: 800; color: var(--navy);
+  font-size: 12.5px; font-weight: 700; color: var(--ink);
   margin: 0 0 2px;
 }
 .bc-sim-copy {
-  font-size: 11px; color: #64748B;
-  font-weight: 600; margin: 0;
+  font-size: 11px; color: var(--muted);
+  font-weight: 500; margin: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .bc-sim-arrow {
-  font-size: 11px; color: #94A3B8;
+  font-size: 11px; color: var(--muted);
   flex-shrink: 0;
 }
 </style>

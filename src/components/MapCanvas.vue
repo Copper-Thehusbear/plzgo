@@ -15,34 +15,39 @@ const store = useTripStore()
 
 const mapEl = ref(null)
 let map = null
-const routeMarkers     = []
+const routeMarkers      = []
+const routePolylines    = []
 const contextualMarkers = []
 
-const DAY_COLORS = ['#FF8C42', '#3B82F6', '#0D9488']
+// Transit Diagram line colors — must match --line-1/--line-2/--line-3 in style.css
+const DAY_COLORS = ['#FF8C42', '#12796F', '#C2497D']
 
-function makeRouteIcon(label, color) {
+function dayColor(dayIdx) {
+  return DAY_COLORS[dayIdx % DAY_COLORS.length]
+}
+
+function makeStationIcon(label, color) {
+  // Transit station: white core, thick ring in the day's line color, mono stop number
   return L.divIcon({
-    html: `<div style="
-      width:30px;height:30px;border-radius:50%;
-      background:${color};border:2.5px solid #fff;
-      display:flex;align-items:center;justify-content:center;
-      font-family:Inter,sans-serif;font-size:12px;font-weight:700;color:#fff;
-      box-shadow:0 2px 10px rgba(0,0,0,0.3);
+    html: `<div class="plzgo-station" style="
+      width:28px;height:28px;
+      border:4px solid ${color};
+      font-size:12px;
     ">${label}</div>`,
     className: '',
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-    popupAnchor: [0, -18],
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -17],
   })
 }
 
 function makeGoldenIcon() {
   return L.divIcon({
-    html: `<div class="plzgo-golden-pin">✦</div>`,
+    html: `<div class="plzgo-golden-pin">+</div>`,
     className: '',
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-    popupAnchor: [0, -20],
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -19],
   })
 }
 
@@ -83,7 +88,7 @@ function goldenPopupHtml(entry) {
     : `~${entry.walkMinutes} min walk${entry.nearestName ? ` from ${entry.nearestName}` : ''}`
   return `
     <div class="plzgo-popup-inner">
-      <p class="plzgo-popup-name" style="color:#B45309;">✦ ${name}</p>
+      <p class="plzgo-popup-name" style="color:#B45309;">${name}</p>
       <p class="plzgo-popup-desc">${hook}</p>
       <button class="plzgo-popup-cta plzgo-golden-cta" data-pin-id="${entry.place.id}">
         ${store.lang === 'th' ? 'ดูรายละเอียด →' : 'See full details →'}
@@ -95,17 +100,22 @@ function goldenPopupHtml(entry) {
 function renderRouteMarkers() {
   routeMarkers.forEach(m => m.remove())
   routeMarkers.length = 0
+  routePolylines.forEach(p => p.remove())
+  routePolylines.length = 0
 
   const allCoords = []
 
   props.dayBlocks.forEach((block, dayIdx) => {
-    const color = DAY_COLORS[dayIdx] ?? DAY_COLORS[0]
+    const color = dayColor(dayIdx)
+    const dayCoords = []
+
     block.forEach((place, i) => {
       const { latitude, longitude } = placeCoords(place)
       if (latitude == null || longitude == null) return
       allCoords.push([latitude, longitude])
+      dayCoords.push([latitude, longitude])
 
-      const marker = L.marker([latitude, longitude], { icon: makeRouteIcon(i + 1, color) })
+      const marker = L.marker([latitude, longitude], { icon: makeStationIcon(i + 1, color) })
         .addTo(map)
         .bindPopup(
           L.popup({ className: 'plzgo-popup', maxWidth: 230, closeButton: false })
@@ -114,6 +124,20 @@ function renderRouteMarkers() {
 
       routeMarkers.push(marker)
     })
+
+    // Day line — same color as its station markers, draws itself on load
+    if (dayCoords.length > 1) {
+      const line = L.polyline(dayCoords, {
+        color,
+        weight: 4,
+        opacity: 1,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(map)
+
+      line.getElement()?.classList.add('plzgo-route-draw')
+      routePolylines.push(line)
+    }
   })
 
   if (allCoords.length === 1) {

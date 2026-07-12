@@ -110,7 +110,8 @@ function onIndoorNope(place) {
   indoorSuggestions.value = indoorSuggestions.value.filter(p => p.id !== place.id)
 }
 
-const DAY_COLORS = ['var(--orange)', '#3B82F6', '#0D9488']
+// Line colors — must match MapCanvas DAY_COLORS and --line-1/2/3 in style.css
+const DAY_COLORS = ['var(--line-1)', 'var(--line-2)', 'var(--line-3)']
 const dayLabels  = ['Day 1', 'Day 2', 'Day 3']
 
 onMounted(async () => {
@@ -337,14 +338,14 @@ async function copyLink() {
 
             <!-- Route title -->
             <div class="glass-panel rv-header-card">
-              <p class="rv-eyebrow">Your route</p>
-              <h1 class="rv-city">{{ store.selectedCity }}</h1>
+              <p class="rv-eyebrow data-mono">Your route</p>
+              <h1 class="rv-city display-cond">{{ store.selectedCity }}</h1>
               <p class="rv-meta">
-                {{ numDays }}-day
+                <span class="data-mono">{{ numDays }}-day</span>
                 <span class="mx-1.5 opacity-30">·</span>
                 {{ store.selectedVibes.join(' + ') }}
                 <span v-if="store.swipedPlaces.length" class="mx-1.5 opacity-30">·</span>
-                <span v-if="store.swipedPlaces.length">{{ store.swipedPlaces.length }} places</span>
+                <span v-if="store.swipedPlaces.length" class="data-mono">{{ store.swipedPlaces.length }} stops</span>
               </p>
             </div>
 
@@ -375,12 +376,12 @@ async function copyLink() {
                 <span
                   v-for="(label, i) in dayLabels.slice(0, numDays)"
                   :key="i"
-                  class="rv-day-chip"
+                  class="rv-day-chip data-mono"
                   :style="{ background: DAY_COLORS[i] }"
-                >{{ label }}</span>
+                >● {{ label }}</span>
               </div>
-              <div v-if="contextualPins.length" class="rv-pin-badge">
-                <i class="fa-solid fa-star"></i> {{ contextualPins.length }} nearby
+              <div v-if="contextualPins.length" class="rv-pin-badge data-mono">
+                {{ contextualPins.length }} unmarked
               </div>
               <MapCanvas
                 v-if="dayBlocks.length"
@@ -390,12 +391,14 @@ async function copyLink() {
               />
             </div>
 
-            <!-- Contextual pins hint -->
-            <div v-if="contextualPins.length" class="glass-panel rv-pins-hint">
-              <i class="fa-solid fa-location-dot" style="color:#B45309;font-size:14px;margin-top:2px;flex-shrink:0"></i>
+            <!-- Contextual pins hint — unmarked stops -->
+            <div v-if="contextualPins.length" class="rv-pins-hint">
+              <span class="rv-pins-dot" aria-hidden="true"></span>
               <div>
-                <p class="rv-pins-title">{{ contextualPins.length }} hidden spot{{ contextualPins.length > 1 ? 's' : '' }} nearby</p>
-                <p class="rv-pins-sub">Tap the gold pins on the map to explore</p>
+                <p class="rv-pins-title">
+                  <span class="data-mono">{{ contextualPins.length }}</span> unmarked stop{{ contextualPins.length > 1 ? 's' : '' }} near your line
+                </p>
+                <p class="rv-pins-sub">Tap a gold pin on the map to add it</p>
               </div>
             </div>
 
@@ -404,23 +407,23 @@ async function copyLink() {
           <!-- Right / aside col -->
           <div class="rv-col-side">
 
-            <!-- Weather Bento -->
+            <!-- Weather panel -->
             <div v-if="weather && weather.precipProb !== null" class="glass-panel p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <i :class="`fa-solid ${weather.weatherIcon} text-xl`" style="color:var(--orange)"></i>
+                  <i :class="`fa-solid ${weather.weatherIcon} text-xl`" style="color:var(--muted)"></i>
                   <div>
-                    <p class="rv-eyebrow" style="margin:0 0 2px">Bangkok Now</p>
-                    <p class="text-[14px] font-black leading-tight" style="color:var(--navy)">
-                      {{ weather.temp != null ? weather.temp + '°C' : '' }}
+                    <p class="rv-eyebrow data-mono" style="margin:0 0 2px">Bangkok now</p>
+                    <p class="text-[14px] font-bold leading-tight" style="color:var(--ink)">
+                      <span v-if="weather.temp != null" class="data-mono">{{ weather.temp }}°C</span>
                       <span v-if="weather.temp != null" class="font-medium opacity-50 mx-1">·</span>
                       {{ weather.weatherLabel }}
                     </p>
                   </div>
                 </div>
-                <span class="text-[13px] font-black" style="color:rgba(30,41,59,0.3)">{{ weather.precipProb }}%</span>
+                <span class="text-[13px] data-mono" style="color:var(--muted)">{{ weather.precipProb }}%</span>
               </div>
-              <p v-if="weather.tip" class="text-[11px] font-semibold mt-3 pt-3" style="color:rgba(30,41,59,0.45); border-top:1px solid rgba(30,41,59,0.07)">
+              <p v-if="weather.tip" class="text-[11px] font-semibold mt-3 pt-3" style="color:var(--muted); border-top:1px solid var(--hairline)">
                 {{ weather.tip }}
               </p>
             </div>
@@ -428,33 +431,30 @@ async function copyLink() {
             <!-- Indoor alternatives -->
             <Transition name="fade">
               <div v-if="showingIndoor" class="glass-panel p-5">
-                <p class="rv-eyebrow" style="margin-bottom:12px">Indoor alternatives nearby</p>
-                <div v-if="indoorSuggestions.length" class="flex flex-col gap-3">
+                <p class="rv-eyebrow data-mono" style="margin-bottom:12px">Indoor alternatives nearby</p>
+                <div v-if="indoorSuggestions.length" class="flex flex-col">
                   <div
                     v-for="place in indoorSuggestions"
                     :key="place.id"
-                    class="flex items-center justify-between gap-3 py-3 border-b border-slate-100 last:border-0"
+                    class="rv-indoor-row"
                   >
                     <div class="flex-1 min-w-0">
-                      <p class="text-[13px] font-black leading-tight" style="color:var(--navy)">
+                      <p class="text-[13px] font-bold leading-tight" style="color:var(--ink)">
                         {{ store.lang === 'th' ? place.name : (place.name_en || place.name) }}
                       </p>
-                      <p class="text-[11px] text-slate-400 font-medium mt-0.5">{{ store.lang === 'th' ? (place.zone_th || place.zone) : (place.zone_en || place.zone) }}</p>
+                      <p class="text-[11px] font-medium mt-0.5" style="color:var(--muted)">{{ store.lang === 'th' ? (place.zone_th || place.zone) : (place.zone_en || place.zone) }}</p>
                     </div>
                     <div class="flex gap-2 flex-shrink-0">
-                      <button
-                        class="w-9 h-9 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-400 active:scale-90 transition-transform"
-                        @click="onIndoorNope(place)"
-                      ><i class="fa-solid fa-xmark text-xs"></i></button>
-                      <button
-                        class="w-9 h-9 rounded-full flex items-center justify-center text-white active:scale-90 transition-transform"
-                        style="background:var(--orange)"
-                        @click="onIndoorYep(place)"
-                      ><i class="fa-solid fa-plus text-xs"></i></button>
+                      <button class="rv-indoor-btn rv-indoor-skip" @click="onIndoorNope(place)" aria-label="Skip stop">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                      </button>
+                      <button class="rv-indoor-btn rv-indoor-board" @click="onIndoorYep(place)" aria-label="Board">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
-                <p v-else class="text-[12px] text-slate-400 font-medium">No indoor spots found within 2km.</p>
+                <p v-else class="text-[12px] font-medium" style="color:var(--muted)">No indoor stops within <span class="data-mono">2 km</span>.</p>
               </div>
             </Transition>
 
@@ -471,16 +471,17 @@ async function copyLink() {
               v-for="(block, dayIndex) in dayBlocks"
               :key="dayIndex"
               class="glass-panel rv-day-block"
+              :style="{ '--row-line': DAY_COLORS[dayIndex] }"
             >
-              <div v-if="numDays > 1" class="rv-day-label" :style="{ color: DAY_COLORS[dayIndex] }">
-                <span class="rv-day-dot" :style="{ background: DAY_COLORS[dayIndex] }"></span>
-                {{ dayLabels[dayIndex] }}
+              <div v-if="numDays > 1" class="rv-day-label data-mono" :style="{ background: DAY_COLORS[dayIndex] }">
+                ● Line {{ dayIndex + 1 }} · {{ dayLabels[dayIndex] }}
               </div>
               <TimelineItem
                 v-for="(place, i) in block"
                 :key="place.id"
                 :place="place"
                 :index="i"
+                theme="light"
               />
             </div>
 
@@ -527,11 +528,12 @@ async function copyLink() {
 
 <style scoped>
 .rv-wordmark {
+  font-family: 'IBM Plex Sans Condensed', 'IBM Plex Sans Thai', sans-serif;
   font-size: 19px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  color: var(--navy);
+  font-weight: 700;
+  color: var(--ink);
 }
+/* Ink block — the screen's ONE orange CTA is the Agoda button in BaseCampCard */
 .rv-share-btn {
   display: flex;
   align-items: center;
@@ -539,24 +541,22 @@ async function copyLink() {
   padding: 7px 16px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 800;
-  background: var(--orange);
+  font-weight: 700;
+  background: var(--ink);
   color: #fff;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(255,140,66,0.35);
-  transition: all 0.25s;
-  font-family: 'IBM Plex Sans Thai', 'Inter', sans-serif;
+  transition: transform 0.08s ease-out;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.rv-share-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(255,140,66,0.4); }
-.rv-share-btn:active { transform: scale(0.96); }
+.rv-share-btn:active { transform: translateY(1px); }
 
 .rv-saving {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: rgba(30,41,59,0.35);
+  color: var(--muted);
 }
 
 .rv-inner {
@@ -579,181 +579,210 @@ async function copyLink() {
 .rv-header-card {
   padding: 24px 28px;
 }
+/* Wayfinding label — short mono sign */
 .rv-eyebrow {
   font-size: 10px;
-  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  color: var(--orange);
+  color: var(--orange-text);
   margin: 0 0 8px;
 }
 .rv-city {
   font-size: 32px;
-  font-weight: 900;
-  color: var(--navy);
-  letter-spacing: -0.03em;
+  color: var(--ink);
   line-height: 1.1;
   margin: 0 0 6px;
 }
 .rv-meta {
   font-size: 14px;
-  color: rgba(30,41,59,0.45);
+  color: var(--muted);
   margin: 0;
 }
 
 .rv-map-panel {
   position: relative;
   overflow: hidden;
-  padding: 10px;
+  padding: 6px;
 }
 .rv-map-panel :deep(.leaflet-container) {
-  border-radius: 22px;
+  border-radius: 6px;
   overflow: hidden;
   height: 100%;
 }
 .rv-day-chips {
   position: absolute;
-  top: 18px; left: 18px;
+  top: 14px; left: 14px;
   z-index: 1000;
   display: flex;
   gap: 6px;
 }
+/* Line badge — solid block in the day's line color */
 .rv-day-chip {
-  padding: 5px 12px;
-  border-radius: 99px;
-  font-size: 11px;
-  font-weight: 800;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  text-transform: uppercase;
   color: #fff;
-  backdrop-filter: blur(8px);
 }
 .rv-pin-badge {
   position: absolute;
-  top: 18px; right: 18px;
+  top: 14px; right: 14px;
   z-index: 1000;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  border-radius: 99px;
-  background: rgba(255,210,50,0.15);
-  border: 1px solid rgba(255,210,50,0.4);
-  font-size: 11px;
-  font-weight: 800;
-  color: #B45309;
-  backdrop-filter: blur(8px);
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--signal);
+  border: 1px solid var(--ink);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  color: var(--ink);
 }
 
+/* Unmarked-stop hint — dashed signal border, like ContextPinCard */
 .rv-pins-hint {
-  padding: 16px 20px;
+  padding: 14px 18px;
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  background: rgba(255,210,50,0.06);
-  border-color: rgba(255,210,50,0.2);
+  gap: 12px;
+  background: #fff;
+  border: 1px dashed var(--signal);
+  border-radius: 8px;
+}
+.rv-pins-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--signal);
+  border: 2px solid var(--ink);
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 .rv-pins-title {
-  font-size: 14px;
-  font-weight: 800;
-  color: #92400E;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
   margin: 0 0 2px;
 }
 .rv-pins-sub {
   font-size: 12px;
-  color: #B45309;
-  opacity: 0.7;
+  color: var(--muted);
   margin: 0;
 }
 
 .rv-day-block {
-  padding: 8px 18px;
+  padding: 8px 18px 4px;
 }
+/* Line badge above each day's stations */
 .rv-day-label {
+  display: inline-block;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin: 12px 0 2px;
+}
+
+.rv-indoor-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  padding: 16px 0 6px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hairline);
 }
-.rv-day-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.rv-indoor-row:last-child { border-bottom: none; }
+.rv-indoor-btn {
+  width: 36px; height: 36px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.08s ease-out;
+}
+.rv-indoor-btn:active { transform: translateY(1px); }
+.rv-indoor-skip {
+  background: #fff;
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+}
+.rv-indoor-board {
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  color: #fff;
 }
 
 .rv-plan-btn {
   height: 48px;
-  border-radius: 16px;
+  border-radius: 8px;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(30,41,59,0.05);
-  color: rgba(30,41,59,0.6);
-  border: 1.5px solid rgba(30,41,59,0.05);
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--hairline);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.15s, transform 0.08s ease-out;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.rv-plan-btn:hover { background: rgba(30,41,59,0.1); }
+.rv-plan-btn:hover  { border-color: var(--ink); }
+.rv-plan-btn:active { transform: translateY(1px); }
 
 .rv-retry-btn {
   height: 48px;
-  border-radius: 16px;
+  border-radius: 8px;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(239,68,68,0.08);
-  color: #EF4444;
-  border: 1.5px solid rgba(239,68,68,0.15);
+  background: #fff;
+  color: #B42318;
+  border: 1px solid #B42318;
   cursor: pointer;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
+.rv-retry-btn:active { transform: translateY(1px); }
 
 .rv-toast {
   position: fixed;
   bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 12px 24px;
-  border-radius: 99px;
-  background: var(--navy);
+  padding: 11px 22px;
+  border-radius: 8px;
+  background: var(--ink);
   color: #fff;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  box-shadow: 0 8px 30px rgba(30,41,59,0.3);
   z-index: 200;
   pointer-events: none;
 }
 
+/* Service-alert strip — ink block, like a platform disruption notice */
 .rv-weather-banner {
-  padding: 18px 20px;
-  border-radius: 20px;
-  background: rgba(219,234,254,0.5);
-  border: 1.5px solid rgba(147,197,253,0.4);
-  backdrop-filter: blur(12px);
+  padding: 16px 18px;
+  border-radius: 8px;
+  background: var(--ink);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 .rv-weather-banner-body {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 12px;
 }
 .rv-weather-icon {
-  font-size: 18px;
-  color: #3B82F6;
-  margin-top: 1px;
+  font-size: 16px;
+  color: var(--signal);
+  margin-top: 2px;
   flex-shrink: 0;
 }
 .rv-weather-title {
   font-size: 13px;
-  font-weight: 700;
-  color: #1E3A5F;
+  font-weight: 600;
+  color: #fff;
   margin: 0;
   line-height: 1.5;
 }
@@ -764,29 +793,30 @@ async function copyLink() {
 .rv-weather-btn-primary {
   flex: 1;
   height: 38px;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 12px;
-  font-weight: 800;
-  background: #3B82F6;
-  color: #fff;
+  font-weight: 700;
+  background: var(--signal);
+  color: var(--ink);
   border: none;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.08s ease-out;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.rv-weather-btn-primary:hover { background: #2563EB; }
+.rv-weather-btn-primary:active { transform: translateY(1px); }
 .rv-weather-btn-ghost {
   height: 38px;
   padding: 0 16px;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   background: transparent;
-  color: rgba(30,58,95,0.5);
-  border: 1.5px solid rgba(147,197,253,0.5);
+  color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.3);
   cursor: pointer;
-  transition: all 0.2s;
+  font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.rv-weather-btn-ghost:hover { background: rgba(219,234,254,0.5); }
+.rv-weather-btn-ghost:active { transform: translateY(1px); }
 
 .fade-enter-active, .fade-leave-active { transition: all 0.3s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(-8px); }

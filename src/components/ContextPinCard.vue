@@ -90,8 +90,8 @@ const durationLabel = computed(() => {
     <!-- Sheet -->
     <div class="ctx-sheet-wrapper">
       <div
-        class="touch-none select-none ctx-sheet-inner glass-panel"
-        style="pointer-events:all;overflow:hidden;height:82vh;border-radius:24px 24px 0 0;"
+        class="touch-none select-none ctx-sheet-inner"
+        style="pointer-events:all;overflow:hidden;height:82vh;"
         :style="cardStyle"
         @pointerdown="onPointerDown"
         @pointermove="onPointerMove"
@@ -100,13 +100,13 @@ const durationLabel = computed(() => {
       >
         <!-- Drag handle -->
         <div class="ctx-drag-handle">
-          <div style="width:36px;height:4px;border-radius:2px;background:rgba(0,0,0,0.1);" />
+          <div style="width:36px;height:4px;border-radius:2px;background:var(--hairline);" />
         </div>
 
         <!-- Header -->
         <div class="flex items-center gap-2 px-5 mb-3">
-          <span class="ctx-nearby-badge">✦ Nearby Spot</span>
-          <span v-if="walkMinutes" class="text-[10px] font-bold text-slate-400">
+          <span class="ctx-nearby-badge data-mono"><span class="ctx-signal-dot" aria-hidden="true"></span> Unmarked stop</span>
+          <span v-if="walkMinutes" class="data-mono" style="font-size:10px;color:var(--muted)">
             ~{{ walkMinutes }} min walk
           </span>
         </div>
@@ -120,58 +120,57 @@ const durationLabel = computed(() => {
             class="w-full h-full object-cover"
             draggable="false"
           />
-          <div v-else class="w-full h-full bg-slate-100 flex items-center justify-center">
-            <i class="fa-solid fa-location-dot text-slate-300 text-3xl"></i>
+          <div v-else class="w-full h-full flex items-center justify-center" style="background:var(--paper)">
+            <i class="fa-solid fa-location-dot text-3xl" style="color:var(--hairline)"></i>
           </div>
-          <div class="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent"></div>
 
           <!-- Stamps -->
           <Transition name="ctx-stamp">
-            <div v-if="showYep" class="ctx-stamp yep">YEP</div>
+            <div v-if="showYep" class="ctx-stamp yep data-mono">BOARD</div>
           </Transition>
           <Transition name="ctx-stamp">
-            <div v-if="showNope" class="ctx-stamp nope">NOPE</div>
+            <div v-if="showNope" class="ctx-stamp nope data-mono">SKIP</div>
           </Transition>
         </div>
 
         <!-- Info -->
         <div class="p-5 flex-1 overflow-hidden">
-          <h2 class="text-xl font-black text-slate-900 leading-tight mb-2">
+          <h2 class="text-xl leading-tight mb-2 display-cond" style="color:var(--ink)">
             {{ displayName }}
           </h2>
-          <p class="text-[13px] text-slate-600 leading-relaxed line-clamp-4">
+          <p class="text-[13px] leading-relaxed line-clamp-4" style="color:var(--muted)">
             {{ displayDesc }}
           </p>
           <div class="flex flex-wrap gap-2 mt-4">
-            <span v-if="place.price_range" class="ctx-meta-pill bg-orange-50 text-orange-600">
-              <i class="fa-solid fa-tag mr-1"></i> {{ place.price_range }}
+            <span v-if="place.price_range" class="ctx-meta-pill data-mono">
+              {{ place.price_range }}
             </span>
-            <span v-if="durationLabel" class="ctx-meta-pill bg-slate-100 text-slate-600">
-              <i class="fa-solid fa-clock mr-1"></i> {{ durationLabel }}
+            <span v-if="durationLabel" class="ctx-meta-pill data-mono">
+              {{ durationLabel }}
             </span>
           </div>
         </div>
 
         <!-- Buttons -->
-        <div class="flex justify-center gap-10 py-6 px-5 border-t border-slate-100/50 bg-white/30">
+        <div class="ctx-actions">
           <button
             @click.stop="triggerExit(-1,'nope')"
             class="ctx-btn nope"
-            aria-label="Skip"
+            aria-label="Skip stop"
           >
             <i class="fa-solid fa-xmark"></i>
           </button>
           <button
             @click.stop="triggerExit(1,'yep')"
             class="ctx-btn yep"
-            aria-label="Add"
+            aria-label="Board"
           >
             <i class="fa-solid fa-plus"></i>
           </button>
         </div>
 
-        <p class="text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest pb-6">
-          Swipe to decide
+        <p class="ctx-footer data-mono">
+          Add to line?
         </p>
       </div>
     </div>
@@ -180,47 +179,75 @@ const durationLabel = computed(() => {
 
 <style scoped>
 .ctx-backdrop {
-  position: absolute; inset: 0; background: rgba(30,41,59,0.4); backdrop-filter: blur(4px);
+  position: absolute; inset: 0; background: rgba(28,39,61,0.5);
 }
 .ctx-sheet-wrapper {
   position: absolute; inset: 0; display: flex; align-items: flex-end; pointer-events: none;
 }
+/* Unmarked stop sheet — white paper, dashed signal border */
+.ctx-sheet-inner {
+  background: #fff;
+  border: 1px dashed var(--signal);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  display: flex; flex-direction: column;
+  animation: ctx-slide-up 0.4s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
 .ctx-drag-handle {
   display: flex; justify-content: center; padding: 12px 0;
 }
+.ctx-signal-dot {
+  display: inline-block;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--signal); border: 2px solid var(--ink);
+  vertical-align: -1px; margin-right: 2px;
+}
 .ctx-nearby-badge {
-  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
-  padding: 4px 12px; border-radius: 99px;
-  background: rgba(255,210,50,0.15); border: 1px solid rgba(255,210,50,0.4); color: #B45309;
+  font-size: 10px; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 999px;
+  background: #fff; border: 1px dashed var(--signal); color: var(--ink);
+  display: inline-flex; align-items: center; gap: 5px;
 }
 .ctx-meta-pill {
-  font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 99px;
+  font-size: 11px; padding: 4px 12px; border-radius: 999px;
+  background: #fff; border: 1px solid var(--hairline); color: var(--muted);
 }
 
+.ctx-actions {
+  display: flex; justify-content: center; gap: 40px;
+  padding: 20px;
+  border-top: 1px solid var(--hairline);
+  background: #fff;
+}
 .ctx-btn {
   width: 60px; height: 60px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px; cursor: pointer; border: none; transition: all 0.2s;
+  font-size: 22px; cursor: pointer; transition: transform 0.08s ease-out;
 }
-.ctx-btn.nope { background: #fff; color: #EF4444; border: 1.5px solid #FEE2E2; box-shadow: 0 4px 12px rgba(239,68,68,0.15); }
-.ctx-btn.yep  { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(255,140,66,0.35); }
-.ctx-btn:active { transform: scale(0.9); }
+.ctx-btn.nope { background: #fff; color: var(--muted); border: 1px solid var(--hairline); }
+.ctx-btn.yep  { background: var(--ink); color: #fff; border: 1px solid var(--ink); }
+.ctx-btn:active { transform: translateY(1px); }
 
+.ctx-footer {
+  text-align: center;
+  font-size: 10px; text-transform: uppercase;
+  color: var(--muted);
+  padding-bottom: 24px; margin: 0;
+}
+
+/* Rubber stamps — station-sign style, system colors */
 .ctx-stamp {
   position: absolute; top: 50%; transform: translateY(-50%);
-  font-size: 32px; font-weight: 900; padding: 6px 20px; border-radius: 12px; border: 5px solid;
+  font-size: 28px; padding: 6px 20px; border-radius: 8px; border: 4px solid;
+  background: rgba(255,255,255,0.9);
   z-index: 50; pointer-events: none;
 }
-.ctx-stamp.yep  { left: 16px; color: #34C759; border-color: #34C759; transform: translateY(-50%) rotate(-15deg); }
-.ctx-stamp.nope { right: 16px; color: #EF4444; border-color: #EF4444; transform: translateY(-50%) rotate(15deg); }
+.ctx-stamp.yep  { left: 16px; color: var(--line-2); border-color: var(--line-2); transform: translateY(-50%) rotate(-15deg); }
+.ctx-stamp.nope { right: 16px; color: var(--ink); border-color: var(--ink); transform: translateY(-50%) rotate(15deg); }
 
 .ctx-stamp-enter-active { transition: all 0.15s ease; }
 .ctx-stamp-enter-from { opacity: 0; transform: translateY(-50%) scale(1.3); }
 
-/* Animation for sheet entry */
-.ctx-sheet-inner {
-  animation: ctx-slide-up 0.4s cubic-bezier(0.32, 0.72, 0, 1) both;
-}
 @keyframes ctx-slide-up {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
@@ -228,6 +255,6 @@ const durationLabel = computed(() => {
 
 @media (min-width: 768px) {
   .ctx-sheet-wrapper { justify-content: flex-end; align-items: center; padding-right: 40px; }
-  .ctx-sheet-inner { width: 400px; height: 80vh !important; border-radius: 28px !important; }
+  .ctx-sheet-inner { width: 400px; height: 80vh !important; border-radius: 8px !important; border-bottom: 1px dashed var(--signal); }
 }
 </style>

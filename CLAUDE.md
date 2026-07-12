@@ -54,27 +54,31 @@ Note: `seed-firestore.cjs` and `seed-bangkok.cjs` are legacy — ignore them.
 - `store.lang` — `'en' | 'th'`, persisted to `localStorage`
 - Add new state here, not as component-local refs unless purely UI state
 
-## Design System
+## Design System — "Transit Diagram" (locked 2026-07)
 
-**Never change these colours:**
+Full spec lives in `.claude/skills/plzgo-design/SKILL.md` — this section is the summary. Single source of truth for tokens is `src/style.css :root`.
 
 | Token | Hex | Usage |
 |---|---|---|
-| Cream White | `#FDFCF8` | Page backgrounds (ResultView, HomeView, RouteView) |
-| Midnight Blue | `#1E293B` | All body text, headings, structural UI |
-| Vibrant Orange | `#FF8C42` | CTA buttons only — one prominent element per screen |
-| Navy (swipe only) | `#1B2B4B` | SwipeView + SwipeCard backgrounds |
-| Golden (pins) | `#FFD235` | Contextual pin markers on map |
+| `--paper` | `#F6F5F1` | Page backgrounds (map paper) |
+| `--ink` | `#1C273D` | Text, structure, SwipeView "tunnel mode" bg |
+| `--line-1` | `#FF8C42` | Day 1 route + the ONE orange CTA per screen |
+| `--line-2` | `#12796F` | Day 2 route (markers + polyline must match) |
+| `--line-3` | `#C2497D` | Day 3 route |
+| `--signal` | `#FFD235` | Unmarked stops / golden contextual pins |
+| `--hairline` | `#DEDACF` | Dividers, card borders |
+| `--muted` | `#6B7280` | Secondary text |
+| `--orange-text` | `#C2540A` | Orange TEXT on light bg (AA contrast) |
 
-**Shapes:** `border-radius` 14–28px on cards, 999px on pills/buttons. Soft inset shadows on white cards.
+**Rules:** no shadows, no glass/backdrop-filter, no gradients-on-text, no Fraunces/serif, no emoji in UI chrome. Cards radius 6–8px; pills/badges 999px. Fonts: IBM Plex Sans Thai (body) / IBM Plex Sans Condensed 700 (display) / IBM Plex Mono 500 (**every data number**: times, km, minutes, prices, stop codes). Microcopy metaphor: Board / Skip stop / Last stop / Unmarked stop / Interchange. Signature motion: route line draws itself on ResultView load (`.plzgo-route-draw`); everything else changes state instantly; respect `prefers-reduced-motion`.
 
-**60-30-10 rule:** Cream (60%) → Midnight Blue (30%) → Orange (10%). The orange button should be the most visible element on any cream-background screen.
+**Exempt:** `ExploreView.vue` is the standalone monthly magazine — it keeps its own editorial style (Fraunces/Inter, its own tokens) and is NOT part of the Transit Diagram system.
 
 ## Component Conventions
 
 ### `TimelineItem.vue`
-- Has a `theme` prop: `'dark'` (default, used in RouteView — legacy) | `'light'` (used in ResultView)
-- Always pass `theme="light"` in cream-background contexts
+- Renders a **StationRow** (dot on a continuous line); line color comes from the CSS var `--row-line` set by the parent day block (`:style="{ '--row-line': DAY_COLORS[dayIndex] }"`)
+- Has a `theme` prop: `'dark'` (default — for ink backgrounds) | `'light'` (white/paper backgrounds). ResultView **and** RouteView both pass `theme="light"` since the 2026-07 redesign. Do not remove the prop.
 
 ### `MapCanvas.vue`
 - Props: `dayBlocks` (Array, required), `contextualPins` (Array, default `[]`)

@@ -142,8 +142,8 @@ const lang = ref('en')
 }
 .lang-btn--active {
   background: white;
-  color: var(--navy);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  color: var(--ink);
+  border: 1px solid var(--hairline);
 }
 
 .legal-body { display: flex; flex-direction: column; }

@@ -8,7 +8,7 @@
       <slot></slot>
     </main>
 
-    <footer class="app-footer tab-bar glass-panel shadow-2xl">
+    <footer class="app-footer tab-bar">
       <router-link to="/plan" class="nav-icon" active-class="active">
         <i class="fa-solid fa-house"></i>
       </router-link>
@@ -47,32 +47,6 @@
   flex-direction: column;
 }
 
-.app-footer {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 8px;
-  display: flex;
-  gap: 8px;
-  z-index: 100;
-}
-
-.nav-icon {
-  width: 52px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 16px;
-  transition: all 0.3s;
-  color: var(--navy);
-  opacity: 0.6;
-  text-decoration: none;
-}
-.nav-icon.active {
-  background: var(--navy);
-  color: white;
-  opacity: 1;
-}
+/* Full-width signage strip — position, look, and icon styles all come from
+   the global .tab-bar / .nav-icon rules in style.css. */
 </style>

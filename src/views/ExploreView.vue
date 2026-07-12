@@ -131,8 +131,8 @@ function initial(str) {
       <section class="editorial-list">
         <div class="container">
           <div class="section-header reveal">
-            <h2 class="section-title">The <span class="italic">June List</span></h2>
-            <p>Ten places you can't miss this month.</p>
+            <h2 class="section-title">{{ issue.top_list_title || 'The' }} <span class="italic">{{ issue.top_list_italic || 'June List' }}</span></h2>
+            <p>{{ issue.top_list_copy || "Ten places you can't miss this month." }}</p>
           </div>
 
           <div class="list-container">

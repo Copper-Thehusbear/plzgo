@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useTripStore } from '@/stores/useTripStore'
+import { trackCTA } from '@/composables/useAnalytics'
 
 const props = defineProps({
   place: { type: Object, required: true },
@@ -56,8 +57,9 @@ const safeAffiliateLink = computed(() => {
       <a
         v-if="safeAffiliateLink"
         :href="safeAffiliateLink"
-        target="_blank" rel="noopener"
+        target="_blank" rel="noopener noreferrer"
         class="tl-link"
+        @click="trackCTA('timeline_check_rooms', displayName, safeAffiliateLink)"
       >
         <i class="fa-solid fa-hotel mr-1.5"></i> Check rooms
       </a>

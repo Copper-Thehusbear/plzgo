@@ -1,5 +1,11 @@
 <script setup>
+import { trackCTA } from '@/composables/useAnalytics'
+
 const emit = defineEmits(['close'])
+
+// TODO(worapun): replace with the real Buy Me a Coffee page slug —
+// the bare homepage collects nothing. e.g. 'https://www.buymeacoffee.com/plzgo'
+const BMC_URL = 'https://www.buymeacoffee.com'
 </script>
 
 <template>
@@ -23,8 +29,9 @@ const emit = defineEmits(['close'])
       </p>
 
       <a
-        href="https://www.buymeacoffee.com"
-        target="_blank" rel="noopener"
+        :href="BMC_URL"
+        target="_blank" rel="noopener noreferrer"
+        @click="trackCTA('donation_bmc', 'Buy me a coffee', BMC_URL)"
         class="flex items-center justify-center w-full h-[52px] rounded-full text-[16px] font-bold mb-3 active:scale-[0.96] transition-all"
         style="background: #F4A261; color: #1B2B4B; letter-spacing: -0.01em; box-shadow: 0 4px 20px rgba(244,162,97,0.35);"
       >

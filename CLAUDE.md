@@ -9,23 +9,23 @@ Tinder-style Bangkok travel planner. Users swipe on places → get an optimised 
 
 ## Database & Seeding
 
-### Firestore State (as of 2026-05-18)
-- **`places` collection: 483 docs** — food:204, attraction:161, nightlife:69, market:28, wellness:21
-- **Hotels: 0** — CSV has 29 hotel rows (category=Stay) but not yet seeded
+### Firestore State (as of 2026-07-12) — Firestore IS the source of truth
+- **`places` collection: 483 docs** — text fields complete: insight_en/th, transit_note_en/th 483/483, nearest_transit_en 455/483
+- **`hotels` collection: 326 docs** — Agoda hotel data (photos, ratings, partnersearch URLs)
 - **`routes` collection** — auto-saved itineraries (share permalinks)
-- Current data is from an older seed run. `seed-master-700.js` has NOT been run against the current CSV.
+- **`issues` collection** — monthly Explore page content (doc per `YYYY-MM`, seeded via `scripts/seed-issue-*.js`)
+- **`hotels_live_cache`** — 24h cache written by the getNearbyHotels Cloud Function
 
-### Master Database
-- **File:** `plzgo-db-task/Plzgo_MasterDB_Clean.csv` (~730 rows)
-- **Status:** 100% English text-complete. All key fields done: name_en, insight_en, zone_en, nearest_transit_en, transit_note_en, etc.
-- **Imagery:** `image_source_url` is 0%. Needs enrichment via Google Places API or manual.
-- **Python scripts:** All deleted — DB is managed via CSV + Node.js seed only.
+### Master CSV (backup snapshot, regenerated FROM Firestore)
+- **File:** `plzgo-db-task/Plzgo_MasterDB_Clean.csv` (483 rows × 69 cols)
+- The original hand-maintained CSV was lost; the CSV is now an export artifact, not the source.
+- Regenerate after bulk edits: `node scripts/export-master-csv.js`
+- `seed-master-700.js` no longer exists — do not reference it.
 
-### Seeding Commands
-```bash
-node scripts/seed-master-700.js      # Seed full CSV → places collection (use this)
-node scripts/fetch-images.js         # Future: fetch real images
-```
+### Imagery — enriched but BLOCKED by billing
+- Every place has real venue photos (`image_url`, `photo_1..10`, `photos[]`) in Firebase Storage (`gs://plzgo-bf50c.firebasestorage.app/places/…`, 2.24 GB).
+- **All image URLs return 403 because the project's billing account is closed.** IAM public read (allUsers:objectViewer) is already granted; re-attaching an active billing account fixes images instantly. This also gates the getNearbyHotels function (Blaze).
+
 Note: `seed-firestore.cjs` and `seed-bangkok.cjs` are legacy — ignore them.
 
 ## Architecture Rules

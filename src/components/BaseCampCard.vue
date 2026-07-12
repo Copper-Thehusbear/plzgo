@@ -10,9 +10,10 @@ const props = defineProps({
 
 const AGODA_CID = '1964186'
 const BANGKOK_DEST = '17297'
-// Klook affiliate ID TBD — user will swap once deal is signed. Leaving plain URL
-// so the link works for users immediately and conversion can be retroactively tracked.
-const KLOOK_AFFILIATE_PARAM = ''
+// Klook affiliate smart link (aid=119259) → "eSIM Thailand, QR via email" product
+// page. Attribution rides the affiliate.klook.com redirect — don't replace this
+// with a direct klook.com URL or the commission is lost.
+const KLOOK_SIM_URL = 'https://affiliate.klook.com/sl/2rc1V1q'
 
 const visibleHotels = computed(() => props.hotels.slice(0, 5))
 const hasHotels     = computed(() => visibleHotels.value.length > 0)
@@ -37,8 +38,7 @@ function agodaMoreUrl() {
 }
 
 function klookSimUrl() {
-  const base = 'https://www.klook.com/en-US/search/?query=sim+card+bangkok'
-  return KLOOK_AFFILIATE_PARAM ? `${base}&${KLOOK_AFFILIATE_PARAM}` : base
+  return KLOOK_SIM_URL
 }
 
 function openHotel(hotel, position) {
@@ -141,8 +141,8 @@ function starStr(stars) {
         <i class="fa-solid fa-sim-card"></i>
       </div>
       <div class="bc-sim-body">
-        <p class="bc-sim-title">Travel SIM for Bangkok?</p>
-        <p class="bc-sim-copy">Skip the airport queue — pre-book unlimited 5G on Klook</p>
+        <p class="bc-sim-title">eSIM for Bangkok?</p>
+        <p class="bc-sim-copy">No queue, no plastic — QR in your inbox before you land</p>
       </div>
       <i class="fa-solid fa-arrow-right bc-sim-arrow"></i>
     </button>

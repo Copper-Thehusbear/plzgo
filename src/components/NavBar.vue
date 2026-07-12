@@ -28,8 +28,8 @@ function restart() {
       <button
         @click="store.toggleLang"
         class="h-[30px] px-3 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center transition-all"
-        style="background: rgba(28,39,61,0.06); border: 1px solid rgba(28,39,61,0.1);"
-        :style="{ color: store.lang === 'th' ? 'var(--orange)' : 'rgba(28,39,61,0.5)' }"
+        style="background: rgba(30,41,59,0.06); border: 1px solid rgba(30,41,59,0.1);"
+        :style="{ color: store.lang === 'th' ? 'var(--orange)' : 'rgba(30,41,59,0.5)' }"
       >
         {{ store.lang === 'th' ? 'TH' : 'EN' }}
       </button>
@@ -37,7 +37,7 @@ function restart() {
       <button
         @click="restart"
         class="h-[30px] px-3.5 rounded-full text-xs font-semibold flex items-center active:scale-95 transition-transform"
-        style="color: rgba(28,39,61,0.5); background: rgba(28,39,61,0.06); border: 1px solid rgba(28,39,61,0.1);"
+        style="color: rgba(30,41,59,0.5); background: rgba(30,41,59,0.06); border: 1px solid rgba(30,41,59,0.1);"
       >Start over</button>
     </div>
   </nav>

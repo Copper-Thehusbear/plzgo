@@ -125,7 +125,7 @@ const lang = ref('en')
 
 .lang-toggle {
   display: flex;
-  background: rgba(28,39,61,0.06);
+  background: rgba(30,41,59,0.06);
   border-radius: 99px;
   padding: 3px;
   gap: 2px;
@@ -136,7 +136,7 @@ const lang = ref('en')
   padding: 4px 12px; border-radius: 99px;
   border: none; cursor: pointer;
   background: transparent;
-  color: rgba(28,39,61,0.4);
+  color: rgba(30,41,59,0.4);
   font-family: 'IBM Plex Sans Thai', 'Inter', sans-serif;
   transition: all 0.2s;
 }

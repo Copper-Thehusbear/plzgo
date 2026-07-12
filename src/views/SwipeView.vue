@@ -63,24 +63,26 @@ function triggerButtonSwipe(dir) {
 
 function bangkokFallback() {
   return [
-    { id:'f01', city:'Bangkok', zone:'รัตนโกสินทร์', name:'วัดอรุณราชวรารามฯ', name_en:'Wat Arun – Temple of Dawn', description:'ตอนพระอาทิตย์ขึ้นสวยจนแทบร้องไห้', description_tourist:'Most photogenic temple in Bangkok. Cross the river by ferry for 5 THB. Sunrise is magical.', location:{latitude:13.7437,longitude:100.4888}, time_tag:'Morning', vibe_tags:['photo','spiritual','chill'], is_universal:true, price_range:'฿', duration_minutes:60, opening_hours:'08:00–18:00', image_url:'https://images.unsplash.com/photo-1563492065599-3520f775eeed?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'attraction' },
-    { id:'f02', city:'Bangkok', zone:'รัตนโกสินทร์', name:'วัดพระแก้ว', name_en:'Wat Phra Kaew & Grand Palace', description:'ต้องมา ถ้าไม่มาคือยังไม่ได้มากรุงเทพ', description_tourist:'The most sacred temple in Thailand. Worth every baht of the 500 THB entrance fee. Go before 9AM.', location:{latitude:13.75,longitude:100.4913}, time_tag:'Morning', vibe_tags:['spiritual','photo','local'], is_universal:true, price_range:'฿฿', duration_minutes:120, opening_hours:'08:30–15:30', image_url:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'attraction' },
-    { id:'f03', city:'Bangkok', zone:'รัตนโกสินทร์', name:'วัดโพธิ์', name_en:'Wat Pho – Reclining Buddha', description:'พระนอนยักษ์ขนาด 46 เมตร', description_tourist:'46-meter reclining Buddha. Get a Thai massage after — best 300 THB you’ll spend.', location:{latitude:13.7465,longitude:100.4927}, time_tag:'Morning', vibe_tags:['spiritual','photo','chill'], is_universal:true, price_range:'฿฿', duration_minutes:90, opening_hours:'08:00–18:30', image_url:'https://images.unsplash.com/photo-1582987685568-7cae9ac5abae?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'attraction' },
-    { id:'f04', city:'Bangkok', zone:'พระนคร', name:'เจ๊ไฝ', name_en:'Jay Fai', description:'สตรีทฟู้ดมิชลินสตาร์', description_tourist:'Michelin-starred street food. Crab omelette 500 THB. Queue 2–3 hrs. Worth every second.', location:{latitude:13.7534,longitude:100.5035}, time_tag:'Afternoon', vibe_tags:['foodie'], is_universal:true, price_range:'฿฿฿฿', duration_minutes:60, opening_hours:'14:00–22:00', image_url:'https://images.unsplash.com/photo-1562802378-063ec186a863?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'food' },
-    { id:'f05', city:'Bangkok', zone:'สีลม', name:'Sky Bar at Lebua', name_en:'Sky Bar – Lebua at State Tower', description:'บาร์บนดาดฟ้าที่ถ่าย Hangover 2', description_tourist:'The Hangover 2 rooftop bar. One drink minimum. The view justifies everything.', location:{latitude:13.7225,longitude:100.5145}, time_tag:'Evening', vibe_tags:['luxury','photo','party'], is_universal:true, price_range:'฿฿฿฿', duration_minutes:90, opening_hours:'18:00–01:00', image_url:'https://images.unsplash.com/photo-1551882547-ff40c63fe2fd?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'nightlife' },
-    { id:'f06', city:'Bangkok', zone:'สีลม', name:'Silom Soi 4', name_en:'Silom Soi 4 – LGBTQ+ Strip', description:'หัวใจ gay scene กรุงเทพ', description_tourist:'Heart of Bangkok’s gay nightlife. Outdoor bars, drag shows, friendly crowd.', location:{latitude:13.7279,longitude:100.5284}, time_tag:'Night', vibe_tags:['gay-vibe','party','chill'], is_universal:true, price_range:'฿฿', duration_minutes:180, opening_hours:'20:00–02:00', image_url:'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'nightlife' },
-    { id:'f07', city:'Bangkok', zone:'รัตนโกสินทร์', name:'ถนนข้าวสาร', name_en:'Khao San Road', description:'ถนนแบ็คแพ็คเกอร์', description_tourist:'The world’s most famous backpacker street. Cheap beer, loud music, chaos.', location:{latitude:13.7593,longitude:100.4971}, time_tag:'Night', vibe_tags:['party','budget','local'], is_universal:true, price_range:'฿', duration_minutes:180, opening_hours:'10:00–02:00', image_url:'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'area' },
-    { id:'f08', city:'Bangkok', zone:'สุขุมวิท', name:'Jodd Fairs', name_en:'Jodd Fairs Night Market', description:'ไนท์มาร์เก็ตที่ฮอตที่สุด', description_tourist:'Bangkok’s hottest night market. The lava cheese pork ribs are Instagram-famous.', location:{latitude:13.7562,longitude:100.5649}, time_tag:'Evening', vibe_tags:['foodie','photo','local'], is_universal:true, price_range:'฿฿', duration_minutes:120, opening_hours:'17:00–00:00', image_url:'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'market' },
-    { id:'f09', city:'Bangkok', zone:'จตุจักร', name:'ตลาดนัดจตุจักร', name_en:'Chatuchak Weekend Market', description:'ตลาดใหญ่ที่สุดในโลก', description_tourist:'World’s largest weekend market. 15,000 stalls. Budget 4+ hours.', location:{latitude:13.7999,longitude:100.55}, time_tag:'Morning', vibe_tags:['local','foodie','chill'], is_universal:true, price_range:'฿', duration_minutes:240, opening_hours:'09:00–18:00', image_url:'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'market' },
-    { id:'f10', city:'Bangkok', zone:'สุขุมวิท', name:'Asiatique', name_en:'Asiatique The Riverfront', description:'ไนท์มาร์เก็ตริมแม่น้ำ', description_tourist:'Riverside night market in restored warehouses. Free shuttle boat from Saphan Taksin.', location:{latitude:13.7196,longitude:100.4985}, time_tag:'Evening', vibe_tags:['chill','photo','foodie'], is_universal:true, price_range:'฿฿', duration_minutes:150, opening_hours:'17:00–00:00', image_url:'https://images.unsplash.com/photo-1567949124183-e86a11d84aba?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'market' },
-    { id:'f11', city:'Bangkok', zone:'สุขุมวิท', name:'สวนลุมพินี', name_en:'Lumpini Park', description:'ปอดของกรุงเทพ', description_tourist:'Bangkok’s green oasis. Giant monitor lizards patrol the lake.', location:{latitude:13.7306,longitude:100.5418}, time_tag:'Morning', vibe_tags:['chill','local'], is_universal:true, price_range:'฿', duration_minutes:60, opening_hours:'04:30–21:00', image_url:'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=800&q=80', affiliate_link:null, type:'attraction' },
-    { id:'f12', city:'Bangkok', zone:'เยาวราช', name:'เยาวราช', name_en:'Yaowarat – Chinatown at Night', description:'เยาวราชตอนกลางคืน', description_tourist:'Bangkok’s Chinatown comes alive at night. Neon signs, street seafood, best egg tarts.', location:{latitude:13.7399,longitude:100.51}, time_tag:'Night', vibe_tags:['foodie','local','photo'], is_universal:true, price_range:'฿฿', duration_minutes:120, opening_hours:'18:00–00:00', image_url:'https://images.unsplash.com/photo-1580834341580-8c17a3a630ca?auto=format&fit=800&q=80', affiliate_link:null, type:'area' },
+    { id:'f01', city:'Bangkok', zone:'รัตนโกสินทร์', name:'วัดอรุณราชวรารามฯ', name_en:'Wat Arun – Temple of Dawn', description:'ตอนพระอาทิตย์ขึ้นสวยจนแทบร้องไห้', description_tourist:'Most photogenic temple in Bangkok. Cross the river by ferry for 5 THB. Sunrise is magical.', location:{latitude:13.7437,longitude:100.4888}, time_tag:'Morning', vibe_tags:['photo','spiritual','chill'], is_universal:true, price_range:'฿', duration_minutes:60, opening_hours:'08:00–18:00', image_url:null, affiliate_link:null, type:'attraction' },
+    { id:'f02', city:'Bangkok', zone:'รัตนโกสินทร์', name:'วัดพระแก้ว', name_en:'Wat Phra Kaew & Grand Palace', description:'ต้องมา ถ้าไม่มาคือยังไม่ได้มากรุงเทพ', description_tourist:'The most sacred temple in Thailand. Worth every baht of the 500 THB entrance fee. Go before 9AM.', location:{latitude:13.75,longitude:100.4913}, time_tag:'Morning', vibe_tags:['spiritual','photo','local'], is_universal:true, price_range:'฿฿', duration_minutes:120, opening_hours:'08:30–15:30', image_url:null, affiliate_link:null, type:'attraction' },
+    { id:'f03', city:'Bangkok', zone:'รัตนโกสินทร์', name:'วัดโพธิ์', name_en:'Wat Pho – Reclining Buddha', description:'พระนอนยักษ์ขนาด 46 เมตร', description_tourist:'46-meter reclining Buddha. Get a Thai massage after — best 300 THB you’ll spend.', location:{latitude:13.7465,longitude:100.4927}, time_tag:'Morning', vibe_tags:['spiritual','photo','chill'], is_universal:true, price_range:'฿฿', duration_minutes:90, opening_hours:'08:00–18:30', image_url:null, affiliate_link:null, type:'attraction' },
+    { id:'f04', city:'Bangkok', zone:'พระนคร', name:'เจ๊ไฝ', name_en:'Jay Fai', description:'สตรีทฟู้ดมิชลินสตาร์', description_tourist:'Michelin-starred street food. Crab omelette 500 THB. Queue 2–3 hrs. Worth every second.', location:{latitude:13.7534,longitude:100.5035}, time_tag:'Afternoon', vibe_tags:['foodie'], is_universal:true, price_range:'฿฿฿฿', duration_minutes:60, opening_hours:'14:00–22:00', image_url:null, affiliate_link:null, type:'food' },
+    { id:'f05', city:'Bangkok', zone:'สีลม', name:'Sky Bar at Lebua', name_en:'Sky Bar – Lebua at State Tower', description:'บาร์บนดาดฟ้าที่ถ่าย Hangover 2', description_tourist:'The Hangover 2 rooftop bar. One drink minimum. The view justifies everything.', location:{latitude:13.7225,longitude:100.5145}, time_tag:'Evening', vibe_tags:['luxury','photo','party'], is_universal:true, price_range:'฿฿฿฿', duration_minutes:90, opening_hours:'18:00–01:00', image_url:null, affiliate_link:null, type:'nightlife' },
+    { id:'f06', city:'Bangkok', zone:'สีลม', name:'Silom Soi 4', name_en:'Silom Soi 4 – LGBTQ+ Strip', description:'หัวใจ gay scene กรุงเทพ', description_tourist:'Heart of Bangkok’s gay nightlife. Outdoor bars, drag shows, friendly crowd.', location:{latitude:13.7279,longitude:100.5284}, time_tag:'Night', vibe_tags:['gay-vibe','party','chill'], is_universal:true, price_range:'฿฿', duration_minutes:180, opening_hours:'20:00–02:00', image_url:null, affiliate_link:null, type:'nightlife' },
+    { id:'f07', city:'Bangkok', zone:'รัตนโกสินทร์', name:'ถนนข้าวสาร', name_en:'Khao San Road', description:'ถนนแบ็คแพ็คเกอร์', description_tourist:'The world’s most famous backpacker street. Cheap beer, loud music, chaos.', location:{latitude:13.7593,longitude:100.4971}, time_tag:'Night', vibe_tags:['party','budget','local'], is_universal:true, price_range:'฿', duration_minutes:180, opening_hours:'10:00–02:00', image_url:null, affiliate_link:null, type:'area' },
+    { id:'f08', city:'Bangkok', zone:'สุขุมวิท', name:'Jodd Fairs', name_en:'Jodd Fairs Night Market', description:'ไนท์มาร์เก็ตที่ฮอตที่สุด', description_tourist:'Bangkok’s hottest night market. The lava cheese pork ribs are Instagram-famous.', location:{latitude:13.7562,longitude:100.5649}, time_tag:'Evening', vibe_tags:['foodie','photo','local'], is_universal:true, price_range:'฿฿', duration_minutes:120, opening_hours:'17:00–00:00', image_url:null, affiliate_link:null, type:'market' },
+    { id:'f09', city:'Bangkok', zone:'จตุจักร', name:'ตลาดนัดจตุจักร', name_en:'Chatuchak Weekend Market', description:'ตลาดใหญ่ที่สุดในโลก', description_tourist:'World’s largest weekend market. 15,000 stalls. Budget 4+ hours.', location:{latitude:13.7999,longitude:100.55}, time_tag:'Morning', vibe_tags:['local','foodie','chill'], is_universal:true, price_range:'฿', duration_minutes:240, opening_hours:'09:00–18:00', image_url:null, affiliate_link:null, type:'market' },
+    { id:'f10', city:'Bangkok', zone:'สุขุมวิท', name:'Asiatique', name_en:'Asiatique The Riverfront', description:'ไนท์มาร์เก็ตริมแม่น้ำ', description_tourist:'Riverside night market in restored warehouses. Free shuttle boat from Saphan Taksin.', location:{latitude:13.7196,longitude:100.4985}, time_tag:'Evening', vibe_tags:['chill','photo','foodie'], is_universal:true, price_range:'฿฿', duration_minutes:150, opening_hours:'17:00–00:00', image_url:null, affiliate_link:null, type:'market' },
+    { id:'f11', city:'Bangkok', zone:'สุขุมวิท', name:'สวนลุมพินี', name_en:'Lumpini Park', description:'ปอดของกรุงเทพ', description_tourist:'Bangkok’s green oasis. Giant monitor lizards patrol the lake.', location:{latitude:13.7306,longitude:100.5418}, time_tag:'Morning', vibe_tags:['chill','local'], is_universal:true, price_range:'฿', duration_minutes:60, opening_hours:'04:30–21:00', image_url:null, affiliate_link:null, type:'attraction' },
+    { id:'f12', city:'Bangkok', zone:'เยาวราช', name:'เยาวราช', name_en:'Yaowarat – Chinatown at Night', description:'เยาวราชตอนกลางคืน', description_tourist:'Bangkok’s Chinatown comes alive at night. Neon signs, street seafood, best egg tarts.', location:{latitude:13.7399,longitude:100.51}, time_tag:'Night', vibe_tags:['foodie','local','photo'], is_universal:true, price_range:'฿฿', duration_minutes:120, opening_hours:'18:00–00:00', image_url:null, affiliate_link:null, type:'area' },
   ]
 }
 </script>
 
 <template>
   <AppLayout>
+    <!-- Navy backdrop — SwipeView is the only navy-background screen (design system) -->
+    <div class="sw-backdrop"></div>
     <template #header>
       <!-- Nav: back · progress · route-pill -->
       <nav class="glass-nav h-16 w-full">
@@ -188,25 +190,38 @@ function bangkokFallback() {
 </template>
 
 <style scoped>
-/* ─── Nav ─── */
+/* ─── Navy backdrop (swipe screen only) ─── */
+.sw-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--navy-swipe);
+}
+
+/* ─── Nav (dark glass on navy) ───
+   Only recolour; blur/saturate stays owned by the global .glass-nav rule. */
+.glass-nav {
+  background: color-mix(in srgb, var(--navy-swipe) 72%, transparent);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
 .sw-icon-btn {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  color: var(--navy);
+  color: #fff;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(28, 39, 61, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   flex-shrink: 0;
 }
 .sw-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
 }
 .sw-icon-btn:active { transform: scale(0.94); }
@@ -230,7 +245,7 @@ function bangkokFallback() {
   width: 14px;
   height: 4px;
   border-radius: 99px;
-  background: rgba(28, 39, 61, 0.1);
+  background: rgba(255, 255, 255, 0.18);
   transition: background 0.3s, transform 0.3s;
 }
 .sw-seg--on {
@@ -240,12 +255,12 @@ function bangkokFallback() {
 .sw-count {
   font-size: 12px;
   font-weight: 800;
-  color: rgba(28, 39, 61, 0.4);
+  color: rgba(255, 255, 255, 0.55);
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
 .sw-count-curr { color: var(--orange); }
-.sw-count-sep  { color: rgba(28, 39, 61, 0.25); margin: 0 1px; }
+.sw-count-sep  { color: rgba(255, 255, 255, 0.3); margin: 0 1px; }
 
 .sw-route-btn {
   display: inline-flex;
@@ -255,20 +270,20 @@ function bangkokFallback() {
   padding: 0 16px;
   border-radius: 999px;
   border: none;
-  background: var(--navy);
-  color: white;
+  background: #fff;
+  color: var(--navy);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.02em;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(28, 39, 61, 0.25);
+  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.25);
   flex-shrink: 0;
 }
 .sw-route-btn:hover {
-  background: rgba(28, 39, 61, 0.9);
+  background: rgba(255, 255, 255, 0.9);
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(28, 39, 61, 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }
 .sw-route-btn:active { transform: scale(0.96); }
 .sw-route-btn i { font-size: 11px; }
@@ -303,14 +318,14 @@ function bangkokFallback() {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 3px solid rgba(243, 156, 89, 0.18);
+  border: 3px solid rgba(255, 140, 66, 0.18);
   border-top-color: var(--orange);
   animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .sw-state-txt {
   font-size: 14px;
-  color: rgba(28, 39, 61, 0.45);
+  color: rgba(255, 255, 255, 0.6);
   margin: 0;
 }
 .sw-empty {
@@ -334,7 +349,7 @@ function bangkokFallback() {
 }
 .sw-empty-sub {
   font-size: 14px;
-  color: rgba(28, 39, 61, 0.5);
+  color: rgba(30, 41, 59, 0.5);
   line-height: 1.5;
   margin-bottom: 16px;
 }
@@ -400,16 +415,16 @@ function bangkokFallback() {
   height: 60px;
   border-radius: 50%;
   background: #fff;
-  border: 1.5px solid rgba(28, 39, 61, 0.12);
-  color: rgba(28, 39, 61, 0.4);
+  border: 1.5px solid rgba(30, 41, 59, 0.12);
+  color: rgba(30, 41, 59, 0.4);
   font-size: 22px;
-  box-shadow: 0 4px 14px rgba(28, 39, 61, 0.06);
+  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.06);
 }
 .sw-action-pass:hover {
-  border-color: rgba(28, 39, 61, 0.25);
-  color: rgba(28, 39, 61, 0.7);
+  border-color: rgba(30, 41, 59, 0.25);
+  color: rgba(30, 41, 59, 0.7);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(28, 39, 61, 0.1);
+  box-shadow: 0 6px 20px rgba(30, 41, 59, 0.1);
 }
 
 /* Add — primary, orange filled w/ glow */
@@ -417,13 +432,13 @@ function bangkokFallback() {
   width: 68px;
   height: 68px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #E8814A 0%, #F39C59 100%);
+  background: var(--orange);
   color: white;
   font-size: 26px;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.25) inset,
-    0 8px 22px rgba(243, 156, 89, 0.5),
-    0 2px 6px rgba(243, 156, 89, 0.3);
+    0 8px 22px rgba(255, 140, 66, 0.5),
+    0 2px 6px rgba(255, 140, 66, 0.3);
   position: relative;
 }
 .sw-action-add::before {
@@ -431,7 +446,7 @@ function bangkokFallback() {
   position: absolute;
   inset: -6px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(243, 156, 89, 0.25) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 140, 66, 0.25) 0%, transparent 70%);
   z-index: -1;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -440,8 +455,8 @@ function bangkokFallback() {
   transform: translateY(-3px);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.25) inset,
-    0 14px 30px rgba(243, 156, 89, 0.6),
-    0 4px 10px rgba(243, 156, 89, 0.35);
+    0 14px 30px rgba(255, 140, 66, 0.6),
+    0 4px 10px rgba(255, 140, 66, 0.35);
 }
 .sw-action-add:hover::before { opacity: 1; }
 
@@ -452,7 +467,7 @@ function bangkokFallback() {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(28, 39, 61, 0.32);
+  color: rgba(255, 255, 255, 0.4);
   text-align: center;
 }
 .sw-hint-line {

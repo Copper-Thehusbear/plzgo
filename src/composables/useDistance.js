@@ -1,4 +1,11 @@
 // useDistance.js — Haversine formula (offline, no API cost)
+
+// Canonical accessors for the two place-coordinate shapes
+// (nested location object from Firestore, flat lat/lng from legacy rows).
+// Use these instead of re-implementing the ?? fallback per consumer.
+export function placeLat(p) { return p.location?.latitude ?? p.latitude }
+export function placeLng(p) { return p.location?.longitude ?? p.longitude }
+
 export function useDistance() {
 
   function haversine(lat1, lng1, lat2, lng2) {

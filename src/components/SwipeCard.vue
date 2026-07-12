@@ -33,9 +33,9 @@ const cardStyle = computed(() => {
   }
 })
 
-const dragProgress = computed(() => Math.min(Math.abs(dragX.value) / THRESHOLD, 1))
-const showYep      = computed(() => dragX.value > 14)
-const showNope     = computed(() => dragX.value < -14)
+const dragProgress = computed(() => isExiting.value ? 1 : Math.min(Math.abs(dragX.value) / THRESHOLD, 1))
+const showYep      = computed(() => dragX.value > 14 || (isExiting.value && exitDir.value === 1))
+const showNope     = computed(() => dragX.value < -14 || (isExiting.value && exitDir.value === -1))
 
 // ── Multi-image state ───────────────────────────────────────────────
 const imgIndex     = ref(0)
@@ -50,8 +50,21 @@ const images = computed(() =>
       : []
 )
 
+// URLs that failed to load → show the placeholder instead of a broken img.
+// The failing src is read from the element's data-src (bound at render time),
+// so a late error event from a previous image can't mark the current one.
+const failedImages = ref(new Set())
+function onImageError(e) {
+  const src = e.target?.dataset?.src
+  if (src) failedImages.value.add(src)
+}
+const currentImageOk = computed(() =>
+  images.value.length > 0 && !failedImages.value.has(images.value[imgIndex.value])
+)
+
 watch(() => props.place.id, () => {
   imgIndex.value = 0
+  failedImages.value.clear()
   if (scrollRef.value) scrollRef.value.scrollTop = 0
 })
 
@@ -90,6 +103,7 @@ function onPointerMove(e) {
       gestureLock.value = 'h'
     } else {
       gestureLock.value = 'v'
+      isTap = false // scrolling is not a tap — don't flip the image on release
       try { e.currentTarget.releasePointerCapture(e.pointerId) } catch {}
       isDragging.value = false
       return
@@ -129,6 +143,7 @@ function onPointerUp(e) {
 
 function onPointerCancel() {
   isDragging.value = false
+  isTap = false // a cancelled gesture must never register as a tap
   if (gestureLock.value !== 'v') dragX.value = 0
 }
 
@@ -200,9 +215,9 @@ const VIBE_STYLES = {
   budget:    { bg: 'rgba(74,222,128,0.12)',  border: 'rgba(74,222,128,0.35)',  color: '#15803D' },
   shopping:  { bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.35)',  color: '#2563EB' },
   adventure: { bg: 'rgba(251,146,60,0.12)',  border: 'rgba(251,146,60,0.35)',  color: '#C2410C' },
-  local:     { bg: 'rgba(28,39,61,0.06)',    border: 'rgba(28,39,61,0.15)',    color: 'rgba(28,39,61,0.6)' },
+  local:     { bg: 'rgba(30,41,59,0.06)',    border: 'rgba(30,41,59,0.15)',    color: 'rgba(30,41,59,0.6)' },
 }
-const DEFAULT_VIBE = { bg: 'rgba(28,39,61,0.06)', border: 'rgba(28,39,61,0.15)', color: 'rgba(28,39,61,0.5)' }
+const DEFAULT_VIBE = { bg: 'rgba(30,41,59,0.06)', border: 'rgba(30,41,59,0.15)', color: 'rgba(30,41,59,0.5)' }
 function vibeStyle(tag) { return VIBE_STYLES[tag] ?? DEFAULT_VIBE }
 
 const footerLocation = computed(() =>
@@ -225,12 +240,14 @@ const footerLocation = computed(() =>
       <!-- IMAGE -->
       <div ref="imageAreaRef" class="sc-image-area">
         <img
-          v-if="images.length"
+          v-if="currentImageOk"
           :key="imgIndex"
           :src="images[imgIndex]"
+          :data-src="images[imgIndex]"
           :alt="displayName"
           class="sc-image"
           draggable="false"
+          @error="onImageError"
         />
         <div v-else class="sc-image-placeholder">
           <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
@@ -353,7 +370,7 @@ const footerLocation = computed(() =>
   height: 100%;
   border-radius: 28px;
   background: #fff;
-  box-shadow: 0 20px 60px rgba(28, 39, 61, 0.18), 0 4px 16px rgba(28, 39, 61, 0.10);
+  box-shadow: 0 20px 60px rgba(30, 41, 59, 0.18), 0 4px 16px rgba(30, 41, 59, 0.10);
   border: 1px solid rgba(255, 255, 255, 0.7);
   overflow: hidden;
   user-select: none;
@@ -530,7 +547,7 @@ const footerLocation = computed(() =>
 }
 .sc-sub {
   font-size: 12px;
-  color: rgba(28, 39, 61, 0.42);
+  color: rgba(30, 41, 59, 0.42);
   letter-spacing: 0.01em;
   line-height: 1.3;
   margin-top: 2px;
@@ -554,13 +571,13 @@ const footerLocation = computed(() =>
   white-space: nowrap;
 }
 .sc-pill i { font-size: 10px; opacity: 0.8; }
-.sc-pill-gold { background: rgba(243, 156, 89, 0.13); color: #C2610A; }
-.sc-pill-dark { background: rgba(28, 39, 61, 0.06); color: rgba(28, 39, 61, 0.6); }
+.sc-pill-gold { background: rgba(255, 140, 66, 0.13); color: #C2610A; }
+.sc-pill-dark { background: rgba(30, 41, 59, 0.06); color: rgba(30, 41, 59, 0.6); }
 
 /* Description — full text, scrollable */
 .sc-desc {
   font-size: 13.5px;
-  color: rgba(28, 39, 61, 0.75);
+  color: rgba(30, 41, 59, 0.75);
   line-height: 1.62;
   letter-spacing: 0.005em;
 }
@@ -585,7 +602,7 @@ const footerLocation = computed(() =>
 /* Divider */
 .sc-divider {
   height: 1px;
-  background: rgba(28, 39, 61, 0.07);
+  background: rgba(30, 41, 59, 0.07);
   margin: 4px 0;
 }
 
@@ -600,7 +617,7 @@ const footerLocation = computed(() =>
   align-items: flex-start;
   gap: 10px;
   font-size: 12.5px;
-  color: rgba(28, 39, 61, 0.7);
+  color: rgba(30, 41, 59, 0.7);
   line-height: 1.4;
   font-weight: 500;
 }
@@ -632,10 +649,10 @@ const footerLocation = computed(() =>
   left: 18px;
   border-color: var(--orange);
   color: var(--orange);
-  background: rgba(243, 156, 89, 0.12);
+  background: rgba(255, 140, 66, 0.12);
   transform: rotate(-15deg);
   transform-origin: left center;
-  text-shadow: 0 0 18px rgba(243, 156, 89, 0.5);
+  text-shadow: 0 0 18px rgba(255, 140, 66, 0.5);
 }
 .sc-stamp-nope {
   right: 18px;

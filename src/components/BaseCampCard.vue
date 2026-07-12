@@ -183,12 +183,12 @@ function starStr(stars) {
   width: 52px; height: 52px; border-radius: 12px; object-fit: cover; flex-shrink: 0;
 }
 .bc-hotel-img-placeholder {
-  background: linear-gradient(135deg, rgba(243,156,89,0.15) 0%, rgba(243,156,89,0.05) 100%);
+  background: linear-gradient(135deg, rgba(255,140,66,0.15) 0%, rgba(255,140,66,0.05) 100%);
   display: flex; align-items: center; justify-content: center;
   color: var(--orange); font-size: 18px;
 }
 .bc-zone {
-  font-size: 10.5px; font-weight: 700; color: rgba(28,39,61,0.45);
+  font-size: 10.5px; font-weight: 700; color: rgba(30,41,59,0.45);
   text-transform: uppercase; letter-spacing: 0.08em;
 }
 .bc-hotel-name-row {
@@ -206,7 +206,7 @@ function starStr(stars) {
   flex-shrink: 0;
 }
 .bc-badge-live { background: rgba(34,197,94,0.12); color: #15803D; }
-.bc-badge-sponsored { background: rgba(243,156,89,0.18); color: #C2610A; }
+.bc-badge-sponsored { background: rgba(255,140,66,0.18); color: #C2610A; }
 
 .bc-hotel-meta {
   font-size: 11px; color: #94A3B8; font-weight: 600;
@@ -230,7 +230,7 @@ function starStr(stars) {
   padding: 7px 16px; border-radius: 99px;
   background: var(--orange); color: #fff;
   font-size: 12px; font-weight: 800; border: none; cursor: pointer;
-  box-shadow: 0 4px 12px rgba(243,156,89,0.3);
+  box-shadow: 0 4px 12px rgba(255,140,66,0.3);
   transition: all 0.2s;
 }
 .bc-book-btn:active { transform: scale(0.94); }
@@ -239,19 +239,19 @@ function starStr(stars) {
 .bc-empty {
   display: flex; align-items: center; gap: 12px;
   padding: 14px 16px; margin-bottom: 12px;
-  background: rgba(243,156,89,0.06);
-  border: 1px dashed rgba(243,156,89,0.25);
+  background: rgba(255,140,66,0.06);
+  border: 1px dashed rgba(255,140,66,0.25);
   border-radius: 14px;
 }
 .bc-empty-icon {
   width: 36px; height: 36px; flex-shrink: 0;
   border-radius: 10px;
-  background: rgba(243,156,89,0.12);
+  background: rgba(255,140,66,0.12);
   display: flex; align-items: center; justify-content: center;
   color: var(--orange); font-size: 14px;
 }
 .bc-empty-text {
-  font-size: 12.5px; line-height: 1.5; color: rgba(28,39,61,0.65);
+  font-size: 12.5px; line-height: 1.5; color: rgba(30,41,59,0.65);
   font-weight: 600; margin: 0;
 }
 .bc-empty-em { color: var(--orange); font-weight: 800; }
@@ -263,8 +263,8 @@ function starStr(stars) {
   width: 100%;
   padding: 13px 16px;
   border-radius: 14px;
-  border: 1.5px solid rgba(243,156,89,0.45);
-  background: rgba(243,156,89,0.08);
+  border: 1.5px solid rgba(255,140,66,0.45);
+  background: rgba(255,140,66,0.08);
   color: #C2610A;
   font-size: 13px; font-weight: 800;
   cursor: pointer;
@@ -276,7 +276,7 @@ function starStr(stars) {
   border-color: var(--orange);
   color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(243,156,89,0.3);
+  box-shadow: 0 8px 20px rgba(255,140,66,0.3);
 }
 .bc-agoda-more i { font-size: 11px; }
 

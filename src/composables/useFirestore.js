@@ -1,5 +1,24 @@
 import { db } from '@/firebase'
 import { collection, query, where, getDocs } from 'firebase/firestore'
+import { placeLat, placeLng } from './useDistance'
+
+// Session-lifetime cache: the `places` snapshot per city survives route changes,
+// so revisiting /swipe doesn't re-download the whole collection (~500 docs).
+// A page reload is the invalidation; empty results are never cached so a
+// failed or mid-reseed fetch can be retried on the next visit.
+const cityCache = new Map()
+
+async function fetchCityPlaces(city) {
+  if (cityCache.has(city)) return cityCache.get(city)
+  const snapshot = await getDocs(query(collection(db, 'places'), where('city', '==', city)))
+  // Drop places without coordinates at the ingestion point — routing, map
+  // markers and contextual pins all require location downstream.
+  const places = snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .filter(p => placeLat(p) != null && placeLng(p) != null)
+  if (places.length) cityCache.set(city, places)
+  return places
+}
 
 export function useFirestore() {
 
@@ -27,7 +46,8 @@ export function useFirestore() {
 
   function isOpenNow(openingHours) {
     if (!openingHours) return true
-    const parts = openingHours.split('–')
+    // Accept en dash, em dash, or hyphen between times ("08:00–18:00", "08:00 - 18:00")
+    const parts = openingHours.split(/[–—-]/)
     if (parts.length < 2) return true
     const toMins = t => {
       const [h, m] = t.trim().split(':').map(Number)
@@ -56,8 +76,7 @@ export function useFirestore() {
   }
 
   async function fetchCardPool(city, selectedVibes, modeConfig, openNow = false, gayFilterOn = false, localModeOn = false) {
-    const snapshot = await getDocs(query(collection(db, 'places'), where('city', '==', city)))
-    let places = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    let places = await fetchCityPlaces(city)
 
     // Vibe filter — keep places with at least 1 vibe match
     if (selectedVibes.length && !selectedVibes.includes('all')) {
@@ -96,6 +115,10 @@ export function useFirestore() {
 
     if (!places.length) return []
 
+    // Shuffle first, then stable-sort by score — ties end up in random order,
+    // so the deck differs between sessions instead of always repeating.
+    places = shuffle(places)
+
     // Score-based sort: vibe overlap + hidden gem bonus
     places.sort((a, b) => {
       const sa = vibeScore(a, selectedVibes) + (a.is_hidden_gem ? 0.5 : 0)
@@ -113,7 +136,7 @@ export function useFirestore() {
       })
     }
 
-    // Cap to cardLimit, then shuffle within equal-score groups
+    // Cap to cardLimit (order: score desc, random within ties)
     const pool = places.slice(0, modeConfig.cardLimit)
 
     // Time-of-day ordering: preferred time first

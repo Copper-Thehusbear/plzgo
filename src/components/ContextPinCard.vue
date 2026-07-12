@@ -180,7 +180,7 @@ const durationLabel = computed(() => {
 
 <style scoped>
 .ctx-backdrop {
-  position: absolute; inset: 0; background: rgba(28,39,61,0.4); backdrop-filter: blur(4px);
+  position: absolute; inset: 0; background: rgba(30,41,59,0.4); backdrop-filter: blur(4px);
 }
 .ctx-sheet-wrapper {
   position: absolute; inset: 0; display: flex; align-items: flex-end; pointer-events: none;
@@ -203,7 +203,7 @@ const durationLabel = computed(() => {
   font-size: 22px; cursor: pointer; border: none; transition: all 0.2s;
 }
 .ctx-btn.nope { background: #fff; color: #EF4444; border: 1.5px solid #FEE2E2; box-shadow: 0 4px 12px rgba(239,68,68,0.15); }
-.ctx-btn.yep  { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(243,156,89,0.35); }
+.ctx-btn.yep  { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(255,140,66,0.35); }
 .ctx-btn:active { transform: scale(0.9); }
 
 .ctx-stamp {

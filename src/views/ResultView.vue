@@ -418,9 +418,9 @@ async function copyLink() {
                     </p>
                   </div>
                 </div>
-                <span class="text-[13px] font-black" style="color:rgba(28,39,61,0.3)">{{ weather.precipProb }}%</span>
+                <span class="text-[13px] font-black" style="color:rgba(30,41,59,0.3)">{{ weather.precipProb }}%</span>
               </div>
-              <p v-if="weather.tip" class="text-[11px] font-semibold mt-3 pt-3" style="color:rgba(28,39,61,0.45); border-top:1px solid rgba(28,39,61,0.07)">
+              <p v-if="weather.tip" class="text-[11px] font-semibold mt-3 pt-3" style="color:rgba(30,41,59,0.45); border-top:1px solid rgba(30,41,59,0.07)">
                 {{ weather.tip }}
               </p>
             </div>
@@ -544,11 +544,11 @@ async function copyLink() {
   color: #fff;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(243,156,89,0.35);
+  box-shadow: 0 4px 14px rgba(255,140,66,0.35);
   transition: all 0.25s;
   font-family: 'IBM Plex Sans Thai', 'Inter', sans-serif;
 }
-.rv-share-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(243,156,89,0.4); }
+.rv-share-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(255,140,66,0.4); }
 .rv-share-btn:active { transform: scale(0.96); }
 
 .rv-saving {
@@ -556,7 +556,7 @@ async function copyLink() {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: rgba(28,39,61,0.35);
+  color: rgba(30,41,59,0.35);
 }
 
 .rv-inner {
@@ -597,7 +597,7 @@ async function copyLink() {
 }
 .rv-meta {
   font-size: 14px;
-  color: rgba(28,39,61,0.45);
+  color: rgba(30,41,59,0.45);
   margin: 0;
 }
 
@@ -691,13 +691,13 @@ async function copyLink() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(28,39,61,0.05);
-  color: rgba(28,39,61,0.6);
-  border: 1.5px solid rgba(28,39,61,0.05);
+  background: rgba(30,41,59,0.05);
+  color: rgba(30,41,59,0.6);
+  border: 1.5px solid rgba(30,41,59,0.05);
   cursor: pointer;
   transition: all 0.2s;
 }
-.rv-plan-btn:hover { background: rgba(28,39,61,0.1); }
+.rv-plan-btn:hover { background: rgba(30,41,59,0.1); }
 
 .rv-retry-btn {
   height: 48px;
@@ -724,7 +724,7 @@ async function copyLink() {
   color: #fff;
   font-size: 14px;
   font-weight: 700;
-  box-shadow: 0 8px 30px rgba(28,39,61,0.3);
+  box-shadow: 0 8px 30px rgba(30,41,59,0.3);
   z-index: 200;
   pointer-events: none;
 }

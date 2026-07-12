@@ -39,7 +39,18 @@
       "Bash(curl -sL -o /dev/null -w \"HTTP %{http_code} type=%{content_type} size=%{size_download}\\\\n\" --max-time 20 \"https://pix4.agoda.net/hotelimages/29858837/-1/34fac5a0d8819ff651a2466e5294ba1f.jpg?s=312x&ca=29&ce=0\")",
       "Bash(curl -sL -o /dev/null -w \"HTTP %{http_code} type=%{content_type} size=%{size_download}\\\\n\" --max-time 20 \"https://pix4.agoda.net/hotelimages/29858837/-1/34fac5a0d8819ff651a2466e5294ba1f.jpg?s=600x400&ca=29&ce=0\")",
       "Bash(firebase login:list)",
-      "Bash(GOOGLE_APPLICATION_CREDENTIALS=./plzgo-db-task/service-account.json firebase deploy --only hosting --project plzgo-bf50c --non-interactive)"
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=./plzgo-db-task/service-account.json firebase deploy --only hosting --project plzgo-bf50c --non-interactive)",
+      "Read(//home/worapun_ld/.cache/**)",
+      "Bash(npm ls *)",
+      "Bash(curl -s http://localhost:5199/swipe)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' http://localhost:5199/)",
+      "Bash(npx playwright *)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' -m 5 https://firestore.googleapis.com/)",
+      "Skill(code-review)",
+      "Read(//home/worapun_ld/.claude/**)",
+      "Bash(mkdir -p /tmp/claude-1000/-home-worapun-ld-plzgo/84dba6f2-182f-480d-accd-6f9f457957a2/scratchpad)",
+      "Bash(cat)",
+      "Bash(python3 -)"
     ]
   }
 }

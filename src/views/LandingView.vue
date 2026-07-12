@@ -70,7 +70,7 @@ const features = [
 ]
 
 const typeConfig = {
-  food:       { icon: 'fa-bowl-rice',    color: '#E8814A', bg: 'rgba(232,129,74,0.1)' },
+  food:       { icon: 'fa-bowl-rice',    color: '#FF8C42', bg: 'rgba(255,140,66,0.1)' },
   attraction: { icon: 'fa-camera',       color: '#6B8CBA', bg: 'rgba(107,140,186,0.1)' },
   nightlife:  { icon: 'fa-music',        color: '#9B7FD4', bg: 'rgba(155,127,212,0.1)' },
   market:     { icon: 'fa-store',        color: '#5BAD8F', bg: 'rgba(91,173,143,0.1)' },
@@ -79,7 +79,7 @@ const typeConfig = {
   area:       { icon: 'fa-map-pin',      color: '#9BA8C4', bg: 'rgba(155,168,196,0.1)' },
 }
 
-const defaultType = { icon: 'fa-location-dot', color: '#F39C59', bg: 'rgba(243,156,89,0.1)' }
+const defaultType = { icon: 'fa-location-dot', color: '#FF8C42', bg: 'rgba(255,140,66,0.1)' }
 
 const marqueeRow1 = ref([])
 const marqueeRow2 = ref([])
@@ -149,7 +149,7 @@ onUnmounted(() => {
         style="opacity: 0.22;" alt="Bangkok"
       />
       <div class="absolute inset-0"
-        style="background: linear-gradient(180deg, rgba(28,39,61,0.1) 0%, rgba(240,242,245,1) 100%);" />
+        style="background: linear-gradient(180deg, rgba(30,41,59,0.1) 0%, rgba(253,252,248,1) 100%);" />
 
       <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
         <div class="hero-eyebrow live-chip">
@@ -287,7 +287,7 @@ onUnmounted(() => {
             <div class="glass-panel step-card p-8 flex flex-col gap-5">
               <div class="step-number-deco">{{ String(step.n).padStart(2, '0') }}</div>
               <div class="w-12 h-12 rounded-2xl flex items-center justify-center"
-                style="background: rgba(243,156,89,0.12);">
+                style="background: rgba(255,140,66,0.12);">
                 <i :class="`fa-solid ${step.icon} text-xl`" style="color:var(--orange)"></i>
               </div>
               <div>
@@ -320,7 +320,7 @@ onUnmounted(() => {
             <div class="flex flex-col gap-4">
               <div v-for="feat in features" :key="feat.label" class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style="background: rgba(243,156,89,0.1);">
+                  style="background: rgba(255,140,66,0.1);">
                   <i :class="`fa-solid ${feat.icon} text-sm`" style="color:var(--orange)"></i>
                 </div>
                 <span class="text-sm font-bold" style="color:var(--navy)">{{ feat.label }}</span>
@@ -403,7 +403,7 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="flex flex-col md:flex-row items-center justify-between gap-3 pt-6"
-          style="border-top: 1px solid rgba(28,39,61,0.06);">
+          style="border-top: 1px solid rgba(30,41,59,0.06);">
           <p class="text-xs text-slate-400 font-bold">© 2025 plzgo. All rights reserved.</p>
           <div class="flex items-center gap-3 flex-wrap justify-center">
             <span class="version-badge">v0.2 · Beta</span>
@@ -464,7 +464,7 @@ onUnmounted(() => {
   border-radius: 999px;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 4px 14px rgba(28, 39, 61, 0.06);
+  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.06);
   font-size: 10.5px;
   font-weight: 900;
   letter-spacing: 0.16em;
@@ -479,9 +479,9 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 .live-city { color: var(--navy); }
-.live-time { color: rgba(28, 39, 61, 0.5); font-variant-numeric: tabular-nums; }
+.live-time { color: rgba(30, 41, 59, 0.5); font-variant-numeric: tabular-nums; }
 .live-vibe { color: var(--orange); }
-.live-sep  { color: rgba(28, 39, 61, 0.2); }
+.live-sep  { color: rgba(30, 41, 59, 0.2); }
 .hero-line {
   display: block;
   overflow: hidden;
@@ -519,7 +519,7 @@ onUnmounted(() => {
   max-width: 360px;
   margin: 32px auto 0;
   padding-top: 24px;
-  border-top: 1px solid rgba(28, 39, 61, 0.1);
+  border-top: 1px solid rgba(30, 41, 59, 0.1);
   text-align: left;
 }
 .stat-num {
@@ -542,7 +542,7 @@ onUnmounted(() => {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(28, 39, 61, 0.4);
+  color: rgba(30, 41, 59, 0.4);
   margin-top: 5px;
 }
 
@@ -591,7 +591,7 @@ onUnmounted(() => {
   border-radius: 999px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 1px 4px rgba(28, 39, 61, 0.06);
+  box-shadow: 0 1px 4px rgba(30, 41, 59, 0.06);
   white-space: nowrap;
   flex-shrink: 0;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
@@ -599,7 +599,7 @@ onUnmounted(() => {
 }
 .place-chip:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(28, 39, 61, 0.1);
+  box-shadow: 0 6px 16px rgba(30, 41, 59, 0.1);
 }
 .chip-dot {
   width: 8px;
@@ -644,24 +644,24 @@ onUnmounted(() => {
 .kill-card:hover {
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.75);
-  box-shadow: 0 8px 20px rgba(28, 39, 61, 0.06);
+  box-shadow: 0 8px 20px rgba(30, 41, 59, 0.06);
 }
 
 .kill-icon {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: rgba(28, 39, 61, 0.04);
+  background: rgba(30, 41, 59, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   font-size: 14px;
-  color: rgba(28, 39, 61, 0.4);
+  color: rgba(30, 41, 59, 0.4);
   transition: all 0.3s;
 }
 .kill-card:hover .kill-icon {
-  background: rgba(243, 156, 89, 0.12);
+  background: rgba(255, 140, 66, 0.12);
   color: var(--orange);
 }
 
@@ -672,7 +672,7 @@ onUnmounted(() => {
 .kill-strike {
   font-size: 14px;
   font-weight: 700;
-  color: rgba(28, 39, 61, 0.7);
+  color: rgba(30, 41, 59, 0.7);
   letter-spacing: -0.005em;
   line-height: 1.35;
   position: relative;
@@ -684,7 +684,7 @@ onUnmounted(() => {
   left: -2px; right: -2px;
   top: 50%;
   height: 2px;
-  background: rgba(243, 156, 89, 0.6);
+  background: rgba(255, 140, 66, 0.6);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -756,7 +756,7 @@ onUnmounted(() => {
 }
 .step-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 28px 52px -16px rgba(28, 39, 61, 0.14), 0 8px 16px -8px rgba(243, 156, 89, 0.1);
+  box-shadow: 0 28px 52px -16px rgba(30, 41, 59, 0.14), 0 8px 16px -8px rgba(255, 140, 66, 0.1);
 }
 .step-number-deco {
   position: absolute;
@@ -766,7 +766,7 @@ onUnmounted(() => {
   font-size: 46px;
   font-weight: 400;
   line-height: 1;
-  color: rgba(243, 156, 89, 0.15);
+  color: rgba(255, 140, 66, 0.15);
   letter-spacing: -0.04em;
   pointer-events: none;
   user-select: none;
@@ -785,7 +785,7 @@ onUnmounted(() => {
 .vibe-preview-card:hover {
   transform: translateY(-3px);
   background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(243, 156, 89, 0.25);
+  border-color: rgba(255, 140, 66, 0.25);
 }
 
 /* ============ BOTTOM CTA GLOW ============ */
@@ -793,7 +793,7 @@ onUnmounted(() => {
   position: absolute;
   top: -50%; left: -10%;
   width: 120%; height: 120%;
-  background: radial-gradient(circle, rgba(243, 156, 89, 0.12) 0%, transparent 60%);
+  background: radial-gradient(circle, rgba(255, 140, 66, 0.12) 0%, transparent 60%);
   pointer-events: none;
 }
 
@@ -821,7 +821,7 @@ onUnmounted(() => {
 }
 .nav-link-active:hover { color: var(--orange); }
 .nav-link-soon {
-  color: rgba(28,39,61,0.3);
+  color: rgba(30,41,59,0.3);
   cursor: default;
   display: flex; align-items: center; gap: 6px;
 }
@@ -829,13 +829,13 @@ onUnmounted(() => {
   font-size: 9px; font-weight: 800;
   text-transform: uppercase; letter-spacing: 0.08em;
   padding: 2px 7px; border-radius: 99px;
-  background: rgba(28,39,61,0.06); color: rgba(28,39,61,0.35);
+  background: rgba(30,41,59,0.06); color: rgba(30,41,59,0.35);
 }
 
 /* Footer */
 .footer-link {
   font-size: 13px; font-weight: 700;
-  color: rgba(28,39,61,0.5);
+  color: rgba(30,41,59,0.5);
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -844,7 +844,7 @@ onUnmounted(() => {
   font-size: 10px; font-weight: 800;
   text-transform: uppercase; letter-spacing: 0.1em;
   padding: 3px 9px; border-radius: 99px;
-  background: rgba(243,156,89,0.1); color: var(--orange);
-  border: 1px solid rgba(243,156,89,0.2);
+  background: rgba(255,140,66,0.1); color: var(--orange);
+  border: 1px solid rgba(255,140,66,0.2);
 }
 </style>

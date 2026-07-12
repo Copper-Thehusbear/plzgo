@@ -76,7 +76,7 @@ const safeAffiliateLink = computed(() => {
     <!-- Thumbnail -->
     <div class="relative flex-shrink-0">
       <img
-        :src="place.image_url || `https://placehold.co/80x80/F39C59/white?text=BKK`"
+        :src="place.image_url || `https://placehold.co/80x80/FF8C42/white?text=BKK`"
         :alt="place.name"
         class="w-20 h-20 rounded-2xl object-cover shadow-sm border border-white"
       />
@@ -93,7 +93,7 @@ const safeAffiliateLink = computed(() => {
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 800;
   flex-shrink: 0; margin-top: 2px;
-  box-shadow: 0 4px 10px rgba(28, 39, 61, 0.15);
+  box-shadow: 0 4px 10px rgba(30, 41, 59, 0.15);
 }
 .tl-time-tag {
   font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em;
@@ -115,7 +115,7 @@ const safeAffiliateLink = computed(() => {
   display: inline-flex; align-items: center;
   margin-top: 6px; font-size: 12px; font-weight: 700;
   color: var(--orange); text-decoration: none;
-  background: rgba(243,156,89,0.1); padding: 5px 12px; border-radius: 99px;
+  background: rgba(255,140,66,0.1); padding: 5px 12px; border-radius: 99px;
   transition: all 0.2s;
 }
 .tl-link:hover { background: var(--orange); color: white; transform: translateY(-1px); }

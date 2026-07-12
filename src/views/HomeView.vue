@@ -225,17 +225,17 @@ function start() {
                   <h3 class="text-4xl font-black leading-none" style="color:var(--navy)">
                     {{ weather.temp != null ? weather.temp + '°C' : weather.weatherLabel }}
                   </h3>
-                  <p v-if="weather.temp != null" class="text-[13px] font-bold mt-2" style="color:rgba(28,39,61,0.5)">
+                  <p v-if="weather.temp != null" class="text-[13px] font-bold mt-2" style="color:rgba(30,41,59,0.5)">
                     {{ weather.weatherLabel }}
                     <span v-if="weather.isComing" class="ml-1" style="color:#B45309">· Rain approaching</span>
                   </p>
                 </div>
                 <div class="flex flex-col items-end gap-2">
                   <i :class="`fa-solid ${weather.weatherIcon} text-3xl`" style="color:var(--orange)"></i>
-                  <span class="text-[11px] font-bold" style="color:rgba(28,39,61,0.35)">{{ weather.precipProb }}% rain</span>
+                  <span class="text-[11px] font-bold" style="color:rgba(30,41,59,0.35)">{{ weather.precipProb }}% rain</span>
                 </div>
               </div>
-              <p v-if="weather.tip" class="text-[12px] font-semibold mt-4 pt-4" style="color:rgba(28,39,61,0.45); border-top:1px solid rgba(28,39,61,0.07)">
+              <p v-if="weather.tip" class="text-[12px] font-semibold mt-4 pt-4" style="color:rgba(30,41,59,0.45); border-top:1px solid rgba(30,41,59,0.07)">
                 {{ weather.tip }}
               </p>
             </div>
@@ -347,25 +347,25 @@ function start() {
   font-weight: 700;
   background: rgba(255,255,255,0.5);
   border: 1.5px solid rgba(255,255,255,0.7);
-  color: rgba(28,39,61,0.55);
+  color: rgba(30,41,59,0.55);
   cursor: pointer;
   transition: all 0.25s;
   backdrop-filter: blur(8px);
 }
 .filter-toggle:hover {
   background: rgba(255,255,255,0.7);
-  color: rgba(28,39,61,0.8);
+  color: rgba(30,41,59,0.8);
 }
 .filter-toggle.active {
-  background: rgba(28,39,61,0.08);
-  border-color: rgba(28,39,61,0.2);
+  background: rgba(30,41,59,0.08);
+  border-color: rgba(30,41,59,0.2);
   color: var(--navy);
 }
 
 .filter-toggle-dot {
   width: 8px; height: 8px;
   border-radius: 50%;
-  background: rgba(28,39,61,0.2);
+  background: rgba(30,41,59,0.2);
   flex-shrink: 0;
   transition: background 0.2s;
 }

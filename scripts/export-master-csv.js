@@ -20,6 +20,8 @@ import { readFileSync, writeFileSync } from 'fs'
 const sa = JSON.parse(readFileSync('./plzgo-db-task/service-account.json', 'utf8'))
 initializeApp({ credential: cert(sa) })
 const db = getFirestore()
+// gRPC hangs in some sandboxes; REST transport is reliable everywhere
+db.settings({ preferRest: true })
 
 function toCell(v) {
   if (v === null || v === undefined) return ''

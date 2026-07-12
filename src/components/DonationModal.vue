@@ -3,9 +3,7 @@ import { trackCTA } from '@/composables/useAnalytics'
 
 const emit = defineEmits(['close'])
 
-// TODO(worapun): replace with the real Buy Me a Coffee page slug —
-// the bare homepage collects nothing. e.g. 'https://www.buymeacoffee.com/plzgo'
-const BMC_URL = 'https://www.buymeacoffee.com'
+const BMC_URL = 'https://buymeacoffee.com/plzgo.me'
 </script>
 
 <template>

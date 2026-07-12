@@ -15,6 +15,7 @@ import MapCanvas from '@/components/MapCanvas.vue'
 import TimelineItem from '@/components/TimelineItem.vue'
 import BaseCampCard from '@/components/BaseCampCard.vue'
 import ContextPinCard from '@/components/ContextPinCard.vue'
+import DonationModal from '@/components/DonationModal.vue'
 import AppLayout from '@/components/AppLayout.vue'
 
 const store = useTripStore()
@@ -31,6 +32,12 @@ const zone = computed(() => findNearestZone(store.swipedPlaces))
 const activePin = ref(null)
 const toastMsg  = ref(null)
 let   toastTimer = null
+
+const showDonation = ref(false)
+function openDonation() {
+  trackCTA('donation_open', 'ResultView tip row')
+  showDonation.value = true
+}
 
 function showToast(msg) {
   toastMsg.value = msg
@@ -500,6 +507,11 @@ async function copyLink() {
               </button>
             </div>
 
+            <!-- Tip row — quiet by design; the screen's loud CTA belongs to Agoda -->
+            <button class="rv-tip-row data-mono" @click="openDonation">
+              Route saved you time? Buy me a coffee →
+            </button>
+
           </div><!-- /rv-col-side -->
         </div><!-- /rv-grid -->
 
@@ -517,6 +529,9 @@ async function copyLink() {
         @nope="onPinNope"
       />
     </Transition>
+
+    <!-- Donation modal -->
+    <DonationModal v-if="showDonation" @close="showDonation = false" />
 
     <!-- Toast -->
     <Transition name="toast">
@@ -743,6 +758,21 @@ async function copyLink() {
   font-family: 'IBM Plex Sans Thai', sans-serif;
 }
 .rv-retry-btn:active { transform: translateY(1px); }
+
+.rv-tip-row {
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: 1px dashed var(--hairline);
+  border-radius: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  text-align: center;
+}
+.rv-tip-row:hover { color: var(--ink); border-color: var(--ink); }
 
 .rv-toast {
   position: fixed;

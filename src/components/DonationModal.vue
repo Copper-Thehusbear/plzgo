@@ -8,7 +8,7 @@ const BMC_URL = 'https://buymeacoffee.com/plzgo.me'
 
 <template>
   <div
-    class="fixed inset-0 z-50 flex items-end justify-center p-4"
+    class="fixed inset-0 z-[300] flex items-end justify-center p-4"
     style="background: rgba(28,39,61,0.6);"
     @click.self="emit('close')"
   >

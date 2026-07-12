@@ -1,0 +1,802 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useTripStore } from '@/stores/useTripStore'
+import { buildOptimalDays } from '@/composables/useRouting'
+import { useContextualPins } from '@/composables/useContextualPins'
+import { findNearestZone } from '@/composables/useZoneCentroid'
+import { useWeather } from '@/composables/useWeather'
+import { useDistance } from '@/composables/useDistance'
+import { fetchLiveHotels } from '@/composables/useHotelsApi'
+import { db } from '@/firebase'
+import { collection, addDoc, getDocs, query, where, limit, serverTimestamp } from 'firebase/firestore'
+import { trackRouteView, trackCTA, trackShareRoute } from '@/composables/useAnalytics'
+import { getCountry } from '@/composables/useCountry'
+import MapCanvas from '@/components/MapCanvas.vue'
+import TimelineItem from '@/components/TimelineItem.vue'
+import BaseCampCard from '@/components/BaseCampCard.vue'
+import ContextPinCard from '@/components/ContextPinCard.vue'
+import AppLayout from '@/components/AppLayout.vue'
+
+const store = useTripStore()
+
+const routeResult    = computed(() => buildOptimalDays(store.swipedPlaces))
+const dayBlocks      = computed(() => routeResult.value.days)
+const numDays        = computed(() => routeResult.value.numDays)
+const contextualPins = useContextualPins(
+  computed(() => store.swipedPlaces),
+  computed(() => store.cardPool)
+)
+const zone = computed(() => findNearestZone(store.swipedPlaces))
+
+const activePin = ref(null)
+const toastMsg  = ref(null)
+let   toastTimer = null
+
+function showToast(msg) {
+  toastMsg.value = msg
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { toastMsg.value = null }, 2200)
+}
+
+function onPinClick(entry) { activePin.value = entry }
+function onPinYep() {
+  if (!activePin.value) return
+  const added = store.swipeYep(activePin.value.place)
+  if (added) showToast('Added to itinerary')
+  activePin.value = null
+}
+function onPinNope() { activePin.value = null }
+
+const routeId   = ref(null)
+const copied    = ref(false)
+const hotels    = ref([])
+const saveError = ref(false)
+
+const weather           = ref(null)
+const weatherDismissed  = ref(false)
+const indoorSuggestions = ref([])
+const showingIndoor     = ref(false)
+
+const { fetchWeather } = useWeather()
+const { haversine }    = useDistance()
+
+const allPlaces     = computed(() => dayBlocks.value.flat())
+const hasOutdoor    = computed(() => allPlaces.value.some(p => p.is_outdoor === true))
+const showRainBanner = computed(() =>
+  !weatherDismissed.value &&
+  weather.value !== null &&
+  hasOutdoor.value &&
+  (weather.value.isRainy || weather.value.isComing)
+)
+
+function findIndoorAlternatives() {
+  const outdoorPlaces = allPlaces.value.filter(p => p.is_outdoor === true)
+  if (!outdoorPlaces.length) return []
+  const pool = store.cardPool.filter(p => p.is_outdoor === false)
+  const seen = new Set(store.swipedPlaces.map(p => p.id))
+  const results = []
+  for (const candidate of pool) {
+    if (seen.has(candidate.id)) continue
+    const lat = candidate.location?.latitude
+    const lng = candidate.location?.longitude
+    if (!lat || !lng) continue
+    const nearEnough = outdoorPlaces.some(op =>
+      haversine(lat, lng, op.location.latitude, op.location.longitude) <= 2
+    )
+    if (nearEnough) results.push(candidate)
+    if (results.length >= 3) break
+  }
+  return results
+}
+
+function onFindIndoor() {
+  indoorSuggestions.value = findIndoorAlternatives()
+  showingIndoor.value = true
+  weatherDismissed.value = true
+}
+
+function onKeepPlan() {
+  weatherDismissed.value = true
+  showingIndoor.value = false
+}
+
+function onIndoorYep(place) {
+  store.swipeYep(place)
+  showToast('Added to itinerary')
+  indoorSuggestions.value = indoorSuggestions.value.filter(p => p.id !== place.id)
+}
+
+function onIndoorNope(place) {
+  indoorSuggestions.value = indoorSuggestions.value.filter(p => p.id !== place.id)
+}
+
+const DAY_COLORS = ['var(--orange)', '#3B82F6', '#0D9488']
+const dayLabels  = ['Day 1', 'Day 2', 'Day 3']
+
+onMounted(async () => {
+  document.title = `${store.selectedCity} route · plzgo`
+  await Promise.all([saveRoute(), loadHotels()])
+  trackRouteView(store.swipedPlaces.length, numDays.value, store.tripMode, store.selectedVibes.join(','))
+  weather.value = await fetchWeather()
+})
+
+async function saveRoute() {
+  saveError.value = false
+  try {
+    // Country: best-effort. If detection hasn't finished within 1s we save without
+    // it — never block the route save on a third-party API.
+    const country = await Promise.race([
+      getCountry(),
+      new Promise(r => setTimeout(() => r(null), 1000)),
+    ])
+    const doc = await addDoc(collection(db, 'routes'), {
+      places: store.swipedPlaces, city: store.selectedCity,
+      vibes: store.selectedVibes, mode: store.tripMode,
+      days: numDays.value, createdAt: serverTimestamp(),
+      created_country: country || null,
+      referrer:        document.referrer || null,
+      ua:              navigator.userAgent.slice(0, 200),
+    })
+    routeId.value = doc.id
+  } catch (e) {
+    console.error('Failed to save route:', e)
+    saveError.value = true
+  }
+}
+
+// Maps hub zone names (from useZoneCentroid) → Firestore `hotels.zone` (canonical Bangkok districts).
+// The hub is the cluster centroid — same name shown in BaseCampCard's "Stay in X" title, so the
+// hotels returned must live inside the hub's catchment, not scattered across every swiped zone.
+const HUB_HOTEL_ZONES = {
+  'Sukhumvit':       ['Watthana', 'Khlong Toei'],
+  'Silom / Sathorn': ['Bang Rak', 'Sathon', 'Bang Kho Laem'],
+  'Old City':        ['Phra Nakhon', 'Pom Prap Sattru Phai', 'Dusit'],
+  'Thonglor':        ['Watthana'],
+  'Yaowarat':        ['Samphanthawong', 'Pom Prap Sattru Phai', 'Bang Rak'],
+  'Chatuchak':       ['Chatuchak', 'Phaya Thai'],
+  'Ari':             ['Phaya Thai', 'Chatuchak'],
+  'Riverside':       ['Bang Rak', 'Bang Kho Laem', 'Khlong San'],
+}
+
+async function loadHotels() {
+  if (!store.swipedPlaces.length) return
+
+  const hub = findNearestZone(store.swipedPlaces)
+  const hubZones = (hub?.name && HUB_HOTEL_ZONES[hub.name]) || []
+  const directZones = [...new Set(store.swipedPlaces.map(p => p.zone || p.zone_en).filter(Boolean))]
+  // Prefer hub zones (they cluster around the BaseCamp anchor); fall back to direct
+  // zones only when the hub isn't mapped or returns nothing.
+  const primary = hubZones.length ? [...new Set(hubZones)].slice(0, 10) : directZones.slice(0, 10)
+  if (!primary.length) return
+
+  async function queryByZones(zones) {
+    const snap = await getDocs(
+      query(collection(db, 'hotels'), where('zone', 'in', zones), limit(30))
+    )
+    return snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(h => h.photo1)
+      .sort((a, b) => {
+        const ra = a.rating_average || 0
+        const rb = b.rating_average || 0
+        if (rb !== ra) return rb - ra
+        return (b.number_of_reviews || 0) - (a.number_of_reviews || 0)
+      })
+  }
+
+  let staticResults = []
+  try {
+    staticResults = await queryByZones(primary)
+    if (!staticResults.length && hubZones.length && directZones.length) {
+      // Hub returned nothing — try the user's actual swiped zones as a safety net.
+      staticResults = await queryByZones(directZones.slice(0, 10))
+    }
+    // Paint a diverse 5 immediately so BaseCampCard has something to show within ~100ms.
+    hotels.value = selectDiverseHotels(staticResults, 5)
+  } catch (e) {
+    console.error('hotels collection read failed:', e)
+  }
+
+  // Progressive enhancement: ask the Cloud Function for live pricing near the hub
+  // centroid. If anything goes wrong (function not deployed, Agoda down, timeout),
+  // fetchLiveHotels returns { fallback: true } and we keep the static list.
+  if (!hub?.lat || !hub?.lng) return
+  const { hotels: liveHotels, fallback } = await fetchLiveHotels({
+    lat: hub.lat, lng: hub.lng, radius: 2, maxResult: 15,
+  })
+  if (fallback || !liveHotels.length) return
+  // mergeHotels keeps sponsored Firestore picks first; we still want the diverse
+  // selector applied to the final list so the 5 shown span hostel→5-star, not 5 luxury.
+  hotels.value = selectDiverseHotels(mergeHotels(staticResults, liveHotels), 5)
+}
+
+// Pick a diverse set of N hotels across star tiers + accommodation types. The
+// raw Firestore list is sorted by rating, which clusters 4-5 star Sukhumvit
+// hotels at the top — boring + doesn't help travellers of different budgets.
+// This walks star buckets (5→4→3) and accommodation types in round-robin order,
+// then backfills from the rating-sorted tail to hit the count.
+function selectDiverseHotels(list, count = 5) {
+  if (list.length <= count) return list
+
+  const out = []
+  const seen = new Set()
+  const push = (h) => {
+    if (!h || seen.has(h.id)) return false
+    seen.add(h.id); out.push(h); return true
+  }
+
+  // Always preserve active sponsored slots at the top of the diverse list.
+  const now = Date.now()
+  const isActiveSponsored = h => h.is_sponsored && (!h.sponsor_until || new Date(h.sponsor_until).getTime() > now)
+  list.filter(isActiveSponsored).forEach(push)
+
+  // Buckets — already rating-sorted because `list` came from queryByZones.
+  const byStar = {
+    5: list.filter(h => h.star_rating >= 5),
+    4: list.filter(h => h.star_rating === 4),
+    3: list.filter(h => h.star_rating === 3),
+  }
+  const hostels = list.filter(h => /hostel|hostle|backpacker/i.test(h.accommodation_type || h.hotel_name || ''))
+
+  // Round-robin: 5★ → 4★ → hostel → 3★ → 4★ (loop) — gives at least 1 of each.
+  const rotation = [byStar[5], byStar[4], hostels, byStar[3], byStar[4], byStar[5]]
+  let i = 0
+  while (out.length < count && i < rotation.length * 3) {
+    const bucket = rotation[i % rotation.length]
+    const pick = bucket.find(h => !seen.has(h.id))
+    if (pick) push(pick)
+    i++
+  }
+  // Backfill from the top of the rating-sorted list.
+  for (const h of list) { if (out.length >= count) break; push(h) }
+  return out.slice(0, count)
+}
+
+// Merge order:
+//   1. Sponsored slots from the static (Firestore) list — we control these, never let Agoda displace.
+//   2. Live API hotels by rating (live pricing is the value-add).
+//   3. Static non-sponsored as filler if API returned <3.
+// Dedupe by hotel_id so a hotel that appears in both lists shows once (preferring the live entry,
+// since it carries dailyRate and discount fields).
+function mergeHotels(staticHotels, liveHotels) {
+  const now = Date.now()
+  const isActiveSponsored = h => h.is_sponsored && (!h.sponsor_until || new Date(h.sponsor_until).getTime() > now)
+  const sponsored = staticHotels.filter(isActiveSponsored)
+
+  const out = []
+  const seen = new Set()
+  const push = h => {
+    const id = String(h.hotel_id ?? h.id ?? h.hotel_name)
+    if (seen.has(id)) return
+    seen.add(id)
+    out.push(h)
+  }
+  sponsored.forEach(push)
+  liveHotels.forEach(push)
+  staticHotels.filter(h => !isActiveSponsored(h)).forEach(push)
+  return out
+}
+
+async function copyLink() {
+  if (saveError.value) { await saveRoute(); return }
+  if (!routeId.value) return
+  const url = `${window.location.origin}/route/${routeId.value}`
+  trackCTA('share', 'Copy link', url)
+  trackShareRoute(routeId.value, {
+    city: store.selectedCity,
+    days: numDays.value,
+    num_places: store.swipedPlaces.length,
+    trip_mode: store.tripMode,
+  })
+  try {
+    await navigator.clipboard.writeText(url)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2000)
+  } catch { prompt('Copy this link:', url) }
+}
+</script>
+
+<template>
+  <AppLayout>
+    <template #header>
+      <!-- Fixed nav -->
+      <nav class="glass-nav h-16 w-full">
+        <div class="max-w-7xl mx-auto h-full px-4 md:px-6 lg:px-8 flex items-center justify-between">
+          <span class="rv-wordmark" style="cursor:pointer" @click="$router.push('/')">plz<span style="color:var(--orange)">go</span></span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <button
+              v-if="routeId && !saveError"
+              class="rv-share-btn"
+              @click="copyLink"
+            >
+              <i :class="copied ? 'fa-solid fa-check' : 'fa-solid fa-link'"></i>
+              {{ copied ? 'Copied!' : 'Share' }}
+            </button>
+            <span v-else class="rv-saving">
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
+              {{ saveError ? 'Save failed' : 'Saving...' }}
+            </span>
+            <button class="m-back-btn" @click="$router.push('/plan')">
+              <i class="fa-solid fa-arrow-left" style="font-size:11px"></i>
+              Reset
+            </button>
+          </div>
+        </div>
+      </nav>
+    </template>
+
+    <!-- Scrollable content -->
+    <div class="flex-1 overflow-y-auto pt-16"> <!-- Compensate for fixed header -->
+      <div class="rv-inner max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+
+        <!-- Grid -->
+        <div class="flex flex-col gap-4 lg:grid lg:grid-cols-[1fr_380px] lg:gap-8">
+
+          <!-- Left / main col -->
+          <div class="rv-col-main">
+
+            <!-- Route title -->
+            <div class="glass-panel rv-header-card">
+              <p class="rv-eyebrow">Your route</p>
+              <h1 class="rv-city">{{ store.selectedCity }}</h1>
+              <p class="rv-meta">
+                {{ numDays }}-day
+                <span class="mx-1.5 opacity-30">·</span>
+                {{ store.selectedVibes.join(' + ') }}
+                <span v-if="store.swipedPlaces.length" class="mx-1.5 opacity-30">·</span>
+                <span v-if="store.swipedPlaces.length">{{ store.swipedPlaces.length }} places</span>
+              </p>
+            </div>
+
+            <!-- Weather alert banner -->
+            <Transition name="fade">
+              <div v-if="showRainBanner" class="rv-weather-banner">
+                <div class="rv-weather-banner-body">
+                  <i class="fa-solid fa-cloud-rain rv-weather-icon"></i>
+                  <div>
+                    <p class="rv-weather-title">
+                      {{ weather.isRainy ? "It's raining" : "Rain expected soon" }}
+                      — {{ weather.isRainy ? "want to swap outdoor spots for indoor alternatives nearby?" : "we can suggest indoor alternatives" }}
+                    </p>
+                  </div>
+                </div>
+                <div class="rv-weather-actions">
+                  <button class="rv-weather-btn-primary" @click="onFindIndoor">
+                    {{ weather.isRainy ? "Find Indoor Spots" : "Show Alternatives" }}
+                  </button>
+                  <button class="rv-weather-btn-ghost" @click="onKeepPlan">Keep My Plan</button>
+                </div>
+              </div>
+            </Transition>
+
+            <!-- Map -->
+            <div class="glass-panel rv-map-panel h-[40vh] lg:h-[600px]">
+              <div v-if="numDays > 1" class="rv-day-chips">
+                <span
+                  v-for="(label, i) in dayLabels.slice(0, numDays)"
+                  :key="i"
+                  class="rv-day-chip"
+                  :style="{ background: DAY_COLORS[i] }"
+                >{{ label }}</span>
+              </div>
+              <div v-if="contextualPins.length" class="rv-pin-badge">
+                <i class="fa-solid fa-star"></i> {{ contextualPins.length }} nearby
+              </div>
+              <MapCanvas
+                v-if="dayBlocks.length"
+                :dayBlocks="dayBlocks"
+                :contextualPins="contextualPins"
+                @pin-click="onPinClick"
+              />
+            </div>
+
+            <!-- Contextual pins hint -->
+            <div v-if="contextualPins.length" class="glass-panel rv-pins-hint">
+              <i class="fa-solid fa-location-dot" style="color:#B45309;font-size:14px;margin-top:2px;flex-shrink:0"></i>
+              <div>
+                <p class="rv-pins-title">{{ contextualPins.length }} hidden spot{{ contextualPins.length > 1 ? 's' : '' }} nearby</p>
+                <p class="rv-pins-sub">Tap the gold pins on the map to explore</p>
+              </div>
+            </div>
+
+          </div><!-- /rv-col-main -->
+
+          <!-- Right / aside col -->
+          <div class="rv-col-side">
+
+            <!-- Weather Bento -->
+            <div v-if="weather && weather.precipProb !== null" class="glass-panel p-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <i :class="`fa-solid ${weather.weatherIcon} text-xl`" style="color:var(--orange)"></i>
+                  <div>
+                    <p class="rv-eyebrow" style="margin:0 0 2px">Bangkok Now</p>
+                    <p class="text-[14px] font-black leading-tight" style="color:var(--navy)">
+                      {{ weather.temp != null ? weather.temp + '°C' : '' }}
+                      <span v-if="weather.temp != null" class="font-medium opacity-50 mx-1">·</span>
+                      {{ weather.weatherLabel }}
+                    </p>
+                  </div>
+                </div>
+                <span class="text-[13px] font-black" style="color:rgba(28,39,61,0.3)">{{ weather.precipProb }}%</span>
+              </div>
+              <p v-if="weather.tip" class="text-[11px] font-semibold mt-3 pt-3" style="color:rgba(28,39,61,0.45); border-top:1px solid rgba(28,39,61,0.07)">
+                {{ weather.tip }}
+              </p>
+            </div>
+
+            <!-- Indoor alternatives -->
+            <Transition name="fade">
+              <div v-if="showingIndoor" class="glass-panel p-5">
+                <p class="rv-eyebrow" style="margin-bottom:12px">Indoor alternatives nearby</p>
+                <div v-if="indoorSuggestions.length" class="flex flex-col gap-3">
+                  <div
+                    v-for="place in indoorSuggestions"
+                    :key="place.id"
+                    class="flex items-center justify-between gap-3 py-3 border-b border-slate-100 last:border-0"
+                  >
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[13px] font-black leading-tight" style="color:var(--navy)">
+                        {{ store.lang === 'th' ? place.name : (place.name_en || place.name) }}
+                      </p>
+                      <p class="text-[11px] text-slate-400 font-medium mt-0.5">{{ store.lang === 'th' ? (place.zone_th || place.zone) : (place.zone_en || place.zone) }}</p>
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                      <button
+                        class="w-9 h-9 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-400 active:scale-90 transition-transform"
+                        @click="onIndoorNope(place)"
+                      ><i class="fa-solid fa-xmark text-xs"></i></button>
+                      <button
+                        class="w-9 h-9 rounded-full flex items-center justify-center text-white active:scale-90 transition-transform"
+                        style="background:var(--orange)"
+                        @click="onIndoorYep(place)"
+                      ><i class="fa-solid fa-plus text-xs"></i></button>
+                    </div>
+                  </div>
+                </div>
+                <p v-else class="text-[12px] text-slate-400 font-medium">No indoor spots found within 2km.</p>
+              </div>
+            </Transition>
+
+            <!-- Basecamp — shows even without hotels (Agoda/Klook fallback) -->
+            <BaseCampCard
+              v-if="zone"
+              :hotels="hotels"
+              :zoneName="zone.name"
+              :zoneCopy="zone.copy"
+            />
+
+            <!-- Day blocks -->
+            <div
+              v-for="(block, dayIndex) in dayBlocks"
+              :key="dayIndex"
+              class="glass-panel rv-day-block"
+            >
+              <div v-if="numDays > 1" class="rv-day-label" :style="{ color: DAY_COLORS[dayIndex] }">
+                <span class="rv-day-dot" :style="{ background: DAY_COLORS[dayIndex] }"></span>
+                {{ dayLabels[dayIndex] }}
+              </div>
+              <TimelineItem
+                v-for="(place, i) in block"
+                :key="place.id"
+                :place="place"
+                :index="i"
+              />
+            </div>
+
+            <!-- Skeleton -->
+            <div v-if="!dayBlocks.length" class="flex flex-col gap-4">
+              <div v-for="i in 4" :key="i" class="glass-panel h-24 animate-pulse bg-slate-50/50"></div>
+            </div>
+
+            <!-- Actions -->
+            <div class="glass-panel p-5 flex gap-3">
+              <button class="rv-plan-btn flex-1" @click="$router.push('/plan')">
+                <i class="fa-solid fa-rotate-left mr-1.5"></i> Plan another
+              </button>
+              <button v-if="saveError" class="rv-retry-btn flex-1" @click="saveRoute">
+                <i class="fa-solid fa-arrow-rotate-right mr-1.5"></i> Retry save
+              </button>
+            </div>
+
+          </div><!-- /rv-col-side -->
+        </div><!-- /rv-grid -->
+
+      </div>
+    </div>
+
+    <!-- Context pin overlay -->
+    <Transition name="ctx-sheet">
+      <ContextPinCard
+        v-if="activePin"
+        :place="activePin.place"
+        :walkMinutes="activePin.walkMinutes"
+        :nearestName="activePin.nearestName"
+        @yep="onPinYep"
+        @nope="onPinNope"
+      />
+    </Transition>
+
+    <!-- Toast -->
+    <Transition name="toast">
+      <div v-if="toastMsg" class="rv-toast">{{ toastMsg }}</div>
+    </Transition>
+
+  </AppLayout>
+</template>
+
+<style scoped>
+.rv-wordmark {
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+.rv-share-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(243,156,89,0.35);
+  transition: all 0.25s;
+  font-family: 'IBM Plex Sans Thai', 'Inter', sans-serif;
+}
+.rv-share-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(243,156,89,0.4); }
+.rv-share-btn:active { transform: scale(0.96); }
+
+.rv-saving {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(28,39,61,0.35);
+}
+
+.rv-inner {
+  padding-top: 24px;
+  padding-bottom: max(env(safe-area-inset-bottom), 100px);
+}
+
+.rv-col-main, .rv-col-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+@media (min-width: 1024px) {
+  .rv-col-main {
+    position: sticky;
+    top: 76px;
+  }
+}
+
+.rv-header-card {
+  padding: 24px 28px;
+}
+.rv-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--orange);
+  margin: 0 0 8px;
+}
+.rv-city {
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--navy);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0 0 6px;
+}
+.rv-meta {
+  font-size: 14px;
+  color: rgba(28,39,61,0.45);
+  margin: 0;
+}
+
+.rv-map-panel {
+  position: relative;
+  overflow: hidden;
+  padding: 10px;
+}
+.rv-map-panel :deep(.leaflet-container) {
+  border-radius: 22px;
+  overflow: hidden;
+  height: 100%;
+}
+.rv-day-chips {
+  position: absolute;
+  top: 18px; left: 18px;
+  z-index: 1000;
+  display: flex;
+  gap: 6px;
+}
+.rv-day-chip {
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  backdrop-filter: blur(8px);
+}
+.rv-pin-badge {
+  position: absolute;
+  top: 18px; right: 18px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  background: rgba(255,210,50,0.15);
+  border: 1px solid rgba(255,210,50,0.4);
+  font-size: 11px;
+  font-weight: 800;
+  color: #B45309;
+  backdrop-filter: blur(8px);
+}
+
+.rv-pins-hint {
+  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(255,210,50,0.06);
+  border-color: rgba(255,210,50,0.2);
+}
+.rv-pins-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #92400E;
+  margin: 0 0 2px;
+}
+.rv-pins-sub {
+  font-size: 12px;
+  color: #B45309;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.rv-day-block {
+  padding: 8px 18px;
+}
+.rv-day-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  padding: 16px 0 6px;
+}
+.rv-day-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.rv-plan-btn {
+  height: 48px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28,39,61,0.05);
+  color: rgba(28,39,61,0.6);
+  border: 1.5px solid rgba(28,39,61,0.05);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rv-plan-btn:hover { background: rgba(28,39,61,0.1); }
+
+.rv-retry-btn {
+  height: 48px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239,68,68,0.08);
+  color: #EF4444;
+  border: 1.5px solid rgba(239,68,68,0.15);
+  cursor: pointer;
+}
+
+.rv-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  border-radius: 99px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 30px rgba(28,39,61,0.3);
+  z-index: 200;
+  pointer-events: none;
+}
+
+.rv-weather-banner {
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: rgba(219,234,254,0.5);
+  border: 1.5px solid rgba(147,197,253,0.4);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.rv-weather-banner-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.rv-weather-icon {
+  font-size: 18px;
+  color: #3B82F6;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.rv-weather-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1E3A5F;
+  margin: 0;
+  line-height: 1.5;
+}
+.rv-weather-actions {
+  display: flex;
+  gap: 8px;
+}
+.rv-weather-btn-primary {
+  flex: 1;
+  height: 38px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: #3B82F6;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rv-weather-btn-primary:hover { background: #2563EB; }
+.rv-weather-btn-ghost {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: transparent;
+  color: rgba(30,58,95,0.5);
+  border: 1.5px solid rgba(147,197,253,0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rv-weather-btn-ghost:hover { background: rgba(219,234,254,0.5); }
+
+.fade-enter-active, .fade-leave-active { transition: all 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(-8px); }
+
+.ctx-sheet-enter-active { transition: opacity 0.3s ease; }
+.ctx-sheet-leave-active { transition: opacity 0.2s ease; }
+.ctx-sheet-enter-from, .ctx-sheet-leave-to { opacity: 0; }
+
+.toast-enter-active { transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+.toast-leave-active { transition: all 0.2s ease; }
+.toast-enter-from   { opacity: 0; transform: translateX(-50%) translateY(20px); }
+.toast-leave-to     { opacity: 0; transform: translateX(-50%) translateY(20px); }
+</style>

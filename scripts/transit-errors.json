@@ -1,0 +1,27 @@
+[
+  {
+    "id": "9rjA63FTmxtaNt8PGa9d",
+    "name": "Bo.bkk Cafe & Run Club",
+    "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+  },
+  {
+    "id": "SSf2zIPxnQJNFJLPzOy9",
+    "name": "Ethos Café & Restaurant",
+    "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+  },
+  {
+    "id": "SpiRr1mVpRCKRIR7aShC",
+    "name": "Veganerie Concept",
+    "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+  },
+  {
+    "id": "Ssr5sBuJIzlJlDCgEwj5",
+    "name": "Rasayana Raw Food Retreat",
+    "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+  },
+  {
+    "id": "T4CWiipN2GMbeS4S1rqI",
+    "name": "RAWIT Coffee & Wine Bar",
+    "error": "[GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+  }
+]

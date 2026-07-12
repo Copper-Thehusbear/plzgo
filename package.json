@@ -1,0 +1,29 @@
+{
+  "name": "plzgo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "fetch-images": "node scripts/fetch-images.js",
+    "seed": "node scripts/seed.js"
+  },
+  "dependencies": {
+    "firebase": "^11.10.0",
+    "leaflet": "^1.9.4",
+    "pinia": "^2.1.7",
+    "vue": "^3.3.8",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.0",
+    "autoprefixer": "^10.4.16",
+    "firebase-admin": "^13.8.0",
+    "node-fetch": "^3.3.2",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5",
+    "vite": "^5.0.0"
+  }
+}

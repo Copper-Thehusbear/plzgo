@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /places/{placeId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /routes/{routeId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['places', 'city', 'vibes', 'days', 'createdAt'])
+        && request.resource.data.places is list
+        && request.resource.data.places.size() > 0
+        && request.resource.data.places.size() <= 20
+        && request.resource.data.city is string
+        && request.resource.data.days is number
+        && request.resource.data.vibes is list;
+      allow update, delete: if false;
+    }
+
+    match /hotels/{hotelId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Monthly Explore issue docs (Issue 06 June 2026, etc.) — anyone can read,
+    // writes only via admin SDK (seed scripts / Cloud Functions).
+    match /issues/{issueId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Server-only Agoda response cache populated by the getNearbyHotels Cloud Function.
+    // No client should ever touch this — clients call the function instead.
+    match /hotels_live_cache/{cacheId} {
+      allow read, write: if false;
+    }
+  }
+}

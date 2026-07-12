@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /swipe
+Disallow: /route$
+
+Sitemap: https://plzgo.me/sitemap.xml

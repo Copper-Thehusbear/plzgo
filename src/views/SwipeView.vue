@@ -80,9 +80,8 @@ function bangkokFallback() {
 </script>
 
 <template>
-  <AppLayout>
-    <!-- Navy backdrop — SwipeView is the only navy-background screen (design system) -->
-    <div class="sw-backdrop"></div>
+  <!-- sw-navy falls through to AppLayout's root — SwipeView is the only navy screen -->
+  <AppLayout class="sw-navy">
     <template #header>
       <!-- Nav: back · progress · route-pill -->
       <nav class="glass-nav h-16 w-full">
@@ -190,11 +189,8 @@ function bangkokFallback() {
 </template>
 
 <style scoped>
-/* ─── Navy backdrop (swipe screen only) ─── */
-.sw-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
+/* ─── Navy background (swipe screen only) ─── */
+.sw-navy {
   background: var(--navy-swipe);
 }
 

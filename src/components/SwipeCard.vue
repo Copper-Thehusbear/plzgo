@@ -241,7 +241,7 @@ const footerLocation = computed(() =>
       <div ref="imageAreaRef" class="sc-image-area">
         <img
           v-if="currentImageOk"
-          :key="imgIndex"
+          :key="place.id + '-' + imgIndex"
           :src="images[imgIndex]"
           :data-src="images[imgIndex]"
           :alt="displayName"

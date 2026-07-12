@@ -50,7 +50,8 @@
       "Read(//home/worapun_ld/.claude/**)",
       "Bash(mkdir -p /tmp/claude-1000/-home-worapun-ld-plzgo/84dba6f2-182f-480d-accd-6f9f457957a2/scratchpad)",
       "Bash(cat)",
-      "Bash(python3 -)"
+      "Bash(python3 -)",
+      "Bash(git update-ref *)"
     ]
   }
 }

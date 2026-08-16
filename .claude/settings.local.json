@@ -98,7 +98,9 @@
       "Bash(curl -s \"https://firestore.googleapis.com/v1/projects/plzgo-bf50c/databases/\\(default\\)/documents/places?pageSize=3\" -o /tmp/places_sample.json)",
       "Bash(npx vitest *)",
       "Bash(ls -la /workspace)",
-      "Bash(ls -la /)"
+      "Bash(ls -la /)",
+      "Bash(curl -sI \"https://5174-cs-1072257713728-default.cs-asia-southeast1-yelo.cloudshell.dev/route\")",
+      "Bash(curl -s \"https://5174-cs-1072257713728-default.cs-asia-southeast1-yelo.cloudshell.dev/route\")"
     ]
   }
 }

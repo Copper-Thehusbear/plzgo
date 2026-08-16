@@ -85,6 +85,24 @@ const defaultType = { icon: 'fa-location-dot', color: '#FF8C42' }
 const marqueeRow1 = ref([])
 const marqueeRow2 = ref([])
 
+// ── Hero stat counters — count up once on load (hero is always above the fold) ──
+const heroStats = ref([
+  { target: 483, value: 0, suffix: '+', label: 'Real places' },
+  { target: 30,  value: 0, suffix: 's', label: 'To a route' },
+  { target: 0,   value: 0, suffix: '',  label: 'Sign-ups needed' },
+])
+
+function animateCount(stat, duration = 1100) {
+  const start = performance.now()
+  function tick(now) {
+    const p = Math.min((now - start) / duration, 1)
+    const eased = 1 - Math.pow(1 - p, 3)
+    stat.value = Math.round(stat.target * eased)
+    if (p < 1) requestAnimationFrame(tick)
+  }
+  requestAnimationFrame(tick)
+}
+
 async function loadMarquee() {
   try {
     const snap = await getDocs(query(collection(db, 'places'), where('city', '==', 'Bangkok'), limit(60)))
@@ -107,11 +125,19 @@ onMounted(() => {
 
   clockInterval = setInterval(() => { now.value = new Date() }, 30000)
 
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
   const observer = new IntersectionObserver(
     (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in') }),
     { threshold: 0.1 }
   )
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+  document.querySelectorAll('.reveal, .hero-line').forEach(el => observer.observe(el))
+
+  if (reducedMotion) {
+    heroStats.value.forEach(s => { s.value = s.target })
+  } else {
+    setTimeout(() => heroStats.value.forEach(s => animateCount(s)), 350)
+  }
 })
 onUnmounted(() => {
   if (clockInterval) clearInterval(clockInterval)
@@ -175,17 +201,9 @@ onUnmounted(() => {
         </div>
         <div class="hero-stats">
           <div class="stats-strip">
-            <div class="stat-item">
-              <div class="stat-num">483<sup>+</sup></div>
-              <div class="stat-label">Real places</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-num">30<sup>s</sup></div>
-              <div class="stat-label">To a route</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-num">0</div>
-              <div class="stat-label">Sign-ups needed</div>
+            <div class="stat-item" v-for="stat in heroStats" :key="stat.label">
+              <div class="stat-num">{{ stat.value }}<sup v-if="stat.suffix">{{ stat.suffix }}</sup></div>
+              <div class="stat-label">{{ stat.label }}</div>
             </div>
           </div>
         </div>
@@ -461,7 +479,15 @@ onUnmounted(() => {
   display: block;
   line-height: 1.08;
   padding-bottom: 0.06em;
+  overflow: hidden;
 }
+.hero-line > span {
+  display: inline-block;
+  transform: translateY(112%);
+  transition: transform 0.9s cubic-bezier(.2,.75,.2,1);
+}
+.hero-line.in > span { transform: none; }
+.hero-line:nth-of-type(2) > span { transition-delay: 0.14s; }
 
 /* ============ STATS STRIP ============ */
 .stats-strip {
@@ -649,9 +675,26 @@ onUnmounted(() => {
   color: var(--orange-text);
 }
 
-/* Scroll reveal disabled — state changes are instant in this system.
-   The .reveal class stays in the markup; the observer adding .in is harmless. */
-.reveal { opacity: 1; }
+/* Scroll reveal — LandingView-only exception to the "instant state" rule.
+   This is the one-time marketing entry screen, not a repeated-use tool
+   surface, so narrative pacing earns its keep here. Every other view
+   (SwipeView/ResultView/HomeView/RouteView) stays instant. */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(.2,.7,.2,1), transform 0.7s cubic-bezier(.2,.7,.2,1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .hero-line > span {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
 
 /* ============ STEP CARDS ============ */
 .step-card {

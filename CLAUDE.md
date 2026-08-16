@@ -69,8 +69,11 @@ Full spec lives in `.claude/skills/plzgo-design/SKILL.md` — this section is th
 | `--hairline` | `#DEDACF` | Dividers, card borders |
 | `--muted` | `#6B7280` | Secondary text |
 | `--orange-text` | `#C2540A` | Orange TEXT on light bg (AA contrast) |
+| `--shadow-sm` | `0 2px 8px rgba(28,39,61,.07)` | Resting depth on every `.glass-panel` card |
+| `--shadow-md` | `0 10px 28px rgba(28,39,61,.12)` | Hover lift on interactive cards (hotel rows, buttons) |
+| `--shadow-lift` | `0 18px 40px rgba(28,39,61,.16)` | Stronger hover lift (SwipeCard, prominent CTAs) |
 
-**Rules:** no shadows, no glass/backdrop-filter, no gradients-on-text, no Fraunces/serif, no emoji in UI chrome. Cards radius 6–8px; pills/badges 999px. Fonts: IBM Plex Sans Thai (body) / IBM Plex Sans Condensed 700 (display) / IBM Plex Mono 500 (**every data number**: times, km, minutes, prices, stop codes). Microcopy metaphor: Board / Skip stop / Last stop / Unmarked stop / Interchange. Signature motion: route line draws itself on ResultView load (`.plzgo-route-draw`); everything else changes state instantly; respect `prefers-reduced-motion`.
+**Rules:** soft shadows via `--shadow-sm/md/lift` are allowed (2026-08 amendment — was "no shadows" before this); still **no glass/backdrop-filter, no gradients-on-text**, no Fraunces/serif, no emoji in UI chrome. Cards radius 6–8px; pills/badges 999px. Fonts: IBM Plex Sans Thai (body) / IBM Plex Sans Condensed 700 (display) / IBM Plex Mono 500 (**every data number**: times, km, minutes, prices, stop codes). Microcopy metaphor: Board / Skip stop / Last stop / Unmarked stop / Interchange. Signature motion: route line draws itself on ResultView load (`.plzgo-route-draw`), and TimelineItem stops now stagger in alongside it; everything else changes state instantly except deliberate hover-lift on interactive cards; respect `prefers-reduced-motion`. **LandingView is the one screen allowed richer scroll-reveal/entrance motion** (marketing entry point, not a repeated-use tool surface) — don't spread that pattern to SwipeView/ResultView/HomeView/RouteView.
 
 **Exempt:** `ExploreView.vue` is the standalone monthly magazine — it keeps its own editorial style (Fraunces/Inter, its own tokens) and is NOT part of the Transit Diagram system.
 

@@ -88,6 +88,11 @@ function starStr(stars) {
         v-for="(hotel, idx) in visibleHotels"
         :key="hotel.id"
         class="bc-hotel-row"
+        role="button"
+        tabindex="0"
+        :aria-label="`Book ${hotel.hotel_name} on Agoda`"
+        @click="openHotel(hotel, idx)"
+        @keydown.enter.space.prevent="openHotel(hotel, idx)"
       >
         <img
           v-if="hotel.photo1"
@@ -115,7 +120,7 @@ function starStr(stars) {
             </span>
           </div>
         </div>
-        <button @click="openHotel(hotel, idx)" class="bc-book-btn">Book</button>
+        <button class="bc-book-btn" tabindex="-1">Book</button>
       </div>
     </div>
 
@@ -182,9 +187,10 @@ function starStr(stars) {
   padding: 10px; border-radius: 8px;
   background: #fff;
   border: 1px solid var(--hairline);
-  transition: border-color 0.15s;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
-.bc-hotel-row:hover { border-color: var(--ink); }
+.bc-hotel-row:hover { border-color: var(--ink); transform: translateY(-3px); box-shadow: var(--shadow-md); }
 
 .bc-hotel-img {
   width: 52px; height: 52px; border-radius: 6px; object-fit: cover; flex-shrink: 0;
@@ -295,11 +301,11 @@ function starStr(stars) {
   background: #fff;
   color: var(--ink);
   cursor: pointer;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, transform 0.2s ease-out, box-shadow 0.2s ease-out;
   text-align: left;
   font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.bc-sim-row:hover { border-color: var(--line-2); }
+.bc-sim-row:hover { border-color: var(--line-2); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
 .bc-sim-icon {
   width: 36px; height: 36px;
   flex-shrink: 0;

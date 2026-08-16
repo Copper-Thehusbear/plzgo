@@ -494,7 +494,13 @@ const footerLocation = computed(() =>
   -webkit-tap-highlight-color: transparent;
   /* Allow native vertical pan, we handle horizontal swipe */
   touch-action: pan-y;
+  box-shadow: var(--shadow-md);
+  transition: box-shadow 0.2s ease-out;
 }
+/* Shadow-only — the card's transform is already driven inline by drag/exit
+   physics (SwipeCard.vue cardStyle computed), so hover must not touch
+   transform or it fights that logic. */
+.sc-card:hover { box-shadow: var(--shadow-lift); }
 
 /* ─── Scrollable content ─── */
 .sc-scroll {

@@ -32,7 +32,7 @@ const safeAffiliateLink = computed(() => {
 </script>
 
 <template>
-  <div class="station-row" :class="theme === 'light' ? 'sr-light' : 'sr-dark'">
+  <div class="station-row" :class="theme === 'light' ? 'sr-light' : 'sr-dark'" :style="{ '--stop-i': index }">
     <!-- Time column (timetable) -->
     <div class="sr-time data-mono">{{ place.time_tag }}</div>
 
@@ -101,6 +101,14 @@ const safeAffiliateLink = computed(() => {
   column-gap: 10px;
   align-items: start;
   padding: 14px 0 0;
+  /* Stops stagger in as the route line draws — extends the existing
+     ResultView signature motion, not a new one. */
+  animation: sr-enter 0.5s cubic-bezier(.2,.75,.2,1) both;
+  animation-delay: calc(var(--stop-i, 0) * 55ms);
+}
+@keyframes sr-enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* Time column */

@@ -20,9 +20,14 @@ plzgo คือเครื่อง routing — ภาษาภาพจึง�
   --signal:  #FFD235;  /* Unmarked stop / golden pins (เดิม) */
   --hairline:#DEDACF;  /* เส้นแบ่ง ขอบการ์ด */
   --muted:   #6B7280;  /* ข้อความรอง */
+
+  /* Soft shadow — เพิ่มเข้ามา 2026-08 (เดิม "ไม่มีเงา") */
+  --shadow-sm:   0 2px 8px rgba(28,39,61,.07);   /* พักตัวปกติ ทุก .glass-panel */
+  --shadow-md:   0 10px 28px rgba(28,39,61,.12); /* hover lift การ์ดที่กดได้ */
+  --shadow-lift: 0 18px 40px rgba(28,39,61,.16); /* lift แรงกว่า — SwipeCard, CTA เด่น */
 }
 ```
-- เงา: **ไม่มี** (แผนที่แบน) — ยกความสำคัญด้วย hairline + บล็อกสีทึบ
+- เงา: **ใช้ได้แล้ว** ผ่าน token `--shadow-sm/md/lift` เท่านั้น (2026-08 amendment) — เป็นเงา neutral โทน ink ห้าม glow สี ห้ามใช้ `box-shadow` ค่าอื่นนอก token
 - radius: การ์ด 6–8px / pill รหัสสถานีและ line badge เท่านั้นที่ 999px
 - SwipeView คงพื้นเข้ม (--ink) ได้ — เล่าเป็น "โหมดอุโมงค์" แต่ต้องไม่มี glass
 
@@ -47,17 +52,18 @@ plzgo คือเครื่อง routing — ภาษาภาพจึง�
 | Font Awesome ทั่วจอ | icon เฉพาะที่ป้ายจริงมี: ยานพาหนะ (train/ship/walk), ทิศทาง, ประเภทสถานที่ | ที่เหลือใช้ตัวอักษร/ตัวเลขแทน |
 
 ## Hard Bans (สิ่งที่ทำให้โดนด่าว่า AI slop — ห้ามกลับมา)
-1. `backdrop-filter` ทุกรูปแบบ (glassmorphism)
+1. `backdrop-filter` ทุกรูปแบบ (glassmorphism) — ยังห้ามเหมือนเดิม แม้เงาจะเปิดแล้วก็ตาม
 2. mesh/aurora gradient background, blob เบลอลอย (`liquid-bg`, `liquid-blob` — ลบทิ้ง)
-3. hover แล้ว scale + ลอย + เงาเรืองสี (`btn-ios` — ลบทิ้ง; ปุ่มใหม่: พื้นทึบ กด active เลื่อนลง 1px)
+3. hover แล้ว **scale** + เงา**เรืองสี** (glow สีส้ม/สีอื่น) — ยังห้าม; hover-lift ที่อนุญาต (2026-08) คือ `translateY(-2px ถึง -4px)` + `--shadow-md`/`--shadow-lift` เท่านั้น เงาต้องเป็นโทน ink neutral ไม่ใช่สีเรือง และใช้เฉพาะกับ element ที่กดได้จริง (ห้าม hover-lift การ์ดที่ไม่คลิกได้ — ทำให้เข้าใจผิดว่ากดได้)
 4. การ์ดโปร่งแสงขอบขาว radius 24–32px
 5. gradient บนตัวอักษร / emoji ใน UI chrome
 6. section ที่มี icon + หัวข้อ + คำอธิบาย 3 คอลัมน์แบบ template landing
 ทุกครั้งก่อน commit งาน UI: ถามว่า "ถ้า generate หน้าแบบเดียวกันให้แอปอื่น จะได้หน้าตาเดิมไหม" — ถ้าใช่ = ยังไม่ใช่ plzgo
 
-## Motion — ทุ่มที่เดียว
-- **Signature เดียว**: เส้น route วาดตัวเองตอน ResultView โหลด (SVG `stroke-dashoffset` ~700ms, ease-out) + จุดสถานีทยอยติดตามเส้น
-- อย่างอื่น: เปลี่ยนสถานะทันที ไม่มี float, ไม่มี pulse ยกเว้น golden pin เดิม
+## Motion — ทุ่มที่เดียว (+ ข้อยกเว้น LandingView, 2026-08)
+- **Signature เดียว**: เส้น route วาดตัวเองตอน ResultView โหลด (SVG `stroke-dashoffset` ~700ms, ease-out) + จุดสถานีทยอยติดตามเส้น — StationRow แต่ละแถวตอนนี้ stagger เข้ามาพร้อมกัน (`animation-delay` ผูกกับ index ของ stop) เป็นส่วนขยายของ signature เดิม ไม่ใช่กฎใหม่
+- ที่เหลือใน SwipeView/ResultView/HomeView/RouteView: เปลี่ยนสถานะทันที ไม่มี float ลอยเปล่าๆ ไม่มี pulse ยกเว้น golden pin เดิม — **ยกเว้น hover-lift ที่อนุญาตใหม่** (ดู Hard Bans #3) บน element ที่กดได้จริง
+- **LandingView.vue คือหน้าเดียวที่ยกเว้นกฎ "instant"** — เป็นหน้า marketing ทางเข้าเว็บ ไม่ใช่เครื่องมือที่ใช้ซ้ำ อนุญาต scroll-reveal (`.reveal`/`.in`), mask-text hero, stat counter ได้เต็มที่ — ห้ามลามไปหน้าอื่น
 - เคารพ `prefers-reduced-motion: reduce` — ข้าม animation ทั้งหมด
 
 ## Copy ใน UI (ทำงานคู่ plzgo-voice)

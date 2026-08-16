@@ -607,9 +607,9 @@ onUnmounted(() => {
   background: #fff;
   border: 1px solid var(--hairline);
   border-radius: 8px;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
-.kill-card:hover { border-color: var(--ink); }
+.kill-card:hover { border-color: var(--ink); transform: translateY(-3px); box-shadow: var(--shadow-md); }
 
 .kill-icon {
   width: 38px;
@@ -719,10 +719,10 @@ onUnmounted(() => {
   border: 1px solid var(--hairline);
   border-radius: 8px;
   padding: 16px;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, transform 0.2s ease-out, box-shadow 0.2s ease-out;
   cursor: default;
 }
-.vibe-preview-card:hover { border-color: var(--ink); }
+.vibe-preview-card:hover { border-color: var(--ink); transform: translateY(-3px); box-shadow: var(--shadow-md); }
 
 /* ============ BUTTON MICRO ============ */
 .btn-arrow-icon {

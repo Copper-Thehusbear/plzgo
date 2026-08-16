@@ -591,9 +591,26 @@ async function copyLink() {
   }
 }
 
+/* Ticket-stub treatment — this card is the trip's "boarding pass" header,
+   so it gets the punched-notch + perforation motif, in system tokens only. */
 .rv-header-card {
-  padding: 24px 28px;
+  padding: 24px 28px 18px;
+  position: relative;
+  overflow: visible;
 }
+.rv-header-card::before,
+.rv-header-card::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 16px; height: 16px;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+.rv-header-card::before { left: -9px; }
+.rv-header-card::after  { right: -9px; }
 /* Wayfinding label — short mono sign */
 .rv-eyebrow {
   font-size: 10px;
@@ -610,7 +627,9 @@ async function copyLink() {
 .rv-meta {
   font-size: 14px;
   color: var(--muted);
-  margin: 0;
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px dashed var(--hairline);
 }
 
 .rv-map-panel {

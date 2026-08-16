@@ -202,11 +202,27 @@ const durationLabel = computed(() => {
   background: var(--signal); border: 2px solid var(--ink);
   vertical-align: -1px; margin-right: 2px;
 }
+/* "Post-it" note treatment — this badge announces an off-plan suggestion,
+   so it gets to look like a little note stuck on, tape and all. Tape uses
+   --signal (the existing unmarked-stop color) at low opacity, not a new
+   off-system color. */
 .ctx-nearby-badge {
   font-size: 10px; text-transform: uppercase;
   padding: 4px 12px; border-radius: 999px;
   background: #fff; border: 1px dashed var(--signal); color: var(--ink);
   display: inline-flex; align-items: center; gap: 5px;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  transform: rotate(-1.5deg);
+}
+.ctx-nearby-badge::before {
+  content: '';
+  position: absolute;
+  top: -6px; left: 16px;
+  width: 22px; height: 9px;
+  background: rgba(255,210,53,0.55);
+  transform: rotate(3deg);
+  border-radius: 2px;
 }
 .ctx-meta-pill {
   font-size: 11px; padding: 4px 12px; border-radius: 999px;
@@ -222,11 +238,13 @@ const durationLabel = computed(() => {
 .ctx-btn {
   width: 60px; height: 60px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px; cursor: pointer; transition: transform 0.08s ease-out;
+  font-size: 22px; cursor: pointer;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
 }
 .ctx-btn.nope { background: #fff; color: var(--muted); border: 1px solid var(--hairline); }
 .ctx-btn.yep  { background: var(--ink); color: #fff; border: 1px solid var(--ink); }
-.ctx-btn:active { transform: translateY(1px); }
+.ctx-btn:hover  { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.ctx-btn:active { transform: translateY(1px); box-shadow: none; }
 
 .ctx-footer {
   text-align: center;

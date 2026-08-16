@@ -91,7 +91,14 @@
       "Bash(awk -F/ '{print $1}')",
       "Bash(npm ping *)",
       "Bash(npm test *)",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(curl -s https://plzgo-bf50c.web.app/route)",
+      "Bash(curl -s https://plzgo-bf50c.web.app/ -o /tmp/index.html)",
+      "Read(//tmp/**)",
+      "Bash(curl -s \"https://firestore.googleapis.com/v1/projects/plzgo-bf50c/databases/\\(default\\)/documents/places?pageSize=3\" -o /tmp/places_sample.json)",
+      "Bash(npx vitest *)",
+      "Bash(ls -la /workspace)",
+      "Bash(ls -la /)"
     ]
   }
 }

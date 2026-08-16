@@ -56,6 +56,7 @@ export const useTripStore = defineStore('trip', () => {
 
   function swipeYep(place) {
     if (isFull.value) return false
+    if (swipedPlaces.value.some(p => p.id === place.id)) return false // already swiped, ignore
     swipedPlaces.value.push(place)
     return true
   }

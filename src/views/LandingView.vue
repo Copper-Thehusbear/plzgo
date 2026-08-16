@@ -85,6 +85,14 @@ const defaultType = { icon: 'fa-location-dot', color: '#FF8C42' }
 const marqueeRow1 = ref([])
 const marqueeRow2 = ref([])
 
+// ── Scroll progress bar (LandingView-only — matches its "read top to bottom" nature) ──
+const scrollProgress = ref(0)
+function onScroll() {
+  const h = document.documentElement
+  const scrollable = h.scrollHeight - h.clientHeight || 1
+  scrollProgress.value = Math.min(100, Math.max(0, (h.scrollTop / scrollable) * 100))
+}
+
 // ── Hero stat counters — count up once on load (hero is always above the fold) ──
 const heroStats = ref([
   { target: 483, value: 0, suffix: '+', label: 'Real places' },
@@ -138,14 +146,20 @@ onMounted(() => {
   } else {
     setTimeout(() => heroStats.value.forEach(s => animateCount(s)), 260)
   }
+
+  window.addEventListener('scroll', onScroll, { passive: true })
 })
 onUnmounted(() => {
   if (clockInterval) clearInterval(clockInterval)
+  window.removeEventListener('scroll', onScroll)
 })
 </script>
 
 <template>
   <div class="landing-root">
+
+    <!-- Scroll progress -->
+    <div class="lv-progress-bar" :style="{ width: scrollProgress + '%' }" aria-hidden="true"></div>
 
     <!-- Nav -->
     <nav class="glass-nav fixed top-0 left-0 right-0 z-50 h-16"
@@ -434,6 +448,15 @@ onUnmounted(() => {
   overflow-x: hidden;
   background: var(--paper);
 }
+.lv-progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0%;
+  background: var(--line-1);
+  z-index: 60;
+  pointer-events: none;
+}
 .hero-section {
   min-height: 100svh;
   padding-top: 64px;
@@ -629,7 +652,8 @@ onUnmounted(() => {
   flex: 1;
   min-width: 0;
 }
-/* Struck-through like a cancelled service on a departure board */
+/* Struck-through like a cancelled service on a departure board — the line
+   sweeps in when its card reveals, instead of sitting there pre-crossed-out. */
 .kill-strike {
   font-size: 14px;
   font-weight: 700;
@@ -637,10 +661,17 @@ onUnmounted(() => {
   line-height: 1.35;
   position: relative;
   display: inline;
-  text-decoration: line-through;
-  text-decoration-color: var(--line-1);
-  text-decoration-thickness: 2px;
 }
+.kill-strike::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 55%;
+  height: 2px; width: 0;
+  background: var(--line-1);
+  transition: width 0.7s cubic-bezier(.2,.7,.2,1);
+  transition-delay: 0.15s;
+}
+.kill-card.in .kill-strike::after { width: 100%; }
 
 .kill-cta {
   text-align: center;

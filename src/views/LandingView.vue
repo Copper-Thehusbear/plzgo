@@ -286,12 +286,15 @@ onUnmounted(() => {
         </span>
         <div class="hidden md:flex items-center gap-6 flex-1">
           <button class="nav-link-active text-sm font-bold" @click="router.push('/plan')">Plan a Trip</button>
+          <button class="nav-link-active text-sm font-bold" @click="router.push('/bangkok/food')">Food Guide</button>
           <button class="nav-link-active text-sm font-bold" @click="router.push('/explore')">Explore</button>
-          <span class="nav-link-soon text-sm font-bold">Community <span class="soon-badge">Coming Soon</span></span>
         </div>
         <!-- The desktop nav-links block above is hidden below md — without this,
-             there was no way to reach /explore from the nav on mobile at all. -->
-        <button class="nav-link-active text-sm font-bold md:hidden" @click="router.push('/explore')">Explore</button>
+             the guide pages are unreachable from the nav on a phone. -->
+        <div class="flex md:hidden items-center gap-4">
+          <button class="nav-link-active text-sm font-bold" @click="router.push('/bangkok/food')">Food</button>
+          <button class="nav-link-active text-sm font-bold" @click="router.push('/explore')">Explore</button>
+        </div>
         <button
           class="btn-ios btn-arrow h-10 px-6 rounded-full text-sm font-bold flex-shrink-0"
           @click="router.push('/plan')"
@@ -453,6 +456,45 @@ onUnmounted(() => {
               {{ place.name_en }}<i class="band-sep">◆</i>
             </span>
           </template>
+        </div>
+      </div>
+    </section>
+
+    <!-- Guides — the read-first entry point, and how the guide pages get
+         discovered at all. Grows as culture / activity / trend land. -->
+    <section class="sec-pad lv-guides">
+      <div class="max-w-5xl mx-auto px-4 md:px-6 lg:px-8">
+        <p class="plz-eyebrow">Not ready to swipe?</p>
+        <h2 class="sec-h2 display-cond">Read the guides first</h2>
+        <p class="lv-guide-lead">
+          Everything in the app, written up by neighbourhood — with hours, prices
+          and the nearest train for every place.
+        </p>
+
+        <div class="lv-guide-grid">
+          <a
+            class="lv-guide-card"
+            href="/bangkok/food"
+            @click.prevent="router.push('/bangkok/food')"
+          >
+            <span class="lv-guide-kicker data-mono">Guide 01</span>
+            <h3 class="lv-guide-name display-cond">Where to eat in Bangkok</h3>
+            <p class="lv-guide-copy">
+              204 places across 8 neighbourhoods — Yaowarat after dark, Ari on foot,
+              the Old City before it shuts at four.
+            </p>
+            <span class="lv-guide-go data-mono">Open the food guide →</span>
+          </a>
+
+          <div class="lv-guide-card lv-guide-soon">
+            <span class="lv-guide-kicker data-mono">Next</span>
+            <h3 class="lv-guide-name display-cond">Culture · Activity · Trend</h3>
+            <p class="lv-guide-copy">
+              Temples, markets, nightlife and whatever the city has decided it likes
+              this month. Being written now.
+            </p>
+            <span class="lv-guide-go data-mono">Coming soon</span>
+          </div>
         </div>
       </div>
     </section>
@@ -627,6 +669,8 @@ onUnmounted(() => {
             <p class="lv-foot-tag">Curated by people who actually live in Bangkok.</p>
           </div>
           <div class="flex flex-wrap gap-6">
+            <router-link to="/bangkok/food" class="footer-link">Food Guide</router-link>
+            <router-link to="/explore" class="footer-link">Explore</router-link>
             <a href="mailto:hello@plzgo.me" class="footer-link">Contact Us</a>
             <router-link to="/privacy" class="footer-link">Privacy Policy</router-link>
             <router-link to="/terms" class="footer-link">Terms of Use</router-link>
@@ -1027,6 +1071,66 @@ onUnmounted(() => {
   opacity: 0.5;
   transform: translateY(-2px);
 }
+
+/* ============ GUIDES STRIP ============ */
+.lv-guides { background: #fff; border-bottom: 1px solid var(--hairline); }
+.lv-guide-lead {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--muted);
+  max-width: 60ch;
+  margin: 14px 0 0;
+}
+.lv-guide-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 30px;
+}
+@media (min-width: 760px) { .lv-guide-grid { grid-template-columns: 1.15fr 0.85fr; } }
+.lv-guide-card {
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 26px 24px 22px;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out, border-color 0.15s;
+}
+a.lv-guide-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--ink);
+}
+.lv-guide-kicker {
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--orange-text);
+}
+.lv-guide-name {
+  font-size: clamp(1.25rem, 2.6vw, 1.7rem);
+  line-height: 1.15;
+  color: var(--ink);
+  margin: 10px 0 10px;
+}
+.lv-guide-copy {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.lv-guide-go {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--orange-text);
+}
+/* Not a link yet — must not look clickable */
+.lv-guide-soon { opacity: 0.72; }
+.lv-guide-soon .lv-guide-kicker,
+.lv-guide-soon .lv-guide-go { color: var(--muted); }
 
 /* ============ SECTION SHELL ============ */
 .sec-pad {

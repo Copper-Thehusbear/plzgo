@@ -107,6 +107,7 @@ function start() {
             <span class="hv-wordmark display-cond cursor-pointer" @click="router.push('/')">plz<span style="color:var(--line-1)">go</span></span>
             <div class="hidden md:flex items-center gap-6">
               <button class="text-sm font-bold" style="color:var(--ink)" @click="router.push('/plan')">Plan</button>
+              <button class="text-sm font-semibold hv-nav-muted" @click="router.push('/bangkok/food')">Food Guide</button>
               <button class="text-sm font-semibold hv-nav-muted" @click="router.push('/explore')">Explore</button>
             </div>
           </div>

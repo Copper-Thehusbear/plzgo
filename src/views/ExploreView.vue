@@ -68,6 +68,7 @@ function initial(str) {
         <router-link to="/" class="logo">plz<span>go</span></router-link>
         <div class="nav-links">
           <router-link to="/plan">Plan</router-link>
+          <router-link to="/bangkok/food">Food Guide</router-link>
           <router-link to="/explore" class="active">Explore</router-link>
         </div>
         <button class="cta-outline" @click="goToPlan">Start Trip</button>

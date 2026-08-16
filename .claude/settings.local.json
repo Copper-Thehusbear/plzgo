@@ -114,7 +114,11 @@
       "Bash(curl -s \"https://plzgo.me/explore\" --max-time 20)",
       "Bash(curl -sI \"https://plzgo.me/explore/\" --max-time 20)",
       "Bash(grep -vE \"^\\\\s*$\")",
-      "Bash(grep -oE 'name=\"description\" content=\"[^\"]{0,150}' dist/bangkok/food/yaowarat/index.html)"
+      "Bash(grep -oE 'name=\"description\" content=\"[^\"]{0,150}' dist/bangkok/food/yaowarat/index.html)",
+      "Bash(curl -s -o /dev/null -w \"landing:  %{http_code}\\\\n\" https://plzgo.me/ --max-time 20)",
+      "Bash(curl -s -o /dev/null -w \"food hub: %{http_code}\\\\n\" https://plzgo.me/bangkok/food --max-time 20)",
+      "Bash(curl -s -o /dev/null -w \"yaowarat: %{http_code}\\\\n\" https://plzgo.me/bangkok/food/yaowarat --max-time 20)",
+      "Bash(curl -s -o /dev/null -w \"sitemap:  %{http_code}\\\\n\" https://plzgo.me/sitemap.xml --max-time 20)"
     ]
   }
 }

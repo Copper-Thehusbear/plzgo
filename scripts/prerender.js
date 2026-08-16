@@ -130,7 +130,11 @@ async function main() {
           if (flag) return flag.getAttribute('data-prerender-ready') === 'true'
           return (document.querySelector('#app')?.innerText || '').trim().length > 150
         },
-        { timeout: 45000 }
+        // Generous on purpose: every guide page re-reads ~200 docs, and that
+        // request is regularly slow enough to blow a tighter budget. A page
+        // that times out drops out of the sitemap for the whole deploy, so
+        // waiting longer is much cheaper than losing it.
+        { timeout: 90000 }
       )
       // Vue has mounted, but the Firestore reads and entrance animations have
       // not finished: the scramble tagline would be captured mid-scramble and

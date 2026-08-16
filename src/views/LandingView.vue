@@ -100,6 +100,25 @@ const heroStats = ref([
   { target: 0,   value: 0, suffix: '',  label: 'Sign-ups needed' },
 ])
 
+// ── Scramble/decode tagline — locks in left-to-right like it's decoding ──
+const SCRAMBLE_FINAL = 'Free · No sign-up · Works on any phone'
+const scrambleText = ref(SCRAMBLE_FINAL)
+function runScramble() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&$?/'
+  let frame = 0
+  const iv = setInterval(() => {
+    frame++
+    let out = ''
+    for (let i = 0; i < SCRAMBLE_FINAL.length; i++) {
+      const c = SCRAMBLE_FINAL[i]
+      if (c === ' ' || c === '·') { out += c; continue }
+      out += frame > i * 2 + 6 ? c : chars[Math.floor(Math.random() * chars.length)]
+    }
+    scrambleText.value = out
+    if (frame > SCRAMBLE_FINAL.length * 2 + 10) { clearInterval(iv); scrambleText.value = SCRAMBLE_FINAL }
+  }, 28)
+}
+
 function animateCount(stat, duration = 1100) {
   const start = performance.now()
   function tick(now) {
@@ -145,6 +164,7 @@ onMounted(() => {
     heroStats.value.forEach(s => { s.value = s.target })
   } else {
     setTimeout(() => heroStats.value.forEach(s => animateCount(s)), 260)
+    setTimeout(runScramble, 500)
   }
 
   window.addEventListener('scroll', onScroll, { passive: true })
@@ -213,7 +233,7 @@ onUnmounted(() => {
             Start Swiping <i class="fa-solid fa-arrow-right ml-2 btn-arrow-icon"></i>
           </button>
           <p class="data-mono text-[11px] uppercase" style="color:var(--muted)">
-            Free · No sign-up · Works on any phone
+            {{ scrambleText }}
           </p>
         </div>
         <div class="hero-stats">
@@ -763,14 +783,24 @@ onUnmounted(() => {
   display: inline-block;
 }
 
-/* Nav */
+/* Nav — underline draws in on hover */
 .nav-link-active {
+  position: relative;
   color: var(--ink);
   background: none; border: none; cursor: pointer;
   transition: color 0.2s; padding: 0;
   font-family: 'IBM Plex Sans Thai', sans-serif;
 }
+.nav-link-active::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -3px;
+  height: 2px; width: 0;
+  background: var(--orange-text);
+  transition: width 0.25s ease-out;
+}
 .nav-link-active:hover { color: var(--orange-text); }
+.nav-link-active:hover::after { width: 100%; }
 .nav-link-soon {
   color: var(--muted);
   cursor: default;

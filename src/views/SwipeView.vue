@@ -366,9 +366,17 @@ function bangkokFallback() {
   max-height: 660px;
   margin-bottom: 18px;
 }
+/* Idle sway — wraps SwipeCard, never touches its own inline drag/exit
+   transform (different element). Subtle enough not to fight the gesture. */
 .sw-card-top {
   position: absolute;
   inset: 0;
+  transform-origin: top center;
+  animation: swAmbientSway 7s ease-in-out infinite;
+}
+@keyframes swAmbientSway {
+  0%, 100% { transform: rotate(-0.7deg); }
+  50%      { transform: rotate(0.7deg); }
 }
 .sw-card-back {
   position: absolute;

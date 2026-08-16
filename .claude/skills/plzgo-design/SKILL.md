@@ -52,7 +52,7 @@ plzgo คือเครื่อง routing — ภาษาภาพจึง�
 | Font Awesome ทั่วจอ | icon เฉพาะที่ป้ายจริงมี: ยานพาหนะ (train/ship/walk), ทิศทาง, ประเภทสถานที่ | ที่เหลือใช้ตัวอักษร/ตัวเลขแทน |
 
 ## Hard Bans (สิ่งที่ทำให้โดนด่าว่า AI slop — ห้ามกลับมา)
-1. `backdrop-filter` ทุกรูปแบบ (glassmorphism) — ยังห้ามเหมือนเดิม แม้เงาจะเปิดแล้วก็ตาม
+1. `backdrop-filter` ทุกรูปแบบ (glassmorphism) — **ยกเว้น `.glass-nav` เดียว** (2026-08 amendment ที่ 2): `blur(14px)` บนพื้น paper โปร่งแสง 82% ห้ามเพิ่ม blur ที่จุดอื่นโดยไม่คุยก่อน — `SwipeView.vue` มี override ของตัวเองเป็นพื้น ink ทึบไม่มี blur (โหมดอุโมงค์) ห้ามลบ
 2. mesh/aurora gradient background, blob เบลอลอย (`liquid-bg`, `liquid-blob` — ลบทิ้ง)
 3. hover แล้ว **scale** + เงา**เรืองสี** (glow สีส้ม/สีอื่น) — ยังห้าม; hover-lift ที่อนุญาต (2026-08) คือ `translateY(-2px ถึง -4px)` + `--shadow-md`/`--shadow-lift` เท่านั้น เงาต้องเป็นโทน ink neutral ไม่ใช่สีเรือง และใช้เฉพาะกับ element ที่กดได้จริง (ห้าม hover-lift การ์ดที่ไม่คลิกได้ — ทำให้เข้าใจผิดว่ากดได้)
 4. การ์ดโปร่งแสงขอบขาว radius 24–32px
@@ -62,7 +62,7 @@ plzgo คือเครื่อง routing — ภาษาภาพจึง�
 
 ## Motion — ทุ่มที่เดียว (+ ข้อยกเว้น LandingView, 2026-08)
 - **Signature เดียว**: เส้น route วาดตัวเองตอน ResultView โหลด (SVG `stroke-dashoffset` ~700ms, ease-out) + จุดสถานีทยอยติดตามเส้น — StationRow แต่ละแถวตอนนี้ stagger เข้ามาพร้อมกัน (`animation-delay` ผูกกับ index ของ stop) เป็นส่วนขยายของ signature เดิม ไม่ใช่กฎใหม่
-- ที่เหลือใน SwipeView/ResultView/HomeView/RouteView: เปลี่ยนสถานะทันที ไม่มี float ลอยเปล่าๆ ไม่มี pulse ยกเว้น golden pin เดิม — **ยกเว้น hover-lift ที่อนุญาตใหม่** (ดู Hard Bans #3) บน element ที่กดได้จริง
+- ที่เหลือใน SwipeView/ResultView/HomeView/RouteView: เปลี่ยนสถานะทันที ไม่มี float ลอยเปล่าๆ ไม่มี pulse ยกเว้น golden pin เดิม — **ยกเว้น hover-lift ที่อนุญาตใหม่** (ดู Hard Bans #3) บน element ที่กดได้จริง, และ **idle sway** บน `.sw-card-top` ของ SwipeCard (±0.7° วน 7s บน wrapper element เท่านั้น ไม่แตะ transform inline ของการ์ดเอง — 2026-08 amendment ที่ 2)
 - **LandingView.vue คือหน้าเดียวที่ยกเว้นกฎ "instant"** — เป็นหน้า marketing ทางเข้าเว็บ ไม่ใช่เครื่องมือที่ใช้ซ้ำ อนุญาต scroll-reveal (`.reveal`/`.in`), mask-text hero, stat counter ได้เต็มที่ — ห้ามลามไปหน้าอื่น
 - เคารพ `prefers-reduced-motion: reduce` — ข้าม animation ทั้งหมด
 

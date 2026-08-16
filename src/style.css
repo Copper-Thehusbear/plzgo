@@ -89,8 +89,14 @@ body {
   border-radius: 8px;
   box-shadow: var(--shadow-sm);
 }
+/* Real glass now (2026-08, off the earlier "no blur" rule) — paper at 82%
+   plus a blur so content actually shows through when scrolled under it.
+   SwipeView keeps its own solid-ink override for tunnel-mode immersion;
+   this doesn't touch that. */
 .glass-nav {
-  background: var(--paper);
+  background: rgba(246, 245, 241, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--hairline);
 }
 

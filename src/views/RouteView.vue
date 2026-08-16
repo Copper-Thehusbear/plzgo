@@ -217,6 +217,7 @@ onMounted(async () => {
   padding: 0 14px 4px;
   background: #fff;
   border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-sm);
 }
 
 .rw-cta {

@@ -13,7 +13,7 @@ const BMC_URL = 'https://buymeacoffee.com/plzgo.me'
     @click.self="emit('close')"
   >
     <div
-      class="w-full max-w-sm p-6 mb-2"
+      class="w-full max-w-sm p-6 mb-2 donation-card"
       style="background: var(--ink); border: 1px solid rgba(255,255,255,0.14); border-radius: 8px;"
     >
       <p class="data-mono text-[11px] uppercase mb-2" style="color: rgba(255,255,255,0.45)">Real talk</p>
@@ -45,6 +45,11 @@ const BMC_URL = 'https://buymeacoffee.com/plzgo.me'
 </template>
 
 <style scoped>
+/* A tiny bit of "receipt" here too — this literally is the coffee ask. */
+.donation-card {
+  transform: rotate(-1deg);
+  box-shadow: var(--shadow-lift);
+}
 .bmc-btn {
   display: flex; align-items: center; justify-content: center;
   width: 100%; height: 52px;
@@ -54,7 +59,8 @@ const BMC_URL = 'https://buymeacoffee.com/plzgo.me'
   background: var(--signal);
   color: var(--ink);
   text-decoration: none;
-  transition: transform 0.08s ease-out;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
 }
-.bmc-btn:active { transform: translateY(1px); }
+.bmc-btn:hover  { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.bmc-btn:active { transform: translateY(1px); box-shadow: none; }
 </style>

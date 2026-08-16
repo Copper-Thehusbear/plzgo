@@ -341,9 +341,9 @@ function start() {
   padding: 20px;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
-.vibe-btn:hover { border-color: var(--ink); }
+.vibe-btn:hover { border-color: var(--ink); transform: translateY(-3px); box-shadow: var(--shadow-md); }
 .vibe-btn.active {
   background: var(--ink);
   border-color: var(--ink);
@@ -486,10 +486,10 @@ function start() {
   border: 1px solid var(--hairline);
   color: var(--muted);
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s, transform 0.2s ease-out, box-shadow 0.2s ease-out;
   font-family: 'IBM Plex Sans Thai', sans-serif;
 }
-.filter-toggle:hover { border-color: var(--ink); color: var(--ink); }
+.filter-toggle:hover { border-color: var(--ink); color: var(--ink); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
 .filter-toggle.active {
   background: #fff;
   border-color: var(--ink);

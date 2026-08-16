@@ -27,7 +27,7 @@ function restart() {
     <div class="flex items-center gap-2">
       <button
         @click="store.toggleLang"
-        class="h-[30px] px-3 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center transition-all"
+        class="nb-chip h-[30px] px-3 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center transition-all"
         style="background: rgba(30,41,59,0.06); border: 1px solid rgba(30,41,59,0.1);"
         :style="{ color: store.lang === 'th' ? 'var(--orange)' : 'rgba(30,41,59,0.5)' }"
       >
@@ -36,9 +36,14 @@ function restart() {
 
       <button
         @click="restart"
-        class="h-[30px] px-3.5 rounded-full text-xs font-semibold flex items-center active:scale-95 transition-transform"
+        class="nb-chip h-[30px] px-3.5 rounded-full text-xs font-semibold flex items-center active:scale-95 transition-transform"
         style="color: rgba(30,41,59,0.5); background: rgba(30,41,59,0.06); border: 1px solid rgba(30,41,59,0.1);"
       >Start over</button>
     </div>
   </nav>
 </template>
+
+<style scoped>
+.nb-chip { transition: transform 0.15s ease-out, box-shadow 0.15s ease-out; }
+.nb-chip:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+</style>

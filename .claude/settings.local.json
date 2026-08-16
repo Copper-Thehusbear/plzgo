@@ -81,7 +81,12 @@
       "Bash(git -C /home/worapun_ld/plzgo diff --stat)",
       "Bash(git *)",
       "Bash(kill 11014)",
-      "Bash(npx firebase-tools *)"
+      "Bash(npx firebase-tools *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{url_effective}\\\\n\" -L \"https://www.buymeacoffee.com/plzgo.me\")",
+      "Bash(curl -s -L \"https://www.buymeacoffee.com/plzgo.me\")",
+      "Bash(curl -s \"https://plzgo-bf50c.web.app/assets/ResultView-Dqz4KuGZ.js\")",
+      "Bash(curl -sIL \"https://affiliate.klook.com/sl/2rc1V1q\" -o /dev/null -w \"%{http_code}\\\\n%{url_effective}\\\\n\" --max-redirs 5)",
+      "Bash(curl -sI \"https://affiliate.klook.com/sl/2rc1V1q\")"
     ]
   }
 }

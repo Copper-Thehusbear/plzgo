@@ -80,8 +80,8 @@ function initial(str) {
         <div class="hero-container reveal">
           <div class="issue-tag">{{ issue.issue_label }}</div>
           <h1 class="hero-title">
-            {{ issue.hero.title_top }}<br />
-            <span class="italic">{{ issue.hero.title_italic }}</span>
+            <span class="ex-mask"><span>{{ issue.hero.title_top }}</span></span>
+            <span class="ex-mask" style="--mask-delay:.12s"><span class="italic">{{ issue.hero.title_italic }}</span></span>
           </h1>
           <p class="hero-intro">{{ issue.hero.intro }}</p>
         </div>
@@ -510,6 +510,14 @@ function initial(str) {
   letter-spacing: -0.05em;
   margin-bottom: 40px;
 }
+.ex-mask { display: block; overflow: hidden; }
+.ex-mask > span {
+  display: inline-block;
+  transform: translateY(112%);
+  transition: transform 0.9s cubic-bezier(.2,.75,.2,1);
+  transition-delay: var(--mask-delay, 0s);
+}
+.hero-container.in .ex-mask > span { transform: none; }
 .hero-intro {
   max-width: 600px; margin: 0 auto;
   font-size: 18px; line-height: 1.6;
@@ -893,14 +901,21 @@ function initial(str) {
   border-radius: 12px; overflow: hidden;
 }
 .evt-featured-img img { width: 100%; height: 100%; object-fit: cover; }
+/* Actual ticket-stub treatment — this is a literal event date, the most
+   honest "ticket" moment on the page. Dashed edge + tilt + deeper shadow
+   instead of a plain rounded pill. */
 .evt-date-pill {
   position: absolute; top: 16px; left: 16px;
-  padding: 10px 16px; border-radius: 99px;
+  padding: 10px 16px; border-radius: 6px;
   background: var(--white); color: var(--black);
   font-size: 12px; font-weight: 800;
   letter-spacing: 0.04em;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+  border: 1px dashed rgba(15,23,42,0.25);
+  transform: rotate(-3deg);
+  transition: transform 0.3s ease-out;
 }
+.evt-featured:hover .evt-date-pill { transform: rotate(0deg); }
 .evt-featured-body h3 {
   font-size: clamp(32px, 5vw, 48px);
   font-weight: 900; line-height: 1.05;

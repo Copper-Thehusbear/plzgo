@@ -173,6 +173,9 @@ onUnmounted(() => {
           <button class="nav-link-active text-sm font-bold" @click="router.push('/explore')">Explore</button>
           <span class="nav-link-soon text-sm font-bold">Community <span class="soon-badge">Coming Soon</span></span>
         </div>
+        <!-- The desktop nav-links block above is hidden below md — without this,
+             there was no way to reach /explore from the nav on mobile at all. -->
+        <button class="nav-link-active text-sm font-bold md:hidden" @click="router.push('/explore')">Explore</button>
         <button
           class="btn-ios btn-arrow h-10 px-6 rounded-full text-sm font-bold flex-shrink-0"
           @click="router.push('/plan')"

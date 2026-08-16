@@ -155,9 +155,18 @@ function starStr(stars) {
 </template>
 
 <style scoped>
+/* Receipt treatment — this card is literally a purchase decision (real
+   prices, a Book button), the most honest "receipt" moment in the app.
+   Tilts like it's sitting on the paper; straightens on hover like picking
+   it up to read. */
 .bc-card {
   padding: 22px 22px 18px;
+  position: relative;
+  transform: rotate(-1deg);
+  box-shadow: var(--shadow-lift);
+  transition: transform 0.4s cubic-bezier(.2,.8,.3,1);
 }
+.bc-card:hover { transform: rotate(0deg); }
 .bc-eyebrow {
   font-size: 10px; text-transform: uppercase;
   color: var(--orange-text); margin-bottom: 6px;
@@ -179,8 +188,14 @@ function starStr(stars) {
   font-size: 13px; color: var(--muted); line-height: 1.5; margin: 0;
 }
 
-/* Hotel list (5 rows) */
-.bc-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+/* Hotel list (5 rows) — framed like the line-items on a printed receipt */
+.bc-list {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 14px;
+  padding: 14px 0;
+  border-top: 1px dashed var(--hairline);
+  border-bottom: 1px dashed var(--hairline);
+}
 
 .bc-hotel-row {
   display: flex; align-items: center; gap: 12px;
@@ -221,7 +236,14 @@ function starStr(stars) {
   flex-shrink: 0;
 }
 .bc-badge-live { border: 1px solid var(--line-2); color: #0E5F57; background: #fff; }
-.bc-badge-sponsored { border: 1px solid var(--line-1); color: var(--orange-text); background: #fff; }
+/* Stamped, not just labeled — this is real sponsorship data, so it earns
+   the emphasis. Thicker border + tilt reads as a rubber stamp. */
+.bc-badge-sponsored {
+  border: 2px solid var(--line-1); color: var(--orange-text); background: #fff;
+  display: inline-block;
+  font-weight: 700;
+  transform: rotate(-6deg);
+}
 
 .bc-hotel-meta {
   font-size: 11px; color: var(--muted); font-weight: 500;

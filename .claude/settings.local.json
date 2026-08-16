@@ -100,7 +100,10 @@
       "Bash(ls -la /workspace)",
       "Bash(ls -la /)",
       "Bash(curl -sI \"https://5174-cs-1072257713728-default.cs-asia-southeast1-yelo.cloudshell.dev/route\")",
-      "Bash(curl -s \"https://5174-cs-1072257713728-default.cs-asia-southeast1-yelo.cloudshell.dev/route\")"
+      "Bash(curl -s \"https://5174-cs-1072257713728-default.cs-asia-southeast1-yelo.cloudshell.dev/route\")",
+      "Bash(curl -sI https://plzgo-bf50c.web.app/)",
+      "Bash(grep '^index-.*\\\\.js$')",
+      "Bash(firebase hosting:channel:list --project plzgo-bf50c)"
     ]
   }
 }

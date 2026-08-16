@@ -212,18 +212,19 @@ const durationLabel = computed(() => {
   background: #fff; border: 1px dashed var(--signal); color: var(--ink);
   display: inline-flex; align-items: center; gap: 5px;
   position: relative;
-  box-shadow: var(--shadow-sm);
-  transform: rotate(-1.5deg);
+  box-shadow: var(--shadow-md);
+  transform: rotate(-3deg);
 }
-.ctx-nearby-badge::before {
+.ctx-nearby-badge::before,
+.ctx-nearby-badge::after {
   content: '';
   position: absolute;
-  top: -6px; left: 16px;
-  width: 22px; height: 9px;
-  background: rgba(255,210,53,0.55);
-  transform: rotate(3deg);
+  width: 26px; height: 11px;
+  background: rgba(255,210,53,0.6);
   border-radius: 2px;
 }
+.ctx-nearby-badge::before { top: -7px; left: 10px; transform: rotate(-5deg); }
+.ctx-nearby-badge::after  { top: -6px; right: 12px; transform: rotate(6deg); background: rgba(255,210,53,0.45); }
 .ctx-meta-pill {
   font-size: 11px; padding: 4px 12px; border-radius: 999px;
   background: #fff; border: 1px solid var(--hairline); color: var(--muted);

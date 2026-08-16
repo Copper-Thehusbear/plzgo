@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useTripStore } from '@/stores/useTripStore'
 
 const props = defineProps({
@@ -26,9 +26,12 @@ const cardRef = ref(null)
 
 // Non-reactive physics state: written every pointermove — keeping it out of
 // Vue reactivity keeps the hot path to two ref writes per frame.
-let moveHistory = []   // recent {x, y, t}, trimmed to a ~100ms window
-let grabFactor  = 1    // +1 grabbed top half, −1 bottom half (real-card torque)
-let cardWidth   = 320  // measured once at pointerdown
+let moveHistory     = []   // recent {x, y, t}, trimmed to a ~100ms window
+let grabFactor      = 1    // +1 grabbed top half, −1 bottom half (real-card torque)
+let cardWidth       = 320  // measured once at pointerdown
+let activePointerId = null // guards against a second finger landing mid-gesture
+let exitCleanup     = null // clears the pending exit's listener/timeout on unmount
+let progressRaf     = 0    // rAF handle coalescing drag-progress emits to one per frame
 
 const exitX        = ref(0)
 const exitY        = ref(0)
@@ -81,7 +84,15 @@ const showYep      = computed(() => dragX.value > 14 || (isExiting.value && exit
 const showNope     = computed(() => dragX.value < -14 || (isExiting.value && exitDir.value === -1))
 
 // Deck breathing: the back card scales with the top card's progress.
-watch(dragProgress, v => { if (props.isTop) emit('drag-progress', v) })
+// Coalesced to one emit per frame — pointermove can fire faster than the
+// back card's scale/translateY reactivity needs to update.
+watch(dragProgress, () => {
+  if (!props.isTop || progressRaf) return
+  progressRaf = requestAnimationFrame(() => {
+    progressRaf = 0
+    emit('drag-progress', dragProgress.value)
+  })
+})
 
 // ── Multi-image state ───────────────────────────────────────────────
 const imgIndex     = ref(0)
@@ -124,8 +135,11 @@ let isTap = false
 
 function onPointerDown(e) {
   if (!props.isTop || isExiting.value) return
-  // Skip if the touch originated on a button/link
-  if (e.target.closest('button, a')) return
+  // Skip if the touch originated on an interactive element
+  if (e.target.closest('button, a, input, textarea, select, label, [data-swipe-ignore]')) return
+  // Ignore a second finger landing mid-gesture — one active pointer at a time
+  if (activePointerId !== null) return
+  activePointerId = e.pointerId
   isDragging.value = true
   startX.value = e.clientX
   startY.value = e.clientY
@@ -134,7 +148,9 @@ function onPointerDown(e) {
   cardWidth  = rect.width || 320
   grabFactor = e.clientY < rect.top + rect.height / 2 ? 1 : -1
   moveHistory = [{ x: e.clientX, y: e.clientY, t: e.timeStamp }]
-  try { e.currentTarget.setPointerCapture(e.pointerId) } catch {}
+  // Pointer capture is taken once the gesture locks horizontal (see
+  // onPointerMove) — capturing immediately can make some mobile browsers
+  // hand the whole gesture to us before native vertical scroll can claim it.
   tapStartX = e.clientX
   tapStartY = e.clientY
   isTap = true
@@ -142,6 +158,7 @@ function onPointerDown(e) {
 
 function onPointerMove(e) {
   if (!isDragging.value) return
+  if (activePointerId !== e.pointerId) return // ignore a second finger's moves
   const dx = e.clientX - startX.value
   const dy = e.clientY - startY.value
 
@@ -151,10 +168,10 @@ function onPointerMove(e) {
     // Bias toward vertical (1.3x) — accidental horizontal flicks while scrolling shouldn't swipe
     if (Math.abs(dx) > Math.abs(dy) * 1.3) {
       gestureLock.value = 'h'
+      try { e.currentTarget.setPointerCapture(e.pointerId) } catch {}
     } else {
       gestureLock.value = 'v'
       isTap = false // scrolling is not a tap — don't flip the image on release
-      try { e.currentTarget.releasePointerCapture(e.pointerId) } catch {}
       isDragging.value = false
       return
     }
@@ -183,6 +200,8 @@ function releaseVelocity() {
 }
 
 function onPointerUp(e) {
+  if (activePointerId !== null && activePointerId !== e.pointerId) return
+  activePointerId = null
   if (!isDragging.value && gestureLock.value !== 'h' && !isTap) return
   isDragging.value = false
 
@@ -213,7 +232,9 @@ function onPointerUp(e) {
   }
 }
 
-function onPointerCancel() {
+function onPointerCancel(e) {
+  if (e && activePointerId !== null && activePointerId !== e.pointerId) return
+  activePointerId = null
   isDragging.value = false
   isTap = false // a cancelled gesture must never register as a tap
   moveHistory = []
@@ -242,14 +263,33 @@ function triggerExit(dir, event, vx = 0) {
   isExiting.value = true
   exitDir.value   = dir
 
-  // Emit on transitionend; setTimeout is only the fallback (background tabs
-  // may never fire the event).
+  // Emit on transitionend from the card itself; setTimeout is only the
+  // fallback (background tabs may never fire the event). Filtering by
+  // target+propertyName stops a bubbled child transition (e.g. the stamp
+  // fade) from finishing the exit early.
+  const el = cardRef.value
   let done = false
-  const finish = () => { if (!done) { done = true; emit(event) } }
-  cardRef.value?.addEventListener('transitionend', finish, { once: true })
-  setTimeout(finish, duration + 80)
+  const finish = () => {
+    if (done) return
+    done = true
+    el?.removeEventListener('transitionend', onTransitionEnd)
+    clearTimeout(timeoutId)
+    exitCleanup = null
+    emit(event)
+  }
+  const onTransitionEnd = (evt) => {
+    if (evt.target === el && (evt.propertyName === 'transform' || evt.propertyName === 'opacity')) finish()
+  }
+  el?.addEventListener('transitionend', onTransitionEnd)
+  const timeoutId = setTimeout(finish, duration + 80)
+  exitCleanup = () => { el?.removeEventListener('transitionend', onTransitionEnd); clearTimeout(timeoutId) }
 }
 defineExpose({ triggerExit })
+
+onBeforeUnmount(() => {
+  exitCleanup?.()
+  if (progressRaf) cancelAnimationFrame(progressRaf)
+})
 
 // ── Language-aware display ──────────────────────────────────────────
 const store = useTripStore()
@@ -312,6 +352,8 @@ const footerLocation = computed(() =>
     @pointermove="onPointerMove"
     @pointerup="onPointerUp"
     @pointercancel="onPointerCancel"
+    @lostpointercapture="onPointerCancel"
+    @dragstart.prevent
   >
     <!-- ── Scrollable content ──────────────────────────────── -->
     <div ref="scrollRef" class="sc-scroll">
@@ -449,6 +491,7 @@ const footerLocation = computed(() =>
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
   /* Allow native vertical pan, we handle horizontal swipe */
   touch-action: pan-y;
 }

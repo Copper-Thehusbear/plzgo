@@ -130,6 +130,82 @@ function animateCount(stat, duration = 1100) {
   requestAnimationFrame(tick)
 }
 
+// ── Hero demo deck ──────────────────────────────────────────────────
+// A real, swipeable deck on the landing page: showing the core loop beats
+// describing it. Uses real Firestore places, and deliberately renders no
+// photography — every image URL 403s while billing is detached, and a
+// station-sign card reads better here anyway.
+const deck        = ref([])
+const demoPicks   = ref([])
+const dragX       = ref(0)
+const dragY       = ref(0)
+const dragging    = ref(false)
+const exitDir     = ref(0)
+let   demoStartX  = 0
+let   demoStartY  = 0
+const COMMIT_PX   = 90
+
+const frontCard = computed(() => deck.value[0] ?? null)
+const stampOpacity = computed(() => Math.min(Math.abs(dragX.value) / COMMIT_PX, 1))
+
+function deckCardStyle(i) {
+  if (i === 0) {
+    if (exitDir.value !== 0) {
+      return {
+        transform: `translate(${exitDir.value * 620}px, ${dragY.value * 0.4}px) rotate(${exitDir.value * 22}deg)`,
+        opacity: 0,
+        transition: 'transform 0.42s cubic-bezier(.3,.6,.3,1), opacity 0.42s',
+      }
+    }
+    return {
+      transform: `translate(${dragX.value}px, ${dragY.value * 0.4}px) rotate(${dragX.value * 0.06}deg)`,
+      transition: dragging.value ? 'none' : 'transform 0.42s cubic-bezier(.2,.8,.3,1)',
+    }
+  }
+  return {
+    transform: `translateY(${i * -13}px) scale(${1 - i * 0.05})`,
+    opacity: i > 3 ? 0 : 1,
+  }
+}
+
+function onDeckDown(e) {
+  if (exitDir.value !== 0 || !frontCard.value) return
+  dragging.value = true
+  demoStartX = e.clientX
+  demoStartY = e.clientY
+  try { e.currentTarget.setPointerCapture(e.pointerId) } catch {}
+}
+function onDeckMove(e) {
+  if (!dragging.value) return
+  dragX.value = e.clientX - demoStartX
+  dragY.value = e.clientY - demoStartY
+}
+function onDeckUp() {
+  if (!dragging.value) return
+  dragging.value = false
+  if (dragX.value > COMMIT_PX) commitDemo(1)
+  else if (dragX.value < -COMMIT_PX) commitDemo(-1)
+  else { dragX.value = 0; dragY.value = 0 }
+}
+function commitDemo(dir) {
+  if (exitDir.value !== 0 || !frontCard.value) return
+  const card = frontCard.value
+  exitDir.value = dir
+  if (dir > 0) demoPicks.value.push(card.name_en || card.name)
+  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  setTimeout(() => {
+    deck.value.push(deck.value.shift())   // endless deck — cycle, never run dry
+    exitDir.value = 0
+    dragX.value = 0
+    dragY.value = 0
+  }, reduced ? 60 : 430)
+}
+
+const demoTrail = computed(() => ({
+  shown: demoPicks.value.slice(-3),
+  overflow: Math.max(0, demoPicks.value.length - 3),
+}))
+
 async function loadMarquee() {
   try {
     const snap = await getDocs(query(collection(db, 'places'), where('city', '==', 'Bangkok'), limit(60)))
@@ -142,8 +218,13 @@ async function loadMarquee() {
     }
     marqueeRow1.value = all.slice(0, 20)
     marqueeRow2.value = all.slice(20, 40)
+    // Prefer places that carry a zone + at least one vibe tag — the demo card
+    // shows both, and a card with blank fields undersells the product.
+    deck.value = all
+      .filter(p => (p.zone_en || p.zone) && p.vibe_tags?.length)
+      .slice(0, 6)
   } catch (e) {
-    // silently fail — marquee is decorative
+    // silently fail — marquee and demo deck are both non-essential
   }
 }
 
@@ -205,45 +286,128 @@ onUnmounted(() => {
       </div>
     </nav>
 
-    <!-- Hero — flat map paper, no stock photography -->
-    <section class="hero-section relative flex items-center justify-center overflow-hidden">
-      <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
-        <div class="hero-eyebrow live-chip">
-          <span class="live-dot"></span>
-          <span class="live-city">BANGKOK</span>
-          <span class="live-sep">·</span>
-          <span class="live-time">{{ bkkTimeLabel }}</span>
-          <span class="live-sep">·</span>
-          <span class="live-vibe">{{ bkkVibeNow }}</span>
-        </div>
-        <h1 class="display-cond mb-6" style="font-size: clamp(2.8rem, 8vw, 5.5rem); color: var(--ink);">
-          <span class="hero-line"><span>Stop overthinking.</span></span>
-          <span class="hero-line"><span class="accent-cond" style="color:var(--orange-text)">Just go.</span></span>
-        </h1>
-        <p class="hero-sub font-medium leading-relaxed mb-8 mx-auto"
-          style="font-size: clamp(1rem, 2.5vw, 1.15rem); max-width: 480px; color: var(--muted);">
-          Swipe Bangkok spots. Get a map-optimised route. Share it with one link.
-          No spreadsheets. No Pinterest boards. Just vibes.
-        </p>
-        <div class="hero-cta flex flex-col items-center gap-3">
-          <button
-            class="btn-ios btn-arrow h-14 px-10 rounded-lg text-lg font-bold"
-            @click="router.push('/plan')"
-          >
-            Start Swiping <i class="fa-solid fa-arrow-right ml-2 btn-arrow-icon"></i>
-          </button>
-          <p class="data-mono text-[11px] uppercase" style="color:var(--muted)">
-            {{ scrambleText }}
+    <!-- Hero — ink tunnel, dot grid, one warm glow. Copy left, live deck right. -->
+    <section class="hero-section plz-dotgrid plz-glow">
+      <div class="hero-grid">
+
+        <!-- Left: the pitch -->
+        <div class="hero-copy">
+          <div class="live-chip">
+            <span class="live-dot"></span>
+            <span class="live-city">BANGKOK</span>
+            <span class="live-sep">·</span>
+            <span class="live-time">{{ bkkTimeLabel }}</span>
+            <span class="live-sep">·</span>
+            <span class="live-vibe">{{ bkkVibeNow }}</span>
+          </div>
+
+          <h1 class="hero-h1 display-cond">
+            <span class="hero-line"><span>Stop overthinking.</span></span>
+            <span class="hero-line"><span class="hero-accent">Just go.</span></span>
+          </h1>
+
+          <p class="hero-tagline data-mono">{{ scrambleText }}</p>
+
+          <p class="hero-sub">
+            Swipe Bangkok spots. Get a map-optimised route. Share it with one link.
+            No spreadsheets. No Pinterest boards. Just vibes.
           </p>
-        </div>
-        <div class="hero-stats">
-          <div class="stats-strip">
-            <div class="stat-item" v-for="stat in heroStats" :key="stat.label">
-              <div class="stat-num">{{ stat.value }}<sup v-if="stat.suffix">{{ stat.suffix }}</sup></div>
-              <div class="stat-label">{{ stat.label }}</div>
+
+          <div class="hero-cta">
+            <button class="btn-ios btn-arrow hero-cta-btn" @click="router.push('/plan')">
+              Start Swiping <i class="fa-solid fa-arrow-right ml-2 btn-arrow-icon"></i>
+            </button>
+          </div>
+
+          <div class="hero-stats">
+            <div class="hstat" v-for="stat in heroStats" :key="stat.label">
+              <b>{{ stat.value }}<sup v-if="stat.suffix">{{ stat.suffix }}</sup></b>
+              <span>{{ stat.label }}</span>
             </div>
           </div>
         </div>
+
+        <!-- Right: a deck you can actually swipe, right here -->
+        <div class="hero-deck">
+          <div class="deck-sway">
+            <div
+              class="deck-stage"
+              @pointerdown="onDeckDown"
+              @pointermove="onDeckMove"
+              @pointerup="onDeckUp"
+              @pointercancel="onDeckUp"
+              @lostpointercapture="onDeckUp"
+              @dragstart.prevent
+            >
+              <template v-if="deck.length">
+                <div
+                  v-for="(place, i) in deck"
+                  :key="place.id"
+                  class="demo-card"
+                  :class="{ 'demo-card-front': i === 0 }"
+                  :style="[deckCardStyle(i), { zIndex: deck.length - i }]"
+                >
+                  <!-- Station-sign panel: colour encodes place type -->
+                  <div
+                    class="demo-face"
+                    :style="{ background: (typeConfig[place.type] || defaultType).color }"
+                  >
+                    <i :class="`fa-solid ${(typeConfig[place.type] || defaultType).icon} demo-face-icon`"></i>
+                    <span class="demo-face-type data-mono">{{ place.type || 'place' }}</span>
+                  </div>
+
+                  <div class="demo-body">
+                    <p class="demo-name display-cond">{{ place.name_en || place.name }}</p>
+                    <p class="demo-zone data-mono">{{ place.zone_en || place.zone }}</p>
+                    <div class="demo-vibes">
+                      <span v-for="t in (place.vibe_tags || []).slice(0, 3)" :key="t" class="demo-vibe data-mono">{{ t }}</span>
+                    </div>
+                  </div>
+
+                  <template v-if="i === 0">
+                    <span class="demo-stamp demo-stamp-yep display-cond"
+                      :style="{ opacity: dragX > 0 ? stampOpacity : 0 }">BOARD</span>
+                    <span class="demo-stamp demo-stamp-nope display-cond"
+                      :style="{ opacity: dragX < 0 ? stampOpacity : 0 }">SKIP</span>
+                  </template>
+                </div>
+              </template>
+
+              <!-- Skeleton while the pool loads -->
+              <div v-else class="demo-card demo-skeleton"></div>
+            </div>
+          </div>
+
+          <div class="deck-actions">
+            <button class="dbtn dbtn-pass" @click="commitDemo(-1)" aria-label="Skip this spot">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="dcount data-mono">
+              <b>{{ demoPicks.length }}</b>
+              <span>in your plan</span>
+            </div>
+            <button class="dbtn dbtn-like" @click="commitDemo(1)" aria-label="Board this spot">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+
+          <!-- The route assembling itself as you pick -->
+          <div class="plz-trail hero-trail">
+            <template v-if="demoTrail.shown.length">
+              <template v-for="(name, i) in demoTrail.shown" :key="name + i">
+                <span v-if="i > 0" class="plz-trail-arrow">→</span>
+                <span class="plz-trail-pin">{{ name }}</span>
+              </template>
+              <span v-if="demoTrail.overflow" class="plz-trail-pin hero-trail-more">+{{ demoTrail.overflow }}</span>
+            </template>
+            <p v-else class="deck-hint data-mono">Drag a card — or tap ✕ / +</p>
+          </div>
+
+          <div class="deck-cta" :class="{ 'show': demoPicks.length >= 3 }">
+            That's the whole app. Build the real one →
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -480,10 +644,25 @@ onUnmounted(() => {
   z-index: 60;
   pointer-events: none;
 }
+/* ============ HERO — ink tunnel ============ */
 .hero-section {
-  min-height: 100svh;
-  padding-top: 64px;
-  padding-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+  background: var(--ink);
+  padding: clamp(104px, 15vh, 150px) clamp(20px, 5vw, 48px) clamp(56px, 8vw, 90px);
+}
+.hero-grid {
+  position: relative;
+  z-index: 1;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: center;
+}
+@media (max-width: 980px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 3rem; }
 }
 .lv-muted { color: var(--muted); }
 
@@ -492,35 +671,101 @@ onUnmounted(() => {
   to   { transform: translateX(-50%); }
 }
 
-.hero-eyebrow {
-  margin-bottom: 20px;
-}
-
-/* ── Live chip — flat departure-board strip ── */
+/* ── Live chip — departure-board strip, dark variant ── */
 .live-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: #fff;
-  border: 1px solid var(--hairline);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.16);
   border-radius: 999px;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 500;
   font-size: 10.5px;
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
+  margin-bottom: 22px;
 }
 .live-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: var(--line-2);
+  background: var(--signal);
   flex-shrink: 0;
 }
-.live-city { color: var(--ink); }
-.live-time { color: var(--muted); }
-.live-vibe { color: var(--orange-text); }
-.live-sep  { color: var(--hairline); }
+.live-city { color: #fff; }
+.live-time { color: rgba(255,255,255,0.5); }
+.live-vibe { color: var(--line-1); }
+.live-sep  { color: rgba(255,255,255,0.25); }
+
+/* ── Headline / tagline / sub ── */
+.hero-h1 {
+  font-size: clamp(2.6rem, 6.4vw, 4.7rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin: 0 0 14px;
+}
+.hero-accent { color: var(--line-1); }
+.hero-tagline {
+  font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--line-1);
+  min-height: 1.6em;
+  margin: 0 0 18px;
+}
+.hero-sub {
+  font-size: clamp(0.95rem, 1.3vw, 1.08rem);
+  line-height: 1.8;
+  color: rgba(255,255,255,0.62);
+  max-width: 46ch;
+  margin: 0 0 28px;
+  font-weight: 500;
+}
+.hero-cta { margin-bottom: 30px; }
+.hero-cta-btn {
+  height: 56px;
+  padding: 0 34px;
+  border-radius: 10px;
+  font-size: 17px;
+}
+
+/* ── Stat chips ── */
+.hero-stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.hstat {
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px;
+  padding: 10px 16px;
+}
+.hstat b {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--line-1);
+}
+.hstat b sup {
+  font-size: 12px;
+  vertical-align: top;
+  line-height: 1.8;
+  margin-left: 1px;
+}
+.hstat span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
 .hero-line {
   display: block;
   line-height: 1.08;
@@ -535,39 +780,190 @@ onUnmounted(() => {
 .hero-line.in > span { transform: none; }
 .hero-line:nth-of-type(2) > span { transition-delay: 0.1s; }
 
-/* ============ STATS STRIP ============ */
-.stats-strip {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+/* ============ HERO DEMO DECK ============ */
+.hero-deck { position: relative; }
+.deck-sway {
+  animation: heroSway 7s ease-in-out infinite;
+  transform-origin: top center;
+}
+@keyframes heroSway {
+  0%, 100% { transform: rotate(-0.7deg); }
+  50%      { transform: rotate(0.7deg); }
+}
+.deck-stage {
+  position: relative;
+  width: min(320px, 82vw);
+  aspect-ratio: 3 / 4;
+  margin: 0 auto;
+  /* pan-y, not none — the deck sits in the hero, and `none` would trap the
+     page: anyone starting a scroll with their thumb on the card couldn't
+     move down the page. We only claim the horizontal axis. */
+  touch-action: pan-y;
+}
+.demo-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow-deep);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+}
+.demo-card-front { cursor: grab; }
+.demo-card-front:active { cursor: grabbing; }
+
+/* Station-sign face — colour encodes the place type, no photo needed */
+.demo-face {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 12px;
-  max-width: 360px;
-  margin: 32px auto 0;
-  padding-top: 24px;
-  border-top: 1px solid var(--hairline);
-  text-align: left;
+  color: #fff;
 }
-.stat-num {
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  font-size: 26px;
-  line-height: 1;
-  color: var(--ink);
-}
-.stat-num sup {
-  font-size: 13px;
-  color: var(--orange-text);
-  margin-left: 1px;
-  vertical-align: top;
-  line-height: 1.6;
-}
-.stat-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: 500;
+.demo-face-icon { font-size: 46px; opacity: 0.9; }
+.demo-face-type {
   font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.demo-body {
+  flex: 0 0 auto;
+  padding: 16px 18px 18px;
+  border-top: 1px solid var(--hairline);
+  background: #fff;
+}
+.demo-name {
+  font-size: 19px;
+  line-height: 1.15;
+  color: var(--ink);
+  margin: 0 0 4px;
+}
+.demo-zone {
+  font-size: 10px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-top: 5px;
+  margin: 0 0 10px;
+}
+.demo-vibes { display: flex; gap: 5px; flex-wrap: wrap; }
+.demo-vibe {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+}
+.demo-skeleton {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: none;
+}
+
+/* Stamps — heavy, rotated, driven by drag distance */
+.demo-stamp {
+  position: absolute;
+  top: 22px;
+  font-size: 26px;
+  letter-spacing: 0.06em;
+  padding: 6px 16px;
+  border: 4px solid;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.9);
+  pointer-events: none;
+  z-index: 5;
+}
+.demo-stamp-yep  { left: 16px;  color: var(--line-2); border-color: var(--line-2); transform: rotate(-13deg); }
+.demo-stamp-nope { right: 16px; color: var(--ink);    border-color: var(--ink);    transform: rotate(13deg); }
+
+/* Deck controls */
+.deck-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 22px;
+}
+.dbtn {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 19px;
+  border: 2px solid;
+  cursor: pointer;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+.dbtn:hover { transform: scale(1.1); }
+.dbtn-pass {
+  color: rgba(255,255,255,0.7);
+  border-color: rgba(255,255,255,0.28);
+  background: transparent;
+}
+.dbtn-pass:hover { color: #fff; border-color: rgba(255,255,255,0.6); }
+.dbtn-like {
+  color: #fff;
+  background: var(--line-1);
+  border-color: var(--line-1);
+}
+.dbtn-like:hover { box-shadow: 0 10px 26px -8px rgba(255,140,66,0.7); }
+.dcount {
+  text-align: center;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  min-width: 86px;
+}
+.dcount b {
+  display: block;
+  font-size: 22px;
+  letter-spacing: 0;
+  color: #fff;
+  line-height: 1.2;
+}
+.hero-trail { margin-top: 18px; }
+.hero-trail-more {
+  background: var(--line-1);
+  border-color: var(--line-1);
+}
+.deck-hint {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+}
+/* Payoff line — appears once the demo has proved the point */
+.deck-cta {
+  margin: 16px auto 0;
+  max-width: 300px;
+  text-align: center;
+  font-family: 'IBM Plex Sans Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--signal);
+  border-radius: 10px;
+  padding: 10px 14px;
+  opacity: 0;
+  transform: translateY(8px) scale(0.94);
+  transition: all 0.45s cubic-bezier(.2,.8,.3,1.3);
+  pointer-events: none;
+}
+.deck-cta.show { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .deck-sway { animation: none; }
 }
 
 /* ============ MARQUEE ============ */

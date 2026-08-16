@@ -105,7 +105,11 @@
       "Bash(grep '^index-.*\\\\.js$')",
       "Bash(firebase hosting:channel:list --project plzgo-bf50c)",
       "Bash(curl -s https://plzgo-bf50c.web.app/ -o /tmp/idx.html)",
-      "Bash(curl -sI https://plzgo-bf50c.web.app/explore)"
+      "Bash(curl -sI https://plzgo-bf50c.web.app/explore)",
+      "Bash(curl -sI https://plzgo.me/ --max-time 15)",
+      "Bash(curl -s https://plzgo.me/ --max-time 15)",
+      "Bash(timeout 420 npx puppeteer browsers install chrome)",
+      "Bash(grep -oE 'class=\"band-item[^>]*>[^<]{3,40}' dist/index.html)"
     ]
   }
 }

@@ -3,12 +3,20 @@
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
+      { "source": "/swipe", "destination": "/app.html" },
+      { "source": "/route", "destination": "/app.html" },
+      { "source": "/route/**", "destination": "/app.html" },
       { "source": "**", "destination": "/index.html" }
     ],
     "headers": [
       {
         "source": "**/*.@(jpg|jpeg|png|svg|webp|woff2)",
         "headers": [{ "key": "Cache-Control", "value": "max-age=31536000, immutable" }]
+      },
+      {
+        "//": "HTML defaults to an hour, which is why a fresh deploy kept looking unchanged. Assets are content-hashed, so only the HTML needs to turn over quickly.",
+        "source": "**/*.html",
+        "headers": [{ "key": "Cache-Control", "value": "max-age=300, must-revalidate" }]
       }
     ]
   },

@@ -201,23 +201,19 @@ firebase deploy --only hosting --project plzgo-bf50c
 
 ---
 
-## Seed Data
+## Data
 
-The project uses a Master Database for all place data.
+Firestore `places` is the source of truth — edits are applied there directly
+(via targeted scripts, e.g. `scripts/apply-insight-rewrites.js`), not seeded
+in from a file. `plzgo-db-task/Plzgo_MasterDB_Clean.csv` is a backup export,
+regenerated after bulk edits with:
 
 ```bash
-# Main seeding from enriched CSV
-node seed-firestore.cjs
-
-# Legacy/Specific seeds
-node seed-bangkok.cjs
-node scripts/fill-transit-batch.cjs
+node scripts/export-master-csv.js
 ```
 
-**Database Status:**
-- **Master File:** `plzgo-db-task/Plzgo_MasterDB_Clean.csv`
-- **Completeness:** Textual data is 100% complete (DNA insights, transit, vibes).
-- **Progress Tracking:** See `DATABASE_PROGRESS.md` for detailed field status.
+See `CLAUDE.md` → Database & Seeding for full current state and the
+`plzgo-data-ops` skill for the standard edit/check/export workflow.
 
 ---
 

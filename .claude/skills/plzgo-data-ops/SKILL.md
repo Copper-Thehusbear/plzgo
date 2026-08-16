@@ -1,16 +1,16 @@
 ---
 name: plzgo-data-ops
-description: จัดการวงจรข้อมูลสถานที่ของ plzgo — Master CSV → enrich → seed Firestore → verify ใช้เมื่อเพิ่ม/แก้ place, seed ข้อมูล, ตรวจคุณภาพ field, หรือเติมรูปภาพ (image enrichment) Trigger: "เพิ่มสถานที่", "seed", "ตรวจ DB", "รูปยังไม่ครบ", "enrich"
+description: จัดการวงจรข้อมูลสถานที่ของ plzgo — แก้ที่ Firestore ตรงๆ → enrich → export CSV backup → verify ใช้เมื่อเพิ่ม/แก้ place, ตรวจคุณภาพ field, หรือเติมรูปภาพ (image enrichment) Trigger: "เพิ่มสถานที่", "seed", "ตรวจ DB", "รูปยังไม่ครบ", "enrich"
 ---
 
 # plzgo Data Ops
 
 ## แหล่งความจริงเดียว (Single Source of Truth)
-- **Master file:** `plzgo-db-task/Plzgo_MasterDB_Clean.csv` (~730 แถว)
-- Firestore `places` เป็นปลายทาง ห้ามแก้ข้อมูลใน Firestore ตรงๆ แล้วไม่อัปเดต CSV — ทุกการแก้เริ่มที่ CSV แล้ว seed ใหม่
-- สถานะปัจจุบัน: text fields ครบ 100% / `image_source_url` = 0% (BLOCKER) / `google_place_id`, `address` = 0%
+- **Firestore `places` (483 docs) คือของจริง** — CSV ต้นฉบับตัวเดิมหายไปแล้ว ตอนนี้ `plzgo-db-task/Plzgo_MasterDB_Clean.csv` เป็นแค่ export snapshot ที่ regenerate มาจาก Firestore
+- แก้ข้อมูลที่ Firestore ตรงๆ ผ่าน script เฉพาะทาง (เช่น `scripts/apply-insight-rewrites.js`, `scripts/enrich-places.js`) แล้ว **regenerate CSV ทีหลัง** ด้วย `node scripts/export-master-csv.js` — ห้ามทำย้อนทาง (แก้ CSV แล้วหวังว่าจะ sync เข้า Firestore เอง)
+- สถานะปัจจุบัน (2026-07-12): text fields ครบ 100% (insight, transit_note 483/483) / imagery enrich ครบแต่ URL ตอบ 403 เพราะ billing ปิดอยู่ — ดูรายละเอียดใน `CLAUDE.md`
 
-## Field Standards (ต้องครบก่อน seed)
+## Field Standards (ต้องครบก่อนเขียนเข้า Firestore)
 | Field | กติกา |
 |---|---|
 | `plzgo_id`, `name`, `name_en`, lat/lng | บังคับ, ตรวจพิกัดว่าอยู่ในกรุงเทพจริง |
@@ -23,23 +23,23 @@ description: จัดการวงจรข้อมูลสถานที�
 | `zone` | ต้อง map เข้า 8 Bangkok hubs ใน `useZoneCentroid.js` — zone แปลกทำ BaseCampCard พัง |
 
 ## Workflow มาตรฐาน
-1. แก้/เพิ่มแถวใน Master CSV
-2. รันชุดตรวจก่อน seed:
+1. แก้/เพิ่ม doc ใน Firestore `places` ตรงๆ ผ่าน script เฉพาะทาง (ห้ามแก้ผ่าน Console มือเปล่าสำหรับ bulk edit — ไม่มี audit trail)
+2. รันชุดตรวจหลังแก้:
    - `node scripts/check-place-zones.js` — zone ตรงกับ centroid map
    - `node scripts/check-empty-zones.js`
    - `node scripts/check-lang.js` — TH/EN ครบคู่
    - `node scripts/check-photo-urls.js` — URL รูปไม่ตาย
-3. Seed: `node scripts/seed-master-700.js` (ตัวปัจจุบัน — `seed-firestore.cjs` / `seed-bangkok.cjs` เป็น legacy ห้ามใช้)
-4. Verify: `node scripts/verify-migration.js` + `node scripts/list-db.js` เทียบจำนวน docs กับจำนวนแถว CSV
+3. Verify: `node scripts/verify-migration.js` + `node scripts/list-db.js` เทียบจำนวน docs
+4. Export CSV backup ให้ตรงของจริง: `node scripts/export-master-csv.js`
 5. เปิดเว็บจริงเช็ค SwipeView ว่า card pool ขึ้นครบทุก vibe
 
-## Image Enrichment (งานค้างอันดับ 1)
-ลำดับที่วางไว้:
-1. **Placeholder ก่อน** — ฉีด Unsplash URL ตามหมวดเข้า `image_source_url` เพื่อให้แอปดูสมบูรณ์ระหว่างรอของจริง
-2. **ของจริง** — `scripts/enrich-places.js` ดึง `google_place_id` + address → n8n workflow ดึงรูปจาก Places API
-3. ระวังโควตา/ค่าใช้จ่าย Places API — รันเป็น batch มี checkpoint (ดู pattern ใน `fill-transit-batch.cjs` + `transit-checkpoint.json`)
+## Image Enrichment
+รูปจริงถ่ายจากแหล่งทางการครบทุกที่แล้ว (2.24 GB ใน `gs://plzgo-bf50c.firebasestorage.app/places/…`) — **ห้ามใช้ Unsplash หรือ stock photo อื่นแทนรูปสถานที่จริงเด็ดขาด** (ดู feedback memory เรื่องนี้)
+- ตอนนี้ทุก URL ตอบ 403 เพราะ billing account ของโปรเจกต์ปิดอยู่ — ไม่ใช่ปัญหาเรื่องข้อมูล แก้ได้ด้วยการผูก billing account ใหม่เท่านั้น
+- ถ้าต้องเติม `google_place_id`/address ของสถานที่ใหม่ ใช้ `scripts/enrich-places.js`
+- งาน batch ที่มี rate limit/cost ให้ทำแบบ resume-safe มี checkpoint file (ดู pattern ใน `fill-transit-batch.cjs`) แต่ห้าม commit checkpoint/preview/error json ที่เป็น run output เข้า git
 
 ## ห้ามทำ
-- ห้าม seed โดยไม่รัน check scripts ก่อน
+- ห้ามเขียนเข้า Firestore โดยไม่รัน check scripts ก่อน
 - ห้ามสร้าง vibe tag ใหม่โดยไม่เช็คว่ามี tag ความหมายเดียวกันอยู่แล้ว
 - ห้ามลบ field ออกจาก schema โดยไม่เช็ค `useFirestore.js` ว่า query ใช้อยู่หรือไม่

@@ -86,7 +86,9 @@
       "Bash(curl -s -L \"https://www.buymeacoffee.com/plzgo.me\")",
       "Bash(curl -s \"https://plzgo-bf50c.web.app/assets/ResultView-Dqz4KuGZ.js\")",
       "Bash(curl -sIL \"https://affiliate.klook.com/sl/2rc1V1q\" -o /dev/null -w \"%{http_code}\\\\n%{url_effective}\\\\n\" --max-redirs 5)",
-      "Bash(curl -sI \"https://affiliate.klook.com/sl/2rc1V1q\")"
+      "Bash(curl -sI \"https://affiliate.klook.com/sl/2rc1V1q\")",
+      "Bash(gh repo *)",
+      "Bash(awk -F/ '{print $1}')"
     ]
   }
 }

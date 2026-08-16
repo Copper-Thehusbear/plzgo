@@ -1,15 +1,25 @@
 import { useDistance } from './useDistance'
 
 const { haversine } = useDistance()
-const DAY_MINUTES = 480
+
+const DAY_MINUTES          = 480  // 8hr walking day budget used to size numDays
+const STOP_BUFFER_MINUTES  = 30   // travel/transition buffer added per stop when sizing days
+const MIN_TRIP_DAYS        = 1
+const MAX_TRIP_DAYS        = 3
+const KMEANS_MAX_ITERATIONS  = 10
+const DIVERSITY_MAX_PASSES   = 3   // spreadCategoryDiversity settle passes
+const TWO_OPT_EPSILON        = 1e-10 // float-noise guard so equal-length swaps don't loop forever
+
+// Must match --line-1/2/3 in src/style.css (Transit Diagram design tokens)
+const DAY_COLORS = ['#FF8C42', '#12796F', '#C2497D']
 
 // Handle both nested location object and flat lat/lng fields
 function lat(p) { return p.location?.latitude ?? p.latitude }
 function lng(p) { return p.location?.longitude ?? p.longitude }
 
 function calcDays(places) {
-  const totalMins = places.reduce((sum, p) => sum + (p.duration_minutes || 60) + 30, 0)
-  return Math.min(3, Math.max(1, Math.ceil(totalMins / DAY_MINUTES)))
+  const totalMins = places.reduce((sum, p) => sum + (p.duration_minutes || 60) + STOP_BUFFER_MINUTES, 0)
+  return Math.min(MAX_TRIP_DAYS, Math.max(MIN_TRIP_DAYS, Math.ceil(totalMins / DAY_MINUTES)))
 }
 
 function kMeansClusters(places, k) {
@@ -20,7 +30,7 @@ function kMeansClusters(places, k) {
   ).map(p => ({ lat: lat(p), lng: lng(p) }))
 
   let clusters = []
-  for (let iter = 0; iter < 10; iter++) {
+  for (let iter = 0; iter < KMEANS_MAX_ITERATIONS; iter++) {
     clusters = Array.from({ length: k }, () => [])
 
     for (const place of places) {
@@ -91,7 +101,7 @@ function twoOpt(route) {
         const swap =
           haversine(lat(best[i]), lng(best[i]), lat(best[j]), lng(best[j])) +
           (j + 1 < best.length ? haversine(lat(best[i+1]), lng(best[i+1]), lat(best[j+1]), lng(best[j+1])) : 0)
-        if (swap < curr - 1e-10) {
+        if (swap < curr - TWO_OPT_EPSILON) {
           best = [...best.slice(0, i+1), ...best.slice(i+1, j+1).reverse(), ...best.slice(j+1)]
           improved = true
         }
@@ -118,7 +128,7 @@ function spreadCategoryDiversity(days) {
   let changed = true
 
   // Up to N passes to settle redistributions
-  for (let pass = 0; pass < 3 && changed; pass++) {
+  for (let pass = 0; pass < DIVERSITY_MAX_PASSES && changed; pass++) {
     changed = false
     for (let d = 0; d < result.length; d++) {
       const seen = new Map()
@@ -172,7 +182,6 @@ export function buildOptimalDays(swipedPlaces) {
 }
 
 export function buildDayGeoJSON(dayBlocks) {
-  const DAY_COLORS = ['#FF8C42', '#3B82F6', '#0D9488']
   const features = []
   dayBlocks.forEach((block, dayIdx) => {
     block.forEach((place, i) => {
@@ -185,7 +194,7 @@ export function buildDayGeoJSON(dayBlocks) {
           id: place.id,
           name: place.name_en || place.name,
           description: place.description_tourist || place.description || '',
-          dayIndex,
+          dayIndex: dayIdx,
           placeIndex: i,
           color: DAY_COLORS[dayIdx] ?? DAY_COLORS[0],
           type: place.type,

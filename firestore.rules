@@ -7,15 +7,32 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // No auth required by design — plzgo is a no-signup app (see README), so
+    // this can't gate on request.auth. Hardened instead by locking the exact
+    // field set (no smuggled junk fields) and bounding every value to what
+    // ResultView.vue's saveRoute() actually writes.
     match /routes/{routeId} {
       allow read: if true;
       allow create: if request.resource.data.keys().hasAll(['places', 'city', 'vibes', 'days', 'createdAt'])
+        && request.resource.data.keys().hasOnly([
+             'places', 'city', 'vibes', 'mode', 'days', 'createdAt',
+             'created_country', 'referrer', 'ua'
+           ])
         && request.resource.data.places is list
         && request.resource.data.places.size() > 0
         && request.resource.data.places.size() <= 20
         && request.resource.data.city is string
+        && request.resource.data.city.size() <= 100
+        && request.resource.data.vibes is list
+        && request.resource.data.vibes.size() <= 3
         && request.resource.data.days is number
-        && request.resource.data.vibes is list;
+        && request.resource.data.days >= 1
+        && request.resource.data.days <= 3
+        && request.resource.data.createdAt == request.time
+        && (!('mode' in request.resource.data) || request.resource.data.mode is string)
+        && (!('created_country' in request.resource.data) || request.resource.data.created_country == null || request.resource.data.created_country is string)
+        && (!('referrer' in request.resource.data) || request.resource.data.referrer == null || (request.resource.data.referrer is string && request.resource.data.referrer.size() <= 500))
+        && (!('ua' in request.resource.data) || (request.resource.data.ua is string && request.resource.data.ua.size() <= 200));
       allow update, delete: if false;
     }
 

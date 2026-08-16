@@ -88,7 +88,10 @@
       "Bash(curl -sIL \"https://affiliate.klook.com/sl/2rc1V1q\" -o /dev/null -w \"%{http_code}\\\\n%{url_effective}\\\\n\" --max-redirs 5)",
       "Bash(curl -sI \"https://affiliate.klook.com/sl/2rc1V1q\")",
       "Bash(gh repo *)",
-      "Bash(awk -F/ '{print $1}')"
+      "Bash(awk -F/ '{print $1}')",
+      "Bash(npm ping *)",
+      "Bash(npm test *)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

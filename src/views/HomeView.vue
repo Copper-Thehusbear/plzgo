@@ -122,8 +122,9 @@ function start() {
     <main class="flex-1 px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-20 pb-32">
 
       <!-- Header -->
-      <div class="mb-10 lg:mb-14">
-        <p class="hv-eyebrow data-mono">Bangkok, Thailand</p>
+      <div class="mb-10 lg:mb-14 hv-header">
+        <span class="plz-secnum hv-secnum">01</span>
+        <p class="plz-eyebrow">Bangkok, Thailand</p>
         <h1 class="display-cond text-4xl lg:text-6xl leading-[0.95]" style="color:var(--ink)">
           Plan your trip<br>
           <span style="color:var(--muted)">Pick your line</span>
@@ -324,13 +325,31 @@ function start() {
   margin-bottom: 8px;
 }
 
+.hv-header { position: relative; }
+.hv-secnum { top: -18px; right: 0; }
+.hv-header > *:not(.hv-secnum) { position: relative; z-index: 1; }
+
+/* Section labels carry the leading rule too, so every heading level in the
+   app is marked the same editorial way. */
 .section-label {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
   font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.section-label::before {
+  content: '';
+  width: 26px;
+  height: 1px;
+  background: currentColor;
+  flex: none;
+  opacity: 0.6;
 }
 
 /* Vibe cells — flat white, hairline; selected = solid ink block */

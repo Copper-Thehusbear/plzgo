@@ -77,6 +77,22 @@ Full spec lives in `.claude/skills/plzgo-design/SKILL.md` — this section is th
 
 **Exempt:** `ExploreView.vue` is the standalone monthly magazine — it keeps its own editorial style (Fraunces/Inter, its own tokens) and is NOT part of the Transit Diagram system.
 
+### Physical language (2026-08) — the house style
+Colours and fonts stay exactly as above; what changed is **how surfaces behave**. Shared primitives live in `src/style.css` under "PHYSICAL LANGUAGE" — use these instead of inventing per-component treatments:
+
+| Class | What it is |
+|---|---|
+| `.plz-eyebrow` | mono caps label preceded by a short rule (`::before`) — the standard section marker |
+| `.plz-secnum` | oversized, ~5% opacity chapter numeral as a watermark; must map to real data (day number, step number) |
+| `.plz-paper` + `.plz-paper-tilt-l/-r` | printed-sheet base: white, deep shadow, tilted; straightens on hover |
+| `.plz-stamp` (+`-ink`/`-green`) | thick rotated border, allowed to overhang its parent's edge |
+| `.plz-taped` | two tape strips at opposing angles in `--signal` |
+| `.plz-perf`, `.plz-notched` | dashed tear line / punched ticket notches |
+| `.plz-dotgrid`, `.plz-glow` | surface texture layers (parent needs `position:relative`) |
+| `.plz-trail` | picks accumulating as pins joined by arrows |
+
+**Guiding rules:** paper objects tilt (small ones ~2°, wide ones ~1° — the same angle on a wide element reads as a bug); shadows are deep and wide (`--shadow-md/-lift`, `--shadow-deep` on ink backgrounds) so things sit *on* a surface; stamps and tape overhang edges rather than sitting inside them. The old "every card is a white rounded rect with a hairline" default is what made the UI read as generated — vary the treatment by what the thing actually *is*.
+
 ## Component Conventions
 
 ### `TimelineItem.vue`

@@ -19,6 +19,14 @@ const topCardRef   = ref(null)
 
 const currentCard = computed(() => cards.value[currentIndex.value] ?? null)
 const nextCard    = computed(() => cards.value[currentIndex.value + 1] ?? null)
+const thirdCard   = computed(() => cards.value[currentIndex.value + 2] ?? null)
+
+// Last few picks, shown as a station trail under the deck.
+const trail = computed(() => {
+  const picks = store.swipedPlaces
+  const shown = picks.slice(-3).map(p => p.name_en || p.name)
+  return { shown, overflow: Math.max(0, picks.length - 3) }
+})
 
 // Deck breathing: back card follows the top card's drag progress linearly —
 // at progress 1 (exit) it sits at scale 1 / y 0, so the reveal never "pops".
@@ -129,8 +137,8 @@ function bangkokFallback() {
       </nav>
     </template>
 
-    <!-- Main -->
-    <div class="sw-main">
+    <!-- Main — tunnel surface: dot grid + one warm glow, like looking down a line -->
+    <div class="sw-main plz-dotgrid plz-glow">
 
       <!-- Loading -->
       <div v-if="loading" class="sw-state">
@@ -140,9 +148,12 @@ function bangkokFallback() {
 
       <!-- Empty deck -->
       <div v-else-if="isDeckEmpty" class="sw-state">
-        <div class="sw-empty">
+        <div class="sw-empty plz-paper plz-paper-tilt-l">
+          <span class="plz-stamp plz-stamp-ink sw-empty-stamp">End of line</span>
+          <p class="plz-eyebrow plz-eyebrow-ink">Terminus</p>
           <p class="sw-empty-title display-cond">Last stop.</p>
           <p class="sw-empty-sub">You've swiped through everything — try another line.</p>
+          <div class="plz-perf"></div>
           <button class="btn-ios sw-empty-btn" @click="$router.push('/plan')">Start over</button>
         </div>
       </div>
@@ -150,8 +161,11 @@ function bangkokFallback() {
       <!-- Swipe area -->
       <div v-else class="sw-area">
 
-        <!-- Card stack -->
+        <!-- Card stack — three deep, so the deck reads as a physical pile -->
         <div class="sw-stage">
+          <div v-if="thirdCard" class="sw-card-third">
+            <SwipeCard :place="thirdCard" />
+          </div>
           <div v-if="nextCard" class="sw-card-back" :style="backCardStyle">
             <SwipeCard :place="nextCard" />
           </div>
@@ -188,10 +202,17 @@ function bangkokFallback() {
           </button>
         </div>
 
-        <!-- Hint text -->
-        <p class="sw-hint data-mono">
-          <span class="sw-hint-line">Swipe · drag to scroll · tap photo</span>
-        </p>
+        <!-- Trail of picks so far — the route assembling itself, live -->
+        <div class="plz-trail sw-trail">
+          <template v-if="trail.shown.length">
+            <template v-for="(name, i) in trail.shown" :key="name + i">
+              <span v-if="i > 0" class="plz-trail-arrow">→</span>
+              <span class="plz-trail-pin">{{ name }}</span>
+            </template>
+            <span v-if="trail.overflow" class="plz-trail-pin sw-trail-more">+{{ trail.overflow }}</span>
+          </template>
+          <p v-else class="sw-hint data-mono">Swipe · drag to scroll · tap photo</p>
+        </div>
 
       </div>
     </div>
@@ -292,7 +313,11 @@ function bangkokFallback() {
   flex-direction: column;
   padding-top: calc(64px + env(safe-area-inset-top, 0px));
   min-height: 0;
+  position: relative;   /* anchors the .plz-dotgrid / .plz-glow layers */
+  overflow: hidden;
 }
+/* Everything real sits above the texture layers */
+.sw-main > * { position: relative; z-index: 1; }
 
 /* ─── States ─── */
 .sw-state {
@@ -319,17 +344,18 @@ function bangkokFallback() {
   margin: 0;
 }
 .sw-empty {
-  background: #fff;
-  border: 1px solid var(--hairline);
   border-radius: 8px;
-  padding: 36px 30px;
-  text-align: center;
+  padding: 32px 30px 30px;
+  text-align: left;
   max-width: 360px;
   width: 100%;
+  box-shadow: var(--shadow-deep);
 }
+.sw-empty-stamp { top: -14px; right: -12px; }
 .sw-empty-title {
-  font-size: 22px;
+  font-size: 28px;
   color: var(--ink);
+  line-height: 1.05;
   margin-bottom: 8px;
 }
 .sw-empty-sub {
@@ -386,6 +412,15 @@ function bangkokFallback() {
   transform-origin: bottom center;
   pointer-events: none;
 }
+/* Third card: just enough edge showing to read as a real pile */
+.sw-card-third {
+  position: absolute;
+  inset: 0;
+  transform: scale(0.88) translateY(28px);
+  opacity: 0.18;
+  transform-origin: bottom center;
+  pointer-events: none;
+}
 
 /* ─── Action buttons (asymmetric) ─── */
 .sw-actions {
@@ -435,27 +470,35 @@ function bangkokFallback() {
 }
 .sw-action-add:hover { background: #F07E33; }
 
-/* ─── Hint ─── */
+/* ─── Trail / hint ─── */
+.sw-trail {
+  margin-top: 16px;
+  padding: 0 8px;
+  flex-shrink: 0;
+}
+.sw-trail-more {
+  background: var(--line-1);
+  border-color: var(--line-1);
+  color: #fff;
+}
 .sw-hint {
-  margin-top: 14px;
   font-size: 10px;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.4);
   text-align: center;
-}
-.sw-hint-line {
-  display: inline-block;
+  margin: 0;
 }
 
 @media (max-height: 700px) {
   .sw-stage { max-height: 540px; }
   .sw-area  { padding: 10px 16px 14px; }
-  .sw-hint  { margin-top: 8px; font-size: 9px; }
+  .sw-trail { margin-top: 8px; }
+  .sw-hint  { font-size: 9px; }
 }
 @media (max-height: 620px) {
   .sw-action-pass { width: 54px; height: 54px; font-size: 20px; }
   .sw-action-add  { width: 60px; height: 60px; font-size: 23px; }
   .sw-actions { gap: 30px; }
-  .sw-hint { display: none; }
+  .sw-trail { display: none; }
 }
 </style>

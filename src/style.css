@@ -19,12 +19,13 @@
   --muted:    #6B7280;  /* secondary text */
   --orange-text: #C2540A; /* orange TEXT on light bg (AA contrast) */
 
-  /* Soft shadows (2026-08 amendment) — cards now sit slightly off the paper.
-     Interactive elements lift further on hover. Still no glass/backdrop-filter,
-     still no gradients-on-text — those bans stand. */
-  --shadow-sm:   0 2px 8px rgba(28,39,61,0.07);
-  --shadow-md:   0 10px 28px rgba(28,39,61,0.12);
-  --shadow-lift: 0 18px 40px rgba(28,39,61,0.16);
+  /* Depth scale. These are deliberately deep and wide (large blur, negative
+     spread) — that's what makes an element read as a physical object sitting
+     ON a surface instead of a div with a drop-shadow. */
+  --shadow-sm:   0 4px 14px rgba(28,39,61,0.08);
+  --shadow-md:   0 18px 40px -18px rgba(28,39,61,0.35);
+  --shadow-lift: 0 30px 60px -22px rgba(28,39,61,0.45);
+  --shadow-deep: 0 30px 60px -22px rgba(3,8,18,0.80);   /* on ink/tunnel backgrounds */
 
   /* legacy aliases — old views still reference these; same family */
   --navy:        var(--ink);
@@ -460,6 +461,190 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .plzgo-route-draw { stroke-dasharray: none; stroke-dashoffset: 0; animation: none; }
   .plzgo-golden-pin { animation: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PHYSICAL LANGUAGE — shared primitives
+   The house style is "printed matter on a desk": tickets, receipts,
+   stamped paper, notes with tape. Rules that make it read as designed
+   rather than generated:
+     · nothing decorative is perfectly square to the grid — paper tilts
+     · shadows are deep and wide, so objects sit ON the surface
+     · labels are mono caps with a leading rule (editorial eyebrow)
+     · chapter numerals are huge and nearly invisible (watermark)
+   Every value here uses the plzgo palette only.
+══════════════════════════════════════════════════════════════════ */
+
+/* --- Eyebrow: mono caps preceded by a short rule --- */
+.plz-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--orange-text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+.plz-eyebrow::before {
+  content: '';
+  width: 34px;
+  height: 1px;
+  background: currentColor;
+  flex: none;
+}
+.plz-eyebrow-ink { color: var(--ink); }
+.plz-eyebrow-light { color: var(--signal); }
+
+/* --- Chapter numeral: huge, faint, non-interactive watermark --- */
+.plz-secnum {
+  position: absolute;
+  top: -6px;
+  right: 0;
+  font-family: 'IBM Plex Sans Condensed', sans-serif;
+  font-weight: 700;
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  opacity: 0.05;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+.plz-secnum-light { color: #fff; opacity: 0.07; }
+
+/* --- Paper object: the base every "printed" thing extends --- */
+.plz-paper {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-lift);
+  transition: transform 0.4s cubic-bezier(.2,.8,.3,1), box-shadow 0.4s ease-out;
+}
+/* Straighten on hover, like picking a sheet up off the desk */
+.plz-paper-tilt-l { transform: rotate(-2.2deg); }
+.plz-paper-tilt-r { transform: rotate(1.8deg); }
+.plz-paper-tilt-l:hover,
+.plz-paper-tilt-r:hover { transform: rotate(0deg); }
+
+/* --- Stamp: thick rotated border, allowed to overhang its parent --- */
+.plz-stamp {
+  position: absolute;
+  font-family: 'IBM Plex Sans Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border: 2.5px solid var(--line-1);
+  color: var(--orange-text);
+  background: rgba(255,255,255,0.92);
+  transform: rotate(8deg);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 3;
+}
+.plz-stamp-ink   { border-color: var(--ink);    color: var(--ink); }
+.plz-stamp-green { border-color: var(--line-2); color: #0E5F57; }
+
+/* --- Tape: two strips at opposing angles, in signal yellow --- */
+.plz-taped::before,
+.plz-taped::after {
+  content: '';
+  position: absolute;
+  width: 46px;
+  height: 16px;
+  background: rgba(255, 210, 53, 0.55);
+  z-index: 2;
+  pointer-events: none;
+}
+.plz-taped::before { top: -8px; left: 14px;  transform: rotate(-6deg); }
+.plz-taped::after  { top: -7px; right: 16px; transform: rotate(5deg); background: rgba(255,210,53,0.4); }
+
+/* --- Perforation + punch notches (tickets) --- */
+.plz-perf {
+  height: 0;
+  border-top: 1px dashed var(--hairline);
+  margin: 14px 0;
+}
+.plz-notched::before,
+.plz-notched::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  transform: translateY(-50%);
+  z-index: 2;
+}
+.plz-notched::before { left: -10px; }
+.plz-notched::after  { right: -10px; }
+
+/* --- Surface textures: dot grid + a single warm glow --- */
+.plz-dotgrid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 26px 26px;
+  pointer-events: none;
+  z-index: 0;
+}
+.plz-dotgrid-ink::before {
+  background-image: radial-gradient(rgba(28,39,61,0.10) 1px, transparent 1px);
+}
+.plz-glow::after {
+  content: '';
+  position: absolute;
+  width: 620px;
+  height: 620px;
+  right: -240px;
+  bottom: -300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,140,66,0.20), transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* --- Pin trail: picks accumulating as station pins joined by arrows --- */
+.plz-trail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+}
+.plz-trail-pin {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  white-space: nowrap;
+  animation: plzPinIn 0.4s cubic-bezier(.2,.8,.3,1.3) both;
+}
+.plz-trail-arrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--line-1);
+}
+@keyframes plzPinIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plz-paper-tilt-l, .plz-paper-tilt-r { transform: none; }
+  .plz-trail-pin { animation: none; }
 }
 
 /* ══════════════════════════════════

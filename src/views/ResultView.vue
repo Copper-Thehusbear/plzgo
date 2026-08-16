@@ -343,17 +343,26 @@ async function copyLink() {
           <!-- Left / main col -->
           <div class="rv-col-main">
 
-            <!-- Route title -->
-            <div class="glass-panel rv-header-card">
-              <p class="rv-eyebrow data-mono">Your route</p>
+            <!-- Route title — issued boarding pass -->
+            <div class="rv-header-card plz-paper plz-notched">
+              <span class="plz-stamp plz-stamp-green rv-header-stamp">Issued</span>
+              <p class="plz-eyebrow">Boarding pass</p>
               <h1 class="rv-city display-cond">{{ store.selectedCity }}</h1>
-              <p class="rv-meta">
-                <span class="data-mono">{{ numDays }}-day</span>
-                <span class="mx-1.5 opacity-30">·</span>
-                {{ store.selectedVibes.join(' + ') }}
-                <span v-if="store.swipedPlaces.length" class="mx-1.5 opacity-30">·</span>
-                <span v-if="store.swipedPlaces.length" class="data-mono">{{ store.swipedPlaces.length }} stops</span>
-              </p>
+              <div class="plz-perf"></div>
+              <dl class="rv-ticket-row">
+                <div>
+                  <dt>Days</dt>
+                  <dd class="data-mono">{{ numDays }}</dd>
+                </div>
+                <div>
+                  <dt>Stops</dt>
+                  <dd class="data-mono">{{ store.swipedPlaces.length }}</dd>
+                </div>
+                <div class="rv-ticket-vibe">
+                  <dt>Line</dt>
+                  <dd>{{ store.selectedVibes.join(' + ') }}</dd>
+                </div>
+              </dl>
             </div>
 
             <!-- Weather alert banner -->
@@ -480,6 +489,7 @@ async function copyLink() {
               class="glass-panel rv-day-block"
               :style="{ '--row-line': DAY_COLORS[dayIndex] }"
             >
+              <span v-if="numDays > 1" class="plz-secnum rv-day-num">{{ dayIndex + 1 }}</span>
               <div v-if="numDays > 1" class="rv-day-label data-mono" :style="{ background: DAY_COLORS[dayIndex] }">
                 ● Line {{ dayIndex + 1 }} · {{ dayLabels[dayIndex] }}
               </div>
@@ -591,26 +601,18 @@ async function copyLink() {
   }
 }
 
-/* Ticket-stub treatment — this card is the trip's "boarding pass" header,
-   so it gets the punched-notch + perforation motif, in system tokens only. */
+/* Boarding pass — tilted, notched, stamped. Straightens on hover. */
+/* Gentler tilt than the small paper objects — the same angle on an element
+   this wide reads as a layout mistake rather than a tilted ticket. */
 .rv-header-card {
-  padding: 24px 28px 18px;
-  position: relative;
+  padding: 26px 30px 22px;
+  border-radius: 8px;
   overflow: visible;
+  margin-top: 6px;
+  transform: rotate(-1deg);
 }
-.rv-header-card::before,
-.rv-header-card::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 16px; height: 16px;
-  background: var(--paper);
-  border: 1px solid var(--hairline);
-  border-radius: 50%;
-  transform: translateY(-50%);
-}
-.rv-header-card::before { left: -9px; }
-.rv-header-card::after  { right: -9px; }
+.rv-header-card:hover { transform: rotate(0deg); }
+.rv-header-stamp { top: -13px; right: 14px; transform: rotate(-9deg); }
 /* Wayfinding label — short mono sign */
 .rv-eyebrow {
   font-size: 10px;
@@ -619,17 +621,39 @@ async function copyLink() {
   margin: 0 0 8px;
 }
 .rv-city {
-  font-size: 32px;
+  font-size: clamp(32px, 7vw, 44px);
+  color: var(--ink);
+  line-height: 1.02;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+/* Ticket data strip — label above value, mono numerals, like a real stub */
+.rv-ticket-row {
+  display: flex;
+  gap: 28px;
+  margin: 0;
+  flex-wrap: wrap;
+}
+.rv-ticket-row dt {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.rv-ticket-row dd {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
   color: var(--ink);
   line-height: 1.1;
-  margin: 0 0 6px;
 }
-.rv-meta {
-  font-size: 14px;
-  color: var(--muted);
-  margin: 12px 0 0;
-  padding-top: 12px;
-  border-top: 1px dashed var(--hairline);
+.rv-ticket-vibe dd {
+  font-size: 15px;
+  padding-top: 3px;
+  text-transform: capitalize;
 }
 
 .rv-map-panel {
@@ -702,7 +726,17 @@ async function copyLink() {
 
 .rv-day-block {
   padding: 8px 18px 4px;
+  position: relative;
+  overflow: hidden;   /* clips the oversized day numeral */
 }
+/* Day numeral as watermark — the block is literally "Line 2", so the
+   figure earns its place instead of being decoration. */
+.rv-day-num {
+  top: 2px;
+  right: 14px;
+  font-size: clamp(4.5rem, 14vw, 7.5rem);
+}
+.rv-day-block > *:not(.rv-day-num) { position: relative; z-index: 1; }
 /* Line badge above each day's stations */
 .rv-day-label {
   display: inline-block;

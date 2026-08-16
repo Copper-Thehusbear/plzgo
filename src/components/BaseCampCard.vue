@@ -70,6 +70,7 @@ function starStr(stars) {
 
 <template>
   <div class="glass-panel bc-card">
+    <span class="plz-stamp bc-stamp">Where to sleep</span>
     <!-- Header -->
     <div class="mb-4">
       <p class="bc-eyebrow data-mono">
@@ -155,18 +156,18 @@ function starStr(stars) {
 </template>
 
 <style scoped>
-/* Receipt treatment — this card is literally a purchase decision (real
-   prices, a Book button), the most honest "receipt" moment in the app.
-   Tilts like it's sitting on the paper; straightens on hover like picking
-   it up to read. */
+/* Receipt — real prices and a Book button, so it gets the full printed-slip
+   treatment: tilted on the desk, deep shadow, straightens when you reach
+   for it. */
 .bc-card {
-  padding: 22px 22px 18px;
+  padding: 24px 22px 18px;
   position: relative;
-  transform: rotate(-1deg);
+  transform: rotate(-2.2deg);
   box-shadow: var(--shadow-lift);
   transition: transform 0.4s cubic-bezier(.2,.8,.3,1);
 }
 .bc-card:hover { transform: rotate(0deg); }
+.bc-stamp { top: -13px; right: -10px; transform: rotate(9deg); }
 .bc-eyebrow {
   font-size: 10px; text-transform: uppercase;
   color: var(--orange-text); margin-bottom: 6px;

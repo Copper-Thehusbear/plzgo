@@ -494,13 +494,10 @@ const footerLocation = computed(() =>
   -webkit-tap-highlight-color: transparent;
   /* Allow native vertical pan, we handle horizontal swipe */
   touch-action: pan-y;
-  box-shadow: var(--shadow-md);
-  transition: box-shadow 0.2s ease-out;
+  /* Deep variant — this card sits on the dark tunnel background, where the
+     light-surface shadows disappear entirely. */
+  box-shadow: var(--shadow-deep);
 }
-/* Shadow-only — the card's transform is already driven inline by drag/exit
-   physics (SwipeCard.vue cardStyle computed), so hover must not touch
-   transform or it fights that logic. */
-.sc-card:hover { box-shadow: var(--shadow-lift); }
 
 /* ─── Scrollable content ─── */
 .sc-scroll {
@@ -736,16 +733,20 @@ const footerLocation = computed(() =>
 .sc-bottom-spacer { height: 32px; }
 
 /* ─── Stamps — station-sign plates in system colors ─── */
+/* Rubber stamps — thick border, hard rotation, overhanging the card edge.
+   Reads as ink slammed onto the ticket, not a UI label. */
 .sc-stamp {
   position: absolute;
-  top: 60px;
+  top: 54px;
   z-index: 30;
   pointer-events: none;
-  padding: 8px 18px;
-  border-radius: 8px;
-  border: 3px solid;
-  background: rgba(255, 255, 255, 0.92);
-  font-size: 22px;
+  padding: 9px 20px;
+  border-radius: 6px;
+  border: 4px solid;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 26px;
+  letter-spacing: 0.06em;
+  box-shadow: var(--shadow-md);
 }
 .sc-stamp-yep {
   left: 18px;

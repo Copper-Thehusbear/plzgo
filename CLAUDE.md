@@ -114,6 +114,22 @@ Colours and fonts stay exactly as above; what changed is **how surfaces behave**
 - Props: `hotels` (Array), `zoneName` (String), `zoneCopy` (String)
 - Only renders if both `zone` and `hotels.length` are truthy in ResultView
 
+## SEO / Guide pages (added 2026-08)
+
+The app is a Vue SPA, so the HTML Firebase served used to be `<div id="app"></div>` and nothing else. `scripts/prerender.js` runs automatically after `vite build`: it serves `dist/` locally, opens each route in headless Chrome, waits for Vue **and** the Firestore reads, then writes real HTML back to disk. Firebase serves a matching static file before applying the SPA rewrite, so no per-route hosting config is needed.
+
+**Adding a page to the SEO surface:** add the route in `src/router/index.js`, then add its path to `ROUTES` in `scripts/prerender.js`. The sitemap is generated from whatever actually rendered — never hand-edit it, and note there is no `public/sitemap.xml` any more (a second copy would drift).
+
+**Any page that loads data must expose `:data-prerender-ready="String(!loading)"` on its root.** The prerender waits on that flag. Without it the page shell alone satisfies the text-length fallback and a slow query gets captured mid-load, shipping an empty page — this happened to `/bangkok/food/ari` (1 kB instead of 65 kB).
+
+Structure and roles:
+- `/bangkok/food` + `/bangkok/food/:zone` — durable guide pages that accumulate search traffic. Built from `places` where `type == 'food'`.
+- `/explore` — the monthly editorial issue. Freshness and return visits, *not* the SEO surface.
+- `src/composables/useFoodGuide.js` — zone config and queries. **Each district maps to exactly one slug**; overlapping sets would put the same restaurants on two pages and read as duplicate content. (Deliberately stricter than `HUB_HOTEL_ZONES` in ResultView, which overlaps on purpose for hotel matching.)
+- `src/composables/useSeoHead.js` — title/description/canonical/JSON-LD, reusable by the next hub. Tags are marked `data-seo` and cleared on unmount so SPA navigation can't stack duplicate canonicals.
+- Thin-content rule: a zone page needs **≥5 places** or it isn't generated.
+- Dynamic routes (`/swipe`, `/route/:id`) rewrite to `app.html`, a pristine shell — otherwise they'd flash the prerendered landing page before Vue boots.
+
 ## Firestore
 
 Collection `places` — key fields for filtering:

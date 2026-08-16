@@ -112,7 +112,9 @@
       "Bash(grep -oE 'class=\"band-item[^>]*>[^<]{3,40}' dist/index.html)",
       "Bash(curl -sI \"https://plzgo.me/explore\" --max-time 20)",
       "Bash(curl -s \"https://plzgo.me/explore\" --max-time 20)",
-      "Bash(curl -sI \"https://plzgo.me/explore/\" --max-time 20)"
+      "Bash(curl -sI \"https://plzgo.me/explore/\" --max-time 20)",
+      "Bash(grep -vE \"^\\\\s*$\")",
+      "Bash(grep -oE 'name=\"description\" content=\"[^\"]{0,150}' dist/bangkok/food/yaowarat/index.html)"
     ]
   }
 }

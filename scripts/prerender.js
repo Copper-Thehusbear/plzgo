@@ -29,7 +29,16 @@ const PORT = 5199
 //   /swipe     — needs store state from a previous screen, and robots.txt
 //                disallows it anyway
 //   /route/:id — user-generated itineraries, rendered from a Firestore doc
-const ROUTES = ['/', '/explore', '/plan', '/privacy', '/terms']
+// Guide zones must match FOOD_ZONES in src/composables/useFoodGuide.js
+const FOOD_ZONE_SLUGS = [
+  'yaowarat', 'siam', 'sukhumvit', 'ari', 'old-city', 'silom', 'sathorn', 'riverside',
+]
+
+const ROUTES = [
+  '/', '/explore', '/plan', '/privacy', '/terms',
+  '/bangkok/food',
+  ...FOOD_ZONE_SLUGS.map(s => `/bangkok/food/${s}`),
+]
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -84,7 +93,22 @@ async function main() {
   })
 
   let ok = 0
+  const rendered = []   // only routes that actually produced a file reach the sitemap
+
+  // Each page load re-reads the whole food collection, and those reads are
+  // occasionally slow enough to blow the wait budget. One retry turns a flaky
+  // network into a non-event; without it a page silently drops out of the
+  // sitemap for the rest of the day.
+  const ATTEMPTS = 3
   for (const route of ROUTES) {
+    for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+      const done = await renderRoute(browser, route, attempt)
+      if (done) { rendered.push(route); ok++; break }
+      if (attempt < ATTEMPTS) console.log(`[prerender] retrying ${route}…`)
+    }
+  }
+
+  async function renderRoute(browser, route, attempt) {
     const page = await browser.newPage()
     // A real desktop viewport — some content is width-gated
     await page.setViewport({ width: 1280, height: 1400 })
@@ -96,9 +120,17 @@ async function main() {
         waitUntil: 'domcontentloaded',
         timeout: 45000,
       })
+      // Pages that load data expose data-prerender-ready and flip it to "true"
+      // once the read resolves. Without that signal a slow query gets captured
+      // mid-load — the page shell alone easily clears any text-length
+      // heuristic, so the snapshot ships with an empty list.
       await page.waitForFunction(
-        () => (document.querySelector('#app')?.innerText || '').trim().length > 150,
-        { timeout: 30000 }
+        () => {
+          const flag = document.querySelector('[data-prerender-ready]')
+          if (flag) return flag.getAttribute('data-prerender-ready') === 'true'
+          return (document.querySelector('#app')?.innerText || '').trim().length > 150
+        },
+        { timeout: 45000 }
       )
       // Vue has mounted, but the Firestore reads and entrance animations have
       // not finished: the scramble tagline would be captured mid-scramble and
@@ -115,6 +147,16 @@ async function main() {
         return '<!DOCTYPE html>' + document.documentElement.outerHTML
       })
 
+      const text = await page.evaluate(() => document.body.innerText.trim().length)
+
+      // Belt and braces. The ready flag is the primary guard, but a data page
+      // that renders only its shell is ~1 kB of text where a real one is 6-20 kB.
+      // Shipping that silently is worse than shipping nothing, because the
+      // sitemap would then advertise an empty page as real content.
+      if (route.startsWith('/bangkok/') && text < 2500) {
+        throw new Error(`suspiciously thin (${text} chars) — treating as a failed load`)
+      }
+
       const outPath = route === '/'
         ? join(DIST, 'index.html')
         : join(DIST, route.replace(/^\//, ''), 'index.html')
@@ -122,13 +164,15 @@ async function main() {
       await writeFile(outPath, html, 'utf8')
 
       const kb = (Buffer.byteLength(html) / 1024).toFixed(1)
-      const text = await page.evaluate(() => document.body.innerText.trim().length)
       console.log(`[prerender] ${route.padEnd(10)} → ${kb} kB (${text} chars of text)`)
-      ok++
+      return true
     } catch (e) {
-      // A failed route must not ship a half-written file; the SPA fallback
-      // still serves that route correctly, we just lose the SEO benefit.
-      console.error(`[prerender] FAILED ${route}: ${e.message}`)
+      // A failed route must not ship a half-written file, and must not reach
+      // the sitemap either — the SPA fallback still serves it correctly to
+      // users, we just lose the SEO benefit for that page this build.
+      const last = attempt >= ATTEMPTS
+      console.error(`[prerender] ${last ? 'FAILED' : 'attempt ' + attempt + ' failed'} ${route}: ${e.message}`)
+      return false
     } finally {
       await page.close()
     }
@@ -136,6 +180,28 @@ async function main() {
 
   await browser.close()
   server.close()
+
+  // Generate the sitemap from the routes we actually rendered. Maintaining it
+  // by hand guarantees it drifts the first time a page is added or renamed,
+  // and a sitemap listing URLs that 404 is worse than no sitemap.
+  const PRIORITY = { '/': '1.0', '/bangkok/food': '0.9', '/explore': '0.9' }
+  const CHANGEFREQ = { '/': 'weekly', '/explore': 'weekly' }
+  const today = new Date().toISOString().slice(0, 10)
+  const entries = rendered.map(r => [
+    '  <url>',
+    `    <loc>https://plzgo.me${r === '/' ? '/' : r}</loc>`,
+    `    <lastmod>${today}</lastmod>`,
+    `    <changefreq>${CHANGEFREQ[r] || (r.startsWith('/bangkok/') ? 'monthly' : 'yearly')}</changefreq>`,
+    `    <priority>${PRIORITY[r] || (r.startsWith('/bangkok/') ? '0.8' : r === '/plan' ? '0.8' : '0.2')}</priority>`,
+    '  </url>',
+  ].join('\n')).join('\n')
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${entries}
+</urlset>
+`
+  await writeFile(join(DIST, 'sitemap.xml'), sitemap, 'utf8')
+  console.log(`[prerender] sitemap.xml written with ${rendered.length} urls`)
 
   console.log(`[prerender] ${ok}/${ROUTES.length} routes prerendered`)
   if (ok === 0) process.exit(1)

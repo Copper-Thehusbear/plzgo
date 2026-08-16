@@ -20,6 +20,24 @@ const routes = [
       description: 'The monthly plzgo issue: new bars, concerts on sale, where to sleep, and the neighborhood worth your time this month in Bangkok.'
     }
   },
+  // ── Guide pages (SEO surface) ────────────────────────────────────
+  // Static content built from the places collection, prerendered at build
+  // time. /explore stays the monthly editorial issue; these are the durable
+  // pages that accumulate search traffic.
+  {
+    path: '/bangkok/food',
+    name: 'FoodHub',
+    component: () => import('@/views/FoodHubView.vue'),
+    meta: {
+      title: 'Where to Eat in Bangkok — by Neighbourhood · plzgo',
+      description: 'A Bangkok food guide organised by neighbourhood — Yaowarat, Sukhumvit, Ari, Silom and more, with hours, price range and the nearest BTS or MRT.'
+    }
+  },
+  {
+    path: '/bangkok/food/:zone',
+    name: 'FoodZone',
+    component: () => import('@/views/FoodZoneView.vue'),
+  },
   {
     path: '/privacy',
     name: 'Privacy',

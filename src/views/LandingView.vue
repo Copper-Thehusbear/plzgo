@@ -281,8 +281,8 @@ onUnmounted(() => {
     <nav class="glass-nav fixed top-0 left-0 right-0 z-50 h-16"
       style="padding-top: max(env(safe-area-inset-top), 0px);">
       <div class="max-w-7xl mx-auto h-full px-4 md:px-6 lg:px-8 flex items-center justify-between gap-6">
-        <span class="text-2xl display-cond flex-shrink-0 flex items-center" style="color:var(--ink)">
-          plz<span style="color:var(--orange-text)">go</span><span class="logo-dot"></span>
+        <span class="lv-logo display-cond flex-shrink-0">
+          plz<span>go</span>
         </span>
         <div class="hidden md:flex items-center gap-6 flex-1">
           <button class="nav-link-active text-sm font-bold" @click="router.push('/plan')">Plan a Trip</button>
@@ -1146,17 +1146,17 @@ onUnmounted(() => {
   margin-top: 30px;
 }
 
-/* ============ LOGO DOT ============ */
-.logo-dot {
-  display: inline-block;
-  width: 5px; height: 5px;
-  background: var(--line-1);
-  border-radius: 50%;
-  margin-left: 1px;
-  position: relative;
-  top: -6px;
-  flex-shrink: 0;
+/* ============ WORDMARK ============ */
+/* Matches ExploreView's .logo exactly — same weight, tracking and the
+   brighter --line-1 on "go". No trailing dot. */
+.lv-logo {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  cursor: pointer;
 }
+.lv-logo span { color: var(--line-1); }
 
 /* Accent inside condensed headlines — line-1 color, no serif */
 .accent-cond {

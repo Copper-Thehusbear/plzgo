@@ -518,9 +518,29 @@ async function copyLink() {
             </div>
 
             <!-- Tip row — quiet by design; the screen's loud CTA belongs to Agoda -->
-            <button class="rv-tip-row data-mono" @click="openDonation">
-              Route saved you time? Buy me a coffee →
-            </button>
+            <!-- The bill. Every line is ฿0, so the ask lands after the value
+                 has been itemised rather than before. Still nothing
+                 interruptive: no modal until the user taps the tip line. -->
+            <div class="rv-bill">
+              <p class="rv-bill-head data-mono">Your bill</p>
+              <div class="rv-bill-line data-mono">
+                <span>{{ numDays }}-day route · {{ store.swipedPlaces.length }} stops</span><b>฿0</b>
+              </div>
+              <div class="rv-bill-line data-mono">
+                <span>Hand-checked places</span><b>฿0</b>
+              </div>
+              <div class="rv-bill-line data-mono">
+                <span>Map + shareable link</span><b>฿0</b>
+              </div>
+              <div class="rv-bill-perf"></div>
+              <div class="rv-bill-total data-mono">
+                <span>Total</span><b>฿0.00</b>
+              </div>
+              <button class="rv-bill-tip" @click="openDonation">
+                <span>Tip the local?</span>
+                <span class="rv-bill-amt data-mono">฿20 →</span>
+              </button>
+            </div>
 
           </div><!-- /rv-col-side -->
         </div><!-- /rv-grid -->
@@ -812,20 +832,73 @@ async function copyLink() {
 }
 .rv-retry-btn:active { transform: translateY(1px); }
 
-.rv-tip-row {
-  width: 100%;
-  padding: 12px 16px;
-  background: none;
-  border: 1px dashed var(--hairline);
-  border-radius: 8px;
-  font-size: 11px;
-  text-transform: uppercase;
-  color: var(--muted);
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-  text-align: center;
+/* Thermal-printed slip. Tilts on the desk, straightens when reached for. */
+.rv-bill {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  padding: 18px 20px 16px;
+  box-shadow: var(--shadow-lift);
+  transform: rotate(-1.4deg);
+  transition: transform 0.4s cubic-bezier(.2,.8,.3,1);
 }
-.rv-tip-row:hover { color: var(--ink); border-color: var(--ink); }
+.rv-bill:hover { transform: rotate(0deg); }
+.rv-bill-head {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-align: center;
+  margin: 0 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--hairline);
+}
+.rv-bill-line,
+.rv-bill-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 2;
+}
+.rv-bill-line b { color: var(--ink); font-weight: 500; flex: none; }
+.rv-bill-perf {
+  height: 0;
+  border-top: 1px dashed var(--hairline);
+  margin: 8px 0;
+}
+.rv-bill-total {
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 700;
+}
+.rv-bill-total b { color: var(--line-2); }
+
+/* The ask — the only line on the slip that isn't ฿0 */
+.rv-bill-tip {
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px dashed var(--line-1);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font-family: 'IBM Plex Sans Thai', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s ease-out;
+}
+.rv-bill-tip:hover  { background: #FFF6EF; transform: translateY(-2px); }
+.rv-bill-tip:active { transform: translateY(1px); }
+.rv-bill-amt { color: var(--orange-text); font-size: 12px; }
 
 .rv-toast {
   position: fixed;

@@ -123,6 +123,7 @@ onUnmounted(clearSeoHead)
 
     <!-- Neighbourhoods -->
     <section class="fg-sec">
+      <span class="plz-secnum fg-sec-num">01</span>
       <div class="fg-wrap">
         <p class="plz-eyebrow">Start here</p>
         <h2 class="fg-h2 display-cond">Pick a neighbourhood</h2>
@@ -133,12 +134,13 @@ onUnmounted(clearSeoHead)
 
         <div class="fg-zone-grid">
           <a
-            v-for="z in zoneCounts"
+            v-for="(z, i) in zoneCounts"
             :key="z.slug"
             class="fg-zone-card"
             :href="`/bangkok/food/${z.slug}`"
             @click.prevent="router.push(`/bangkok/food/${z.slug}`)"
           >
+            <span class="fg-zone-idx" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
             <div class="fg-zone-top">
               <h3 class="fg-zone-name display-cond">{{ z.name }}</h3>
               <span class="fg-zone-count data-mono">{{ z.count }}</span>
@@ -153,6 +155,7 @@ onUnmounted(clearSeoHead)
 
     <!-- Top picks -->
     <section class="fg-sec fg-sec-alt">
+      <span class="plz-secnum fg-sec-num">02</span>
       <div class="fg-wrap">
         <p class="plz-eyebrow">The short list</p>
         <h2 class="fg-h2 display-cond">If you only eat twelve meals</h2>
@@ -162,7 +165,7 @@ onUnmounted(clearSeoHead)
         </p>
 
         <div v-if="loading" class="fg-skeleton">Loading places…</div>
-        <div v-else class="fg-list">
+        <div v-else class="fg-list fg-col">
           <FoodPlaceCard
             v-for="(p, i) in topPicks"
             :key="p.id"
@@ -175,10 +178,17 @@ onUnmounted(clearSeoHead)
 
     <!-- Price guide -->
     <section class="fg-sec">
+      <span class="plz-secnum fg-sec-num">03</span>
       <div class="fg-wrap">
         <p class="plz-eyebrow">What it costs</p>
         <h2 class="fg-h2 display-cond">Reading the price bands</h2>
-        <div class="fg-price-grid">
+        <p class="fg-sec-lead">
+          Every place on this site carries a band rather than a number, because Bangkok
+          prices move and a stale figure is worse than none.
+        </p>
+
+        <div class="fg-receipt">
+          <p class="fg-receipt-head">Price guide</p>
           <div class="fg-price-row" v-for="[band, n] in priceBands" :key="band">
             <span class="fg-price-band data-mono">{{ band }}</span>
             <span class="fg-price-desc">
@@ -190,19 +200,19 @@ onUnmounted(clearSeoHead)
             </span>
             <span class="fg-price-n data-mono">{{ n }}</span>
           </div>
+          <p class="fg-price-note">
+            Cash still rules at the cheap end.<br>Anything in the ฿ band, assume no card.
+          </p>
         </div>
-        <p class="fg-price-note">
-          Cash still rules at the cheap end. Anything in the ฿ band, assume no card.
-        </p>
       </div>
     </section>
 
     <!-- Affiliate: stay near the food -->
-    <section class="fg-sec fg-sec-alt">
+    <section class="fg-sec fg-sec-dark plz-dotgrid">
       <div class="fg-wrap">
         <div class="fg-stay">
           <div>
-            <p class="plz-eyebrow">Base camp</p>
+            <p class="plz-eyebrow plz-eyebrow-light">Base camp</p>
             <h2 class="fg-h2 display-cond">Sleep where you want to eat</h2>
             <p class="fg-sec-lead">
               Bangkok traffic decides more of your trip than your itinerary does. Staying
@@ -211,7 +221,7 @@ onUnmounted(clearSeoHead)
             </p>
           </div>
           <button class="btn-ios fg-stay-btn" @click="openAgoda">
-            Find places to stay in Bangkok <i class="fa-solid fa-arrow-right ml-1.5"></i>
+            Find places to stay <i class="fa-solid fa-arrow-right ml-1.5"></i>
           </button>
         </div>
       </div>

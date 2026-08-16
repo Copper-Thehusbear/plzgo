@@ -119,7 +119,7 @@ onUnmounted(clearSeoHead)
         </div>
       </header>
 
-      <section class="fg-sec">
+      <section class="fg-sec" style="padding-bottom:0">
         <div class="fg-wrap">
           <div class="fg-tip">
             <span class="fg-tip-label">Local tip</span>
@@ -128,7 +128,8 @@ onUnmounted(clearSeoHead)
         </div>
       </section>
 
-      <section class="fg-sec" style="padding-top:0">
+      <section class="fg-sec">
+        <span class="plz-secnum fg-sec-num">01</span>
         <div class="fg-wrap">
           <p class="plz-eyebrow">The list</p>
           <h2 class="fg-h2 display-cond">Every place we'd send you to in {{ zone.name }}</h2>
@@ -141,17 +142,17 @@ onUnmounted(clearSeoHead)
           <div v-else-if="!places.length" class="fg-skeleton">
             No places recorded here yet.
           </div>
-          <div v-else class="fg-list">
+          <div v-else class="fg-list fg-col">
             <FoodPlaceCard v-for="(p, i) in places" :key="p.id" :place="p" :index="i" />
           </div>
         </div>
       </section>
 
-      <section class="fg-sec fg-sec-alt">
+      <section class="fg-sec fg-sec-dark plz-dotgrid">
         <div class="fg-wrap">
           <div class="fg-stay">
             <div>
-              <p class="plz-eyebrow">Base camp</p>
+              <p class="plz-eyebrow plz-eyebrow-light">Base camp</p>
               <h2 class="fg-h2 display-cond">Stay in {{ zone.name }}</h2>
               <p class="fg-sec-lead">
                 Everything above is walkable from here. Staying in the neighbourhood you
@@ -159,13 +160,14 @@ onUnmounted(clearSeoHead)
               </p>
             </div>
             <button class="btn-ios fg-stay-btn" @click="openAgoda">
-              Places to stay in {{ zone.name }} <i class="fa-solid fa-arrow-right ml-1.5"></i>
+              Places to stay <i class="fa-solid fa-arrow-right ml-1.5"></i>
             </button>
           </div>
         </div>
       </section>
 
       <section class="fg-sec">
+        <span class="plz-secnum fg-sec-num">02</span>
         <div class="fg-wrap">
           <p class="plz-eyebrow">Keep going</p>
           <h2 class="fg-h2 display-cond">Other neighbourhoods</h2>

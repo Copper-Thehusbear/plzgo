@@ -109,7 +109,10 @@
       "Bash(curl -sI https://plzgo.me/ --max-time 15)",
       "Bash(curl -s https://plzgo.me/ --max-time 15)",
       "Bash(timeout 420 npx puppeteer browsers install chrome)",
-      "Bash(grep -oE 'class=\"band-item[^>]*>[^<]{3,40}' dist/index.html)"
+      "Bash(grep -oE 'class=\"band-item[^>]*>[^<]{3,40}' dist/index.html)",
+      "Bash(curl -sI \"https://plzgo.me/explore\" --max-time 20)",
+      "Bash(curl -s \"https://plzgo.me/explore\" --max-time 20)",
+      "Bash(curl -sI \"https://plzgo.me/explore/\" --max-time 20)"
     ]
   }
 }

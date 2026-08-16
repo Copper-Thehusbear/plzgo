@@ -2,21 +2,27 @@
   "hosting": {
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "//trailingSlash": "Without this, Firebase 301s /explore -> /explore/ once the prerender creates a directory. Every internal link and the sitemap use the slashless form, so each one would cost a redirect hop and split canonicalisation.",
+    "trailingSlash": false,
     "rewrites": [
       { "source": "/swipe", "destination": "/app.html" },
       { "source": "/route", "destination": "/app.html" },
       { "source": "/route/**", "destination": "/app.html" },
       { "source": "**", "destination": "/index.html" }
     ],
+    "//headers": "Order matters: the catch-all is declared first so the specific rules below override it. Pages are served from directory paths (/explore), so a **/*.html glob would never match them.",
     "headers": [
       {
-        "source": "**/*.@(jpg|jpeg|png|svg|webp|woff2)",
+        "source": "**",
+        "headers": [{ "key": "Cache-Control", "value": "max-age=300, must-revalidate" }]
+      },
+      {
+        "source": "/assets/**",
         "headers": [{ "key": "Cache-Control", "value": "max-age=31536000, immutable" }]
       },
       {
-        "//": "HTML defaults to an hour, which is why a fresh deploy kept looking unchanged. Assets are content-hashed, so only the HTML needs to turn over quickly.",
-        "source": "**/*.html",
-        "headers": [{ "key": "Cache-Control", "value": "max-age=300, must-revalidate" }]
+        "source": "**/*.@(jpg|jpeg|png|svg|webp|woff2)",
+        "headers": [{ "key": "Cache-Control", "value": "max-age=31536000, immutable" }]
       }
     ]
   },

@@ -1,9 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   FOOD_ZONES, fetchFoodPlaces, placesInZone, rankPlaces, districtOf,
+  applyFoodFilter,
 } from '@/composables/useFoodGuide'
+import FoodFilterBar from '@/components/FoodFilterBar.vue'
 import { setSeoHead, clearSeoHead, breadcrumbLd, restaurantListLd } from '@/composables/useSeoHead'
 import { trackCTA } from '@/composables/useAnalytics'
 import FoodPlaceCard from '@/components/FoodPlaceCard.vue'
@@ -26,10 +28,25 @@ const zoneCounts = computed(() =>
     .sort((a, b) => b.count - a.count)
 )
 
-// The page's own list: the strongest picks across the whole city
-const topPicks = computed(() =>
-  rankPlaces(places.value.filter(p => p.is_universal || p.is_hidden_gem)).slice(0, 12)
-)
+// Ranked once; search and filters run over the full 204 so the box is
+// genuinely useful rather than a filter on a curated dozen.
+const ranked = computed(() => rankPlaces(places.value))
+const query    = ref('')
+const filterId = ref('must')          // opens on the editor's picks
+const hitId    = ref(null)
+const shown = computed(() => applyFoodFilter(ranked.value, filterId.value, query.value).slice(0, 60))
+
+function surprise() {
+  const pool = shown.value
+  if (!pool.length) return
+  const pick = pool[Math.floor(Math.random() * pool.length)]
+  hitId.value = pick.id
+  requestAnimationFrame(() => {
+    document.getElementById(`place-${pick.id}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  })
+}
+watch([query, filterId], () => { hitId.value = null })
 
 const priceBands = computed(() => {
   const bands = {}
@@ -76,7 +93,9 @@ onMounted(async () => {
         name: 'Where to Eat in Bangkok',
         description,
         path: '/bangkok/food',
-        places: topPicks.value,
+        // The schema lists the editor's picks, not whatever the visitor has
+        // filtered to — it describes the page, and must not shift under it.
+        places: rankPlaces(places.value.filter(p => p.is_universal || p.is_hidden_gem)).slice(0, 12),
       }),
     ],
   })
@@ -157,20 +176,36 @@ onUnmounted(clearSeoHead)
     <section class="fg-sec fg-sec-alt">
       <span class="plz-secnum fg-sec-num">02</span>
       <div class="fg-wrap">
-        <p class="plz-eyebrow">The short list</p>
-        <h2 class="fg-h2 display-cond">If you only eat twelve meals</h2>
+        <p class="plz-eyebrow">All 204</p>
+        <h2 class="fg-h2 display-cond">Find something to eat</h2>
         <p class="fg-sec-lead">
-          The places worth rearranging a day for — the ones everyone should eat once,
-          plus the ones most visitors walk straight past.
+          Search it, filter it, or let it choose for you — which is the entire point
+          of this website.
         </p>
 
+        <FoodFilterBar
+          v-if="!loading && places.length"
+          v-model:modelQuery="query"
+          :activeId="filterId"
+          :count="shown.length"
+          :total="ranked.length"
+          @select="filterId = $event"
+          @surprise="surprise"
+        />
+
         <div v-if="loading" class="fg-skeleton">Loading places…</div>
-        <div v-else class="fg-list fg-col">
+        <div v-else-if="!shown.length" class="fg-empty">
+          <p class="fg-empty-h display-cond">Nothing matches that.</p>
+          <p>Try a different word, or clear the filter.</p>
+          <button class="fg-sibling" @click="query = ''; filterId = 'all'">Clear filters</button>
+        </div>
+        <div v-else class="fg-grid">
           <FoodPlaceCard
-            v-for="(p, i) in topPicks"
+            v-for="p in shown"
             :key="p.id"
+            :id="`place-${p.id}`"
             :place="p"
-            :index="i"
+            :highlight="hitId === p.id"
           />
         </div>
       </div>

@@ -99,6 +99,11 @@ const defaultType = { icon: 'fa-location-dot', color: '#FF8C42' }
 
 const marqueeRow1 = ref([])
 const marqueeRow2 = ref([])
+// Same contract the guide pages use: the prerender must wait for the place
+// pool, not for "the component mounted". The shell alone clears any
+// text-length heuristic, so without this the snapshot ships with an empty
+// marquee and an empty demo deck.
+const dataOk = ref(false)
 
 // ── Scroll progress bar (LandingView-only — matches its "read top to bottom" nature) ──
 const scrollProgress = ref(0)
@@ -238,8 +243,10 @@ async function loadMarquee() {
     deck.value = all
       .filter(p => (p.zone_en || p.zone) && p.vibe_tags?.length)
       .slice(0, 6)
+    if (all.length) dataOk.value = true
   } catch (e) {
-    // silently fail — marquee and demo deck are both non-essential
+    // Non-fatal for a visitor — the page reads fine without the marquee — but
+    // the prerender must not treat it as a finished page.
   }
 }
 
@@ -272,7 +279,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="landing-root">
+  <div class="landing-root" :data-prerender-ready="String(dataOk)">
 
     <!-- Scroll progress -->
     <div class="lv-progress-bar" :style="{ width: scrollProgress + '%' }" aria-hidden="true"></div>

@@ -3,7 +3,9 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   FOOD_ZONES, zoneBySlug, fetchFoodPlaces, placesInZone, rankPlaces, displayName,
+  applyFoodFilter,
 } from '@/composables/useFoodGuide'
+import FoodFilterBar from '@/components/FoodFilterBar.vue'
 import { setSeoHead, clearSeoHead, breadcrumbLd, restaurantListLd } from '@/composables/useSeoHead'
 import { trackCTA } from '@/composables/useAnalytics'
 import FoodPlaceCard from '@/components/FoodPlaceCard.vue'
@@ -24,6 +26,26 @@ const BANGKOK_DEST = '17297'
 
 const zone   = computed(() => zoneBySlug(route.params.zone))
 const places = computed(() => rankPlaces(placesInZone(all.value, zone.value)))
+
+// ── Filtering / search / pick-for-me ────────────────────────────────
+const query    = ref('')
+const filterId = ref('all')
+const hitId    = ref(null)
+const shown = computed(() => applyFoodFilter(places.value, filterId.value, query.value))
+
+function surprise() {
+  const pool = shown.value
+  if (!pool.length) return
+  const pick = pool[Math.floor(Math.random() * pool.length)]
+  hitId.value = pick.id
+  // Wait a frame so the card exists before scrolling to it
+  requestAnimationFrame(() => {
+    document.getElementById(`place-${pick.id}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  })
+}
+// Any change to the visible set invalidates the highlight
+watch([query, filterId], () => { hitId.value = null })
 
 const siblings = computed(() => FOOD_ZONES.filter(z => z.slug !== zone.value?.slug))
 
@@ -138,12 +160,33 @@ onUnmounted(clearSeoHead)
             treat them as a strong hint, not a contract.
           </p>
 
+          <FoodFilterBar
+            v-if="!loading && places.length"
+            v-model:modelQuery="query"
+            :activeId="filterId"
+            :count="shown.length"
+            :total="places.length"
+            @select="filterId = $event"
+            @surprise="surprise"
+          />
+
           <div v-if="loading" class="fg-skeleton">Loading places…</div>
           <div v-else-if="!places.length" class="fg-skeleton">
             No places recorded here yet.
           </div>
-          <div v-else class="fg-list fg-col">
-            <FoodPlaceCard v-for="(p, i) in places" :key="p.id" :place="p" :index="i" />
+          <div v-else-if="!shown.length" class="fg-empty">
+            <p class="fg-empty-h display-cond">Nothing matches that.</p>
+            <p>Try a different word, or clear the filter.</p>
+            <button class="fg-sibling" @click="query = ''; filterId = 'all'">Clear filters</button>
+          </div>
+          <div v-else class="fg-grid">
+            <FoodPlaceCard
+              v-for="p in shown"
+              :key="p.id"
+              :id="`place-${p.id}`"
+              :place="p"
+              :highlight="hitId === p.id"
+            />
           </div>
         </div>
       </section>

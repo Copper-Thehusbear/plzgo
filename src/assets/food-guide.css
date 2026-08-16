@@ -238,10 +238,19 @@
   position: relative;
 }
 
-/* ── Entry list ──────────────────────────────────────── */
-/* Single column on purpose: the numerals set a vertical rhythm that a
-   two-up grid destroys, and a guide is read top to bottom. */
-.fg-list { border-bottom: 1px solid var(--hairline); }
+/* ── Results grid ────────────────────────────────────── */
+/* Cards, not a reading column. Each entry is a name plus two sentences —
+   too short to justify a full-measure column, and a grid lets someone scan
+   thirty of them instead of scrolling past them one at a time. */
+.fg-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+@media (min-width: 620px)  { .fg-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .fg-grid { grid-template-columns: repeat(3, 1fr); } }
+
 .fg-skeleton {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
@@ -251,6 +260,15 @@
   padding: 48px 0;
   border-top: 1px solid var(--hairline);
 }
+.fg-empty {
+  padding: 46px 26px;
+  text-align: center;
+  background: #fff;
+  border: 1px dashed var(--hairline);
+  border-radius: 10px;
+}
+.fg-empty-h { font-size: 20px; color: var(--ink); margin: 0 0 6px; }
+.fg-empty p { font-size: 14px; color: var(--muted); margin: 0 0 18px; }
 
 /* ── Local tip — a note stuck to the page ────────────── */
 .fg-tip {

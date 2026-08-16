@@ -118,7 +118,11 @@
       "Bash(curl -s -o /dev/null -w \"landing:  %{http_code}\\\\n\" https://plzgo.me/ --max-time 20)",
       "Bash(curl -s -o /dev/null -w \"food hub: %{http_code}\\\\n\" https://plzgo.me/bangkok/food --max-time 20)",
       "Bash(curl -s -o /dev/null -w \"yaowarat: %{http_code}\\\\n\" https://plzgo.me/bangkok/food/yaowarat --max-time 20)",
-      "Bash(curl -s -o /dev/null -w \"sitemap:  %{http_code}\\\\n\" https://plzgo.me/sitemap.xml --max-time 20)"
+      "Bash(curl -s -o /dev/null -w \"sitemap:  %{http_code}\\\\n\" https://plzgo.me/sitemap.xml --max-time 20)",
+      "Bash(curl -s -o /dev/null -w \"storage image: %{http_code}\\\\n\" \"https://storage.googleapis.com/plzgo-bf50c.firebasestorage.app/places/Khao%20Gaeng%20Jek%20Pui/khao_gaeng_jek_pui_2.jpg\" --max-time 20)",
+      "Read(//dev/**)",
+      "Bash(curl -s \"https://firestore.googleapis.com/v1/projects/plzgo-bf50c/databases/\\(default\\)/documents/places?pageSize=1\" --max-time 25)",
+      "Bash(grep -oE '\"image_url\":\\\\{\"stringValue\":\"[^\"]{0,100}')"
     ]
   }
 }

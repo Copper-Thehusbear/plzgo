@@ -143,6 +143,44 @@ export function displayName(p) {
   return p.name_en || p.name || 'Unnamed'
 }
 
+/**
+ * Price band → accent colour. Colour has to carry real information here,
+ * not decorate: with every photo 403ing while billing is detached, the band
+ * is the only thing that can give a card visual identity at a glance.
+ */
+export const PRICE_BANDS = [
+  { key: '฿',    label: 'Cheap',   color: 'var(--line-2)', note: 'Under ฿150' },
+  { key: '฿฿',   label: 'Mid',     color: 'var(--line-1)', note: '฿150–500' },
+  { key: '฿฿฿',  label: 'Pricey',  color: 'var(--line-3)', note: '฿500–1,500' },
+  { key: '฿฿฿฿', label: 'Splurge', color: 'var(--ink)',    note: '฿1,500+' },
+]
+export function bandOf(place) {
+  return PRICE_BANDS.find(b => b.key === place.price_range) || null
+}
+
+/** Filters shown as chips. Each maps to a predicate over a place. */
+export const FOOD_FILTERS = [
+  { id: 'all',   label: 'Everything', test: () => true },
+  { id: 'must',  label: 'Must eat',   test: p => !!p.is_universal },
+  { id: 'gem',   label: 'Hidden gems',test: p => !!p.is_hidden_gem },
+  { id: 'cheap', label: 'Under ฿150', test: p => p.price_range === '฿' },
+  { id: 'late',  label: 'Open late',  test: p => /2[0-3]:|0[0-2]:\d\d\s*(am)?\s*$|midnight|00:/i.test(p.opening_hours_en || p.opening_hours || '') },
+]
+
+export function applyFoodFilter(list, filterId, queryText) {
+  const f = FOOD_FILTERS.find(x => x.id === filterId) || FOOD_FILTERS[0]
+  const q = (queryText || '').trim().toLowerCase()
+  return list.filter(p => {
+    if (!f.test(p)) return false
+    if (!q) return true
+    const hay = [
+      p.name_en, p.name, p.insight_en, p.zone_en, p.zone,
+      p.nearest_transit_en, ...(p.vibe_tags || []),
+    ].filter(Boolean).join(' ').toLowerCase()
+    return hay.includes(q)
+  })
+}
+
 /** Single-point Google Maps link — no API key, no billing (see CLAUDE.md). */
 export function mapsUrl(p) {
   const lat = p.location?.latitude ?? p.latitude

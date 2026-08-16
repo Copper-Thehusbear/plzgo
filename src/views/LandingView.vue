@@ -136,7 +136,7 @@ onMounted(() => {
   if (reducedMotion) {
     heroStats.value.forEach(s => { s.value = s.target })
   } else {
-    setTimeout(() => heroStats.value.forEach(s => animateCount(s)), 350)
+    setTimeout(() => heroStats.value.forEach(s => animateCount(s)), 260)
   }
 })
 onUnmounted(() => {
@@ -263,7 +263,7 @@ onUnmounted(() => {
         <div class="kill-grid">
           <div v-for="(item, i) in replacements" :key="item.kill"
             class="kill-card reveal"
-            :style="{ transitionDelay: i * 0.06 + 's' }"
+            :style="{ transitionDelay: i * 0.04 + 's' }"
           >
             <div class="kill-icon">
               <i :class="`fa-solid ${item.icon}`"></i>
@@ -274,7 +274,7 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div class="kill-cta reveal" style="transition-delay: 0.4s">
+        <div class="kill-cta reveal" style="transition-delay: 0.28s">
           <p class="kill-arrow"><i class="fa-solid fa-arrow-down"></i></p>
           <p class="kill-resolution">We did the work. <span class="accent-cond" style="color:var(--orange-text)">Just swipe.</span></p>
         </div>
@@ -293,7 +293,7 @@ onUnmounted(() => {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div v-for="step in steps" :key="step.n"
             class="reveal"
-            :style="{ transitionDelay: (step.n - 1) * 0.12 + 's' }"
+            :style="{ transitionDelay: (step.n - 1) * 0.08 + 's' }"
           >
             <div class="glass-panel step-card p-8 flex flex-col gap-5">
               <div class="step-number-deco">{{ String(step.n).padStart(2, '0') }}</div>
@@ -340,7 +340,7 @@ onUnmounted(() => {
           </div>
 
           <!-- Visual: vibe pills grid instead of static card -->
-          <div class="reveal" style="transition-delay: 0.15s">
+          <div class="reveal" style="transition-delay: 0.1s">
             <div class="glass-panel p-8">
               <p class="data-mono text-[10px] uppercase mb-5" style="color:var(--orange-text)">Pick up to 3 vibes</p>
               <div class="grid grid-cols-2 gap-3">
@@ -487,7 +487,7 @@ onUnmounted(() => {
   transition: transform 0.9s cubic-bezier(.2,.75,.2,1);
 }
 .hero-line.in > span { transform: none; }
-.hero-line:nth-of-type(2) > span { transition-delay: 0.14s; }
+.hero-line:nth-of-type(2) > span { transition-delay: 0.1s; }
 
 /* ============ STATS STRIP ============ */
 .stats-strip {

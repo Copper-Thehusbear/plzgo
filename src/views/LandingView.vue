@@ -62,6 +62,21 @@ const steps = [
   },
 ]
 
+// Vibe chips in the "what you get" section — hover/tap swaps the panel copy.
+const vibeList = [
+  { k: 'Chill',    d: 'Slow mornings, long coffees, rooftop with nowhere to be.' },
+  { k: 'Foodie',   d: 'Street stalls to Michelin. The queue is part of the plan.' },
+  { k: 'Luxe',     d: 'Rooftops, spas, the room with the view. Go on, you earned it.' },
+  { k: 'Local',    d: 'Where people who live here actually eat on a Tuesday.' },
+  { k: 'Trendy',   d: 'The new opening everyone posts before they explain it.' },
+  { k: 'Lively',   d: 'Loud, late, crowded, worth it. Sleep is for the flight.' },
+  { k: 'Cultural', d: 'Temples and palaces that are still working buildings.' },
+  { k: 'Photo',    d: 'Golden hour spots and the angle nobody else queues for.' },
+  { k: 'Gay Vibe', d: 'Silom Soi 4, Duangthawee, and the bars worth the taxi.' },
+  { k: 'Wellness', d: 'Massage, sauna, the reset button for a walked-out day.' },
+]
+const activeVibe = ref(0)
+
 const features = [
   { icon: 'fa-map', label: 'Interactive map with all your spots' },
   { icon: 'fa-route', label: 'Zone-optimised multi-day routing' },
@@ -414,198 +429,202 @@ onUnmounted(() => {
     <!-- Live Marquee -->
     <section v-if="marqueeRow1.length" class="marquee-section">
       <div class="marquee-header reveal">
-        <p class="data-mono text-[10px] uppercase mb-2" style="color:var(--orange-text)">Real Bangkok spots</p>
+        <p class="plz-eyebrow" style="justify-content:center">Real Bangkok spots</p>
         <h2 class="text-2xl lg:text-3xl display-cond" style="color:var(--ink)">
           483 places. Handpicked. <span class="accent-cond">Not AI-hallucinated.</span>
         </h2>
       </div>
 
-      <!-- Marquee track — both rows go left, edge-faded -->
-      <div class="marquee-track">
-        <!-- Row 1: 52s -->
-        <div class="marquee-row">
-          <div class="marquee-inner marquee-l1">
-            <template v-for="pass in 2" :key="'r1-' + pass">
-              <div v-for="place in marqueeRow1" :key="place.id + '-r1-' + pass" class="place-chip"
-                :style="{ '--dot-color': (typeConfig[place.type] || defaultType).color }">
-                <span class="chip-dot"></span>
-                <span class="chip-name">{{ place.name_en }}</span>
-              </div>
-            </template>
-          </div>
+      <!-- Two solid bands running opposite tones — a graphic break, not a row
+           of quiet chips. Real place names, straight from the pool. -->
+      <div class="band band-orange">
+        <div class="band-track band-l1">
+          <template v-for="pass in 2" :key="'r1-' + pass">
+            <span v-for="place in marqueeRow1" :key="place.id + '-r1-' + pass" class="band-item display-cond">
+              {{ place.name_en }}<i class="band-sep">◆</i>
+            </span>
+          </template>
         </div>
-
-        <!-- Row 2: 72s (slower = parallax depth, not chaos) -->
-        <div class="marquee-row mt-4">
-          <div class="marquee-inner marquee-l2">
-            <template v-for="pass in 2" :key="'r2-' + pass">
-              <div v-for="place in marqueeRow2" :key="place.id + '-r2-' + pass" class="place-chip"
-                :style="{ '--dot-color': (typeConfig[place.type] || defaultType).color }">
-                <span class="chip-dot"></span>
-                <span class="chip-name">{{ place.name_en }}</span>
-              </div>
-            </template>
-          </div>
+      </div>
+      <div class="band band-ink">
+        <div class="band-track band-l2">
+          <template v-for="pass in 2" :key="'r2-' + pass">
+            <span v-for="place in marqueeRow2" :key="place.id + '-r2-' + pass" class="band-item display-cond">
+              {{ place.name_en }}<i class="band-sep">◆</i>
+            </span>
+          </template>
         </div>
       </div>
     </section>
 
-    <!-- Stop Using ___ (Sass section) -->
-    <section class="py-20 lg:py-24">
-      <div class="max-w-5xl mx-auto px-4 md:px-6 lg:px-8">
-        <div class="text-center mb-12 reveal">
-          <p class="data-mono text-[11px] uppercase mb-3" style="color:var(--orange-text)">A short intervention</p>
-          <h2 class="text-3xl lg:text-5xl display-cond leading-[0.95]" style="color:var(--ink)">
+    <!-- Stop Using ___ — a desk full of tabs you can finally throw away -->
+    <section class="sec-pad">
+      <span class="plz-secnum sec-num">01</span>
+      <div class="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 relative">
+        <div class="mb-14 reveal">
+          <p class="plz-eyebrow">A short intervention</p>
+          <h2 class="sec-h2 display-cond">
             You can stop<br>
-            <span class="accent-cond" style="color:var(--orange-text)">doing all this now.</span>
+            <span class="accent-cond">doing all this now.</span>
           </h2>
         </div>
 
-        <div class="kill-grid">
+        <div class="kill-scatter">
           <div v-for="(item, i) in replacements" :key="item.kill"
-            class="kill-card reveal"
-            :style="{ transitionDelay: i * 0.04 + 's' }"
+            class="kill-note plz-taped reveal"
+            :style="{
+              transitionDelay: i * 0.05 + 's',
+              '--rot': [-4, 3, -2.5, 4, -3, 2.5][i] + 'deg',
+              marginTop: [0, 26, 10, 32, 4, 22][i] + 'px'
+            }"
           >
             <div class="kill-icon">
               <i :class="`fa-solid ${item.icon}`"></i>
             </div>
-            <div class="kill-text">
-              <span class="kill-strike">{{ item.kill }}</span>
-            </div>
+            <span class="kill-strike">{{ item.kill }}</span>
           </div>
         </div>
 
         <div class="kill-cta reveal" style="transition-delay: 0.28s">
-          <p class="kill-arrow"><i class="fa-solid fa-arrow-down"></i></p>
-          <p class="kill-resolution">We did the work. <span class="accent-cond" style="color:var(--orange-text)">Just swipe.</span></p>
+          <span class="kill-stamp display-cond">= Decision paralysis</span>
+          <p class="kill-resolution display-cond">
+            We did the work. <span class="accent-cond">Just swipe.</span>
+          </p>
         </div>
       </div>
     </section>
 
-    <!-- How it works -->
-    <section class="py-20 lg:py-28">
-      <div class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-        <div class="text-center mb-14 reveal">
-          <p class="data-mono text-[11px] uppercase mb-3" style="color:var(--orange-text)">How it works</p>
-          <h2 class="text-3xl lg:text-4xl display-cond" style="color:var(--ink)">
+    <!-- How it works — the pipeline, then the detail -->
+    <section class="sec-pad">
+      <span class="plz-secnum sec-num">02</span>
+      <div class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative">
+        <div class="mb-10 reveal">
+          <p class="plz-eyebrow">How it works</p>
+          <h2 class="sec-h2 display-cond">
             Three steps. <span class="accent-cond">Zero stress.</span>
           </h2>
         </div>
+
+        <!-- Signal travelling down the line, station to station -->
+        <div class="flow reveal">
+          <div class="flow-node"><small>Step 01</small>Pick your vibe</div>
+          <div class="flow-line"><i></i></div>
+          <div class="flow-node"><small>Step 02</small>Swipe spots</div>
+          <div class="flow-line"><i style="animation-delay:.8s"></i></div>
+          <div class="flow-node"><small>Step 03</small>Get your route</div>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div v-for="step in steps" :key="step.n"
-            class="reveal"
+            class="step-card reveal"
             :style="{ transitionDelay: (step.n - 1) * 0.08 + 's' }"
           >
-            <div class="glass-panel step-card p-8 flex flex-col gap-5">
-              <div class="step-number-deco">{{ String(step.n).padStart(2, '0') }}</div>
-              <div class="w-12 h-12 rounded-lg flex items-center justify-center"
-                style="background: var(--paper); border: 1px solid var(--hairline);">
-                <i :class="`fa-solid ${step.icon} text-xl`" style="color:var(--orange-text)"></i>
-              </div>
-              <div>
-                <p class="data-mono text-[10px] uppercase mb-1.5" style="color:var(--orange-text)">
-                  Step {{ step.n }}
-                </p>
-                <h3 class="text-lg font-black mb-2" style="color:var(--ink)">{{ step.title }}</h3>
-                <p class="text-sm lv-muted leading-relaxed font-medium">{{ step.desc }}</p>
-              </div>
-            </div>
+            <div class="step-number-deco display-cond">{{ String(step.n).padStart(2, '0') }}</div>
+            <i :class="`fa-solid ${step.icon} step-icon`"></i>
+            <h3 class="step-title display-cond">{{ step.title }}</h3>
+            <p class="step-desc">{{ step.desc }}</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Features -->
-    <section class="py-10 lg:py-16">
-      <div class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <!-- What you get — dark chapter, sticky thesis on the left -->
+    <section class="sec-pad sec-dark plz-dotgrid">
+      <span class="plz-secnum plz-secnum-light sec-num">03</span>
+      <div class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative sticky2">
 
-          <div class="reveal">
-            <p class="data-mono text-[11px] uppercase mb-3" style="color:var(--orange-text)">What you get</p>
-            <h2 class="text-3xl lg:text-4xl display-cond mb-5 leading-tight" style="color:var(--ink)">
-              A plan so solid, your friends will think<br><span class="accent-cond">you live here.</span>
-            </h2>
-            <p class="lv-muted leading-relaxed font-medium mb-8 text-sm">
-              We group spots by neighbourhood, sort by time of day, drop them on a map.
-              You stop screenshotting TikToks and actually show up.
-            </p>
-            <div class="flex flex-col gap-4">
-              <div v-for="feat in features" :key="feat.label" class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style="background: var(--paper); border: 1px solid var(--hairline);">
-                  <i :class="`fa-solid ${feat.icon} text-sm`" style="color:var(--orange-text)"></i>
-                </div>
-                <span class="text-sm font-bold" style="color:var(--ink)">{{ feat.label }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Visual: vibe pills grid instead of static card -->
-          <div class="reveal" style="transition-delay: 0.1s">
-            <div class="glass-panel p-8">
-              <p class="data-mono text-[10px] uppercase mb-5" style="color:var(--orange-text)">Pick up to 3 vibes</p>
-              <div class="grid grid-cols-2 gap-3">
-                <div v-for="vibe in [
-                  { icon: 'fa-umbrella-beach', label: 'Chill',    sub: 'Pools & slow mornings' },
-                  { icon: 'fa-bowl-rice',       label: 'Foodie',   sub: 'Street food & gems' },
-                  { icon: 'fa-music',           label: 'Party',    sub: 'Bars & late nights' },
-                  { icon: 'fa-camera',          label: 'Photo',    sub: 'Temples & light' },
-                  { icon: 'fa-rainbow',         label: 'Gay Vibe', sub: 'Silom · Soi 4' },
-                  { icon: 'fa-spa',             label: 'Wellness', sub: 'Spas & rituals' },
-                ]" :key="vibe.label"
-                  class="vibe-preview-card"
-                >
-                  <i :class="`fa-solid ${vibe.icon} text-base mb-2`" style="color:var(--orange-text)"></i>
-                  <span class="text-[13px] font-black block" style="color:var(--ink)">{{ vibe.label }}</span>
-                  <span class="text-[10px] font-bold opacity-50 block mt-0.5 leading-tight" style="color:var(--ink)">{{ vibe.sub }}</span>
-                </div>
-              </div>
-              <button
-                class="btn-ios btn-arrow w-full h-12 rounded-lg mt-5 text-sm font-bold"
-                @click="router.push('/plan')"
-              >
-                Choose my vibe <i class="fa-solid fa-arrow-right ml-1.5 btn-arrow-icon"></i>
-              </button>
-            </div>
-          </div>
-
+        <div class="sticky-left reveal">
+          <p class="plz-eyebrow plz-eyebrow-light">What you get</p>
+          <h2 class="sec-h2 sec-h2-light display-cond">
+            A plan so solid, your friends<br>will think <span class="accent-light">you live here.</span>
+          </h2>
+          <p class="sec-lead">
+            We group spots by neighbourhood, sort by time of day, drop them on a map.
+            You stop screenshotting TikToks and actually show up.
+          </p>
+          <ul class="feat-list">
+            <li v-for="feat in features" :key="feat.label">
+              <i :class="`fa-solid ${feat.icon}`"></i>
+              <span>{{ feat.label }}</span>
+            </li>
+          </ul>
         </div>
-      </div>
-    </section>
 
-    <!-- Bottom CTA -->
-    <section class="py-20 lg:py-28">
-      <div class="max-w-2xl mx-auto px-6">
-        <div class="reveal">
-          <div class="glass-panel p-10 lg:p-14 text-center relative overflow-hidden">
-            <p class="data-mono text-[11px] uppercase mb-4 relative" style="color:var(--orange-text)">Bangkok is waiting</p>
-            <h2 class="text-3xl lg:text-4xl display-cond mb-4 leading-tight relative" style="color:var(--ink)">
-              Your next trip starts<br>with <span class="accent-cond" style="color:var(--orange-text)">one swipe.</span>
-            </h2>
-            <p class="lv-muted text-sm font-medium leading-relaxed mb-8 relative">
-              Stop saving Instagram reels you'll never open again.<br>
-              Just pick a vibe and go.
-            </p>
+        <div class="reveal" style="transition-delay:.1s">
+          <div class="stat-row">
+            <div class="stat-box">
+              <b>483</b><span>Places curated</span>
+            </div>
+            <div class="stat-box">
+              <b>8</b><span>Place types</span>
+            </div>
+            <div class="stat-box">
+              <b>0</b><span>Sign-ups</span>
+            </div>
+          </div>
+
+          <div class="stat-box fill-box">
+            <span>Text fields complete after the last data pass</span>
+            <div class="fillbar"><i></i></div>
+            <b>100%</b>
+          </div>
+
+          <p class="plz-eyebrow plz-eyebrow-light mt-8">Ten vibes — try one</p>
+          <div class="vibe-grid">
             <button
-              class="btn-ios btn-arrow w-full h-14 rounded-lg text-lg font-bold relative"
-              @click="router.push('/plan')"
-            >
-              Plan My Bangkok Trip <i class="fa-solid fa-arrow-right ml-2 btn-arrow-icon"></i>
-            </button>
+              v-for="(v, i) in vibeList"
+              :key="v.k"
+              class="vibe-chip data-mono"
+              :class="{ act: activeVibe === i }"
+              @mouseenter="activeVibe = i"
+              @focus="activeVibe = i"
+              @click="activeVibe = i"
+            >{{ v.k }}</button>
           </div>
+          <div class="vibe-panel">
+            <b class="display-cond">{{ vibeList[activeVibe].k }}</b>
+            <p>{{ vibeList[activeVibe].d }}</p>
+          </div>
+
+          <button class="btn-ios btn-arrow vibe-cta" @click="router.push('/plan')">
+            Choose my vibe <i class="fa-solid fa-arrow-right ml-1.5 btn-arrow-icon"></i>
+          </button>
         </div>
+
+      </div>
+    </section>
+
+    <!-- Closing -->
+    <section class="sec-pad sec-closing plz-dotgrid plz-glow">
+      <div class="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 relative">
+        <p class="plz-eyebrow plz-eyebrow-light reveal">Bangkok is waiting</p>
+        <h2 class="close-big display-cond">
+          <span class="hero-line"><span>Your next trip starts</span></span>
+          <span class="hero-line"><span>with <em class="accent-light">one swipe.</em></span></span>
+        </h2>
+        <p class="close-p reveal" style="transition-delay:.15s">
+          Stop saving Instagram reels you'll never open again. Pick a vibe, swipe
+          what looks good, and walk out with a route that a local would actually walk.
+        </p>
+        <div class="sig reveal" style="transition-delay:.22s">
+          <span class="sig-line"></span>
+          <b class="display-cond">Free · No sign-up · Bangkok only, for now</b>
+        </div>
+        <button class="go-btn display-cond reveal" style="transition-delay:.28s" @click="router.push('/plan')">
+          Plan my Bangkok trip →
+        </button>
       </div>
     </section>
 
     <!-- Footer -->
-    <footer class="border-t py-12" style="border-color: var(--hairline);">
+    <footer class="lv-footer">
       <div class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-8">
           <div>
-            <span class="text-2xl display-cond block mb-1" style="color:var(--ink)">
-              plz<span style="color:var(--orange-text)">go</span>
+            <span class="text-2xl display-cond block mb-1" style="color:#fff">
+              plz<span style="color:var(--line-1)">go</span>
             </span>
-            <p class="text-xs lv-muted font-bold">Curated by people who actually live in Bangkok.</p>
+            <p class="lv-foot-tag">Curated by people who actually live in Bangkok.</p>
           </div>
           <div class="flex flex-wrap gap-6">
             <a href="mailto:worapun.ld@gmail.com" class="footer-link">Contact Us</a>
@@ -613,15 +632,9 @@ onUnmounted(() => {
             <router-link to="/terms" class="footer-link">Terms of Use</router-link>
           </div>
         </div>
-        <div class="flex flex-col md:flex-row items-center justify-between gap-3 pt-6"
-          style="border-top: 1px solid var(--hairline);">
-          <p class="text-xs lv-muted font-bold">© 2025 plzgo. All rights reserved.</p>
-          <div class="flex items-center gap-3 flex-wrap justify-center">
-            <span class="version-badge">v0.2 · Beta</span>
-            <span class="text-xs lv-muted font-bold">Actively developed · Bangkok only for now</span>
-            <span class="text-xs lv-muted">·</span>
-            <span class="text-xs lv-muted font-bold">Powered by Copper The Husbear.</span>
-          </div>
+        <div class="lv-foot-bar">
+          <span>© 2025 <b>PLZGO.ME</b> — All rights reserved</span>
+          <span>v0.2 Beta · Actively developed · Powered by Copper The Husbear</span>
         </div>
       </div>
     </footer>
@@ -976,87 +989,111 @@ onUnmounted(() => {
   margin-bottom: 36px;
 }
 
-/* Edge fade — clips overflow AND fades sides */
-.marquee-track {
+/* Two solid tone bands — a hard graphic break between chapters */
+.band {
   overflow: hidden;
-  mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  padding: 12px 0;
 }
-/* Pause both rows when hovering anywhere on the track */
-.marquee-track:hover .marquee-inner {
-  animation-play-state: paused;
+.band-orange {
+  background: var(--line-1);
+  border-top: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
 }
-
-.marquee-row {
-  overflow: visible;
-  width: 100%;
+.band-ink {
+  background: var(--ink);
+  border-bottom: 3px solid var(--ink);
 }
-.marquee-inner {
+.band-track {
   display: flex;
-  gap: 10px;
   width: max-content;
+  white-space: nowrap;
   will-change: transform;
 }
-.marquee-l1 { animation: marquee-l 52s linear infinite; }
-.marquee-l2 { animation: marquee-l 72s linear infinite; }
-
-/* Single clean pill — station dot + name, flat */
-.place-chip {
+.band:hover .band-track { animation-play-state: paused; }
+.band-l1 { animation: marquee-l 62s linear infinite; }
+.band-l2 { animation: marquee-l 86s linear infinite; }
+.band-item {
+  font-size: 16px;
+  letter-spacing: 0.01em;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 11px 20px;
-  background: #fff;
-  border: 1px solid var(--hairline);
-  border-radius: 999px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  cursor: default;
 }
-.chip-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #fff;
-  border: 3px solid var(--dot-color, var(--line-1));
-  box-sizing: content-box;
-  flex-shrink: 0;
-}
-.chip-name {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1;
+.band-orange .band-item { color: var(--ink); }
+.band-ink .band-item    { color: var(--paper); }
+.band-sep {
+  font-style: normal;
+  margin: 0 18px;
+  font-size: 9px;
+  opacity: 0.5;
+  transform: translateY(-2px);
 }
 
-/* ============ KILL GRID (Stop using ___) ============ */
-.kill-grid {
+/* ============ SECTION SHELL ============ */
+.sec-pad {
+  position: relative;
+  padding: clamp(72px, 10vw, 124px) 0;
+}
+.sec-num { top: clamp(28px, 5vw, 56px); right: clamp(10px, 4vw, 48px); }
+.sec-h2 {
+  font-size: clamp(2rem, 4.6vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0;
+}
+.sec-dark { background: var(--ink); overflow: hidden; }
+.sec-h2-light { color: #fff; }
+.accent-light { color: var(--line-1); font-style: normal; }
+.sec-lead {
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
+  line-height: 1.85;
+  color: rgba(255,255,255,0.6);
+  max-width: 52ch;
+  margin: 18px 0 0;
+}
+
+/* ============ KILL NOTES (Stop using ___) ============ */
+/* A pile of browser tabs someone finally threw on the desk. Rotation and
+   vertical offset come per-card from the template so the grid reads as
+   scattered without absolute positioning (which breaks on small screens). */
+.kill-scatter {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
-  max-width: 640px;
+  gap: 16px;
+  max-width: 660px;
   margin: 0 auto;
 }
 @media (min-width: 640px) {
-  .kill-grid { grid-template-columns: 1fr 1fr; }
+  .kill-scatter { grid-template-columns: 1fr 1fr; gap: 22px 26px; }
 }
-
-.kill-card {
+.kill-note {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 16px 20px;
+  padding: 18px 20px;
   background: #fff;
   border: 1px solid var(--hairline);
-  border-radius: 8px;
-  transition: border-color 0.15s, transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  border-radius: 4px;
+  box-shadow: var(--shadow-lift);
+  transform: rotate(var(--rot, 0deg));
+  transition: transform 0.35s cubic-bezier(.2,.8,.3,1.2), box-shadow 0.35s;
 }
-.kill-card:hover { border-color: var(--ink); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.kill-note:hover {
+  transform: rotate(0deg) translateY(-6px);
+  box-shadow: var(--shadow-lift), 0 0 0 1px var(--ink);
+}
+/* These notes are both .reveal and rotated, and .reveal/.reveal.in each set
+   transform — so both states must re-state the rotation or the cards snap
+   flat the moment they finish revealing. */
+.kill-note.reveal:not(.in) { transform: translateY(24px) rotate(var(--rot, 0deg)); }
+.kill-note.reveal.in       { transform: rotate(var(--rot, 0deg)); }
+.kill-note.reveal.in:hover { transform: rotate(0deg) translateY(-6px); }
 
 .kill-icon {
   width: 38px;
   height: 38px;
-  border-radius: 8px;
+  border-radius: 6px;
   background: var(--paper);
   border: 1px solid var(--hairline);
   display: flex;
@@ -1066,13 +1103,7 @@ onUnmounted(() => {
   font-size: 14px;
   color: var(--muted);
 }
-
-.kill-text {
-  flex: 1;
-  min-width: 0;
-}
-/* Struck-through like a cancelled service on a departure board — the line
-   sweeps in when its card reveals, instead of sitting there pre-crossed-out. */
+/* Struck through like a cancelled service — the line sweeps in on reveal */
 .kill-strike {
   font-size: 14px;
   font-weight: 700;
@@ -1086,26 +1117,33 @@ onUnmounted(() => {
   position: absolute;
   left: 0; top: 55%;
   height: 2px; width: 0;
-  background: var(--line-1);
+  background: var(--line-3);
   transition: width 0.7s cubic-bezier(.2,.7,.2,1);
-  transition-delay: 0.15s;
+  transition-delay: 0.2s;
 }
-.kill-card.in .kill-strike::after { width: 100%; }
+.kill-note.in .kill-strike::after { width: 100%; }
 
 .kill-cta {
   text-align: center;
-  margin-top: 40px;
+  margin-top: 56px;
 }
-.kill-arrow {
-  color: var(--orange-text);
-  font-size: 18px;
-  margin-bottom: 14px;
+/* The diagnosis, stamped */
+.kill-stamp {
+  display: inline-block;
+  font-size: clamp(15px, 2.6vw, 20px);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--line-3);
+  border: 3px solid var(--line-3);
+  padding: 8px 20px;
+  transform: rotate(-3deg);
+  background: #fff;
+  box-shadow: var(--shadow-md);
 }
 .kill-resolution {
-  font-family: 'IBM Plex Sans Condensed', 'IBM Plex Sans Thai', sans-serif;
-  font-weight: 700;
-  font-size: clamp(20px, 4vw, 28px);
+  font-size: clamp(22px, 4.4vw, 32px);
   color: var(--ink);
+  margin-top: 30px;
 }
 
 /* ============ LOGO DOT ============ */
@@ -1146,33 +1184,256 @@ onUnmounted(() => {
   }
 }
 
+/* ============ FLOW — signal running down the line ============ */
+.flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0 0 48px;
+}
+.flow-node {
+  background: var(--ink);
+  color: #fff;
+  font-family: 'IBM Plex Sans Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 22px;
+  border-radius: 10px;
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+.flow-node:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.flow-node small {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--line-1);
+  margin-bottom: 2px;
+}
+.flow-line {
+  width: clamp(28px, 7vw, 92px);
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--line-1) 0 8px, transparent 8px 14px);
+  position: relative;
+}
+.flow-line i {
+  position: absolute;
+  top: -4px; left: 0;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--line-1);
+  animation: flowdot 1.8s linear infinite;
+}
+@keyframes flowdot { from { left: 0; } to { left: calc(100% - 10px); } }
+@media (max-width: 620px) {
+  .flow { flex-direction: column; gap: 10px; }
+  .flow-line { width: 2px; height: 26px; background: repeating-linear-gradient(180deg, var(--line-1) 0 8px, transparent 8px 14px); }
+  .flow-line i { animation: none; top: 0; left: -4px; }
+}
+
 /* ============ STEP CARDS ============ */
 .step-card {
   position: relative;
   overflow: hidden;
-}
-.step-number-deco {
-  position: absolute;
-  top: 18px; right: 22px;
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: 500;
-  font-size: 38px;
-  line-height: 1;
-  color: var(--hairline);
-  pointer-events: none;
-  user-select: none;
-}
-
-/* ============ VIBE PREVIEW GRID ============ */
-.vibe-preview-card {
   background: #fff;
   border: 1px solid var(--hairline);
   border-radius: 8px;
-  padding: 16px;
-  transition: border-color 0.15s, transform 0.2s ease-out, box-shadow 0.2s ease-out;
-  cursor: default;
+  padding: 28px 26px 26px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
 }
-.vibe-preview-card:hover { border-color: var(--ink); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.step-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+.step-number-deco {
+  position: absolute;
+  top: 10px; right: 16px;
+  font-size: 68px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+}
+.step-icon {
+  font-size: 22px;
+  color: var(--orange-text);
+  display: block;
+  margin-bottom: 18px;
+}
+.step-title {
+  font-size: 20px;
+  color: var(--ink);
+  margin: 0 0 8px;
+  position: relative;
+}
+.step-desc {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin: 0;
+  position: relative;
+}
+
+/* ============ DARK CHAPTER: stats, fill bar, vibe chips ============ */
+.sticky2 {
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+@media (max-width: 980px) { .sticky2 { grid-template-columns: 1fr; } }
+.sticky-left { position: sticky; top: 100px; align-self: start; }
+@media (max-width: 980px) { .sticky-left { position: static; } }
+
+.feat-list { list-style: none; margin: 26px 0 0; padding: 0; }
+.feat-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px dashed rgba(255,255,255,0.14);
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+}
+.feat-list li:last-child { border-bottom: none; }
+.feat-list i { color: var(--line-1); font-size: 13px; width: 18px; flex: none; }
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.stat-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.stat-box b {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.15;
+  color: var(--line-1);
+}
+.stat-box span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
+.fill-box b { font-size: 1.4rem; }
+.fillbar {
+  height: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+  margin: 10px 0 6px;
+}
+.fillbar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--line-1);
+  border-radius: 99px;
+  transition: width 1.8s cubic-bezier(.2,.7,.2,1) 0.3s;
+}
+.reveal.in .fillbar i { width: 100%; }
+
+.vibe-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 16px; }
+.vibe-chip {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 9px 15px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: transparent;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+}
+.vibe-chip:hover, .vibe-chip.act {
+  background: var(--line-1);
+  border-color: var(--line-1);
+  color: #fff;
+  transform: translateY(-2px);
+  font-weight: 700;
+}
+.vibe-panel {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-left: 4px solid var(--line-1);
+  border-radius: 10px;
+  padding: 16px 18px;
+  min-height: 86px;
+}
+.vibe-panel b {
+  font-size: 17px;
+  color: var(--line-1);
+  letter-spacing: 0.02em;
+}
+.vibe-panel p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.6);
+  margin: 4px 0 0;
+}
+.vibe-cta {
+  width: 100%;
+  height: 52px;
+  border-radius: 10px;
+  font-size: 15px;
+  margin-top: 20px;
+}
+
+/* ============ CLOSING ============ */
+.sec-closing {
+  background: var(--ink);
+  overflow: hidden;
+}
+.close-big {
+  font-size: clamp(1.9rem, 5.2vw, 3.6rem);
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin: 14px 0 0;
+}
+.close-p {
+  max-width: 58ch;
+  margin-top: 22px;
+  color: rgba(255,255,255,0.6);
+  font-size: 1rem;
+  line-height: 1.9;
+}
+.sig { margin-top: 30px; display: flex; align-items: center; gap: 16px; }
+.sig-line { width: 56px; height: 3px; background: var(--line-1); flex: none; }
+.sig b { font-size: 15px; color: #fff; }
+.go-btn {
+  display: inline-block;
+  margin-top: 34px;
+  font-size: 17px;
+  background: var(--line-1);
+  color: #fff;
+  border: none;
+  padding: 17px 38px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+.go-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px -10px rgba(255,140,66,0.6);
+}
 
 /* ============ BUTTON MICRO ============ */
 .btn-arrow-icon {
@@ -1210,20 +1471,37 @@ onUnmounted(() => {
   background: #fff; border: 1px solid var(--hairline); color: var(--muted);
 }
 
-/* Footer */
+/* Footer — darkest band on the page, closes the document */
+.lv-footer {
+  background: #10192b;
+  padding: 44px 0 38px;
+  border-top: 3px solid var(--line-1);
+}
+.lv-foot-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+}
 .footer-link {
   font-size: 13px; font-weight: 700;
-  color: var(--muted);
+  color: rgba(255,255,255,0.6);
   text-decoration: none;
   transition: color 0.2s;
 }
-.footer-link:hover { color: var(--ink); }
-.version-badge {
+.footer-link:hover { color: var(--line-1); }
+.lv-foot-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255,255,255,0.12);
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px; font-weight: 500;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 3px 9px; border-radius: 999px;
-  background: #fff; color: var(--orange-text);
-  border: 1px solid var(--line-1);
+  color: rgba(255,255,255,0.38);
 }
+.lv-foot-bar b { color: var(--line-1); }
 </style>

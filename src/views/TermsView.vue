@@ -65,7 +65,7 @@ const lang = ref('en')
             <p>These Terms are governed by Thai law. Any disputes shall be subject to the jurisdiction of Thai courts.</p>
 
             <h2>8. Contact Us</h2>
-            <p>If you have questions about these Terms, contact us at <a href="mailto:worapun.ld@gmail.com">worapun.ld@gmail.com</a>.</p>
+            <p>If you have questions about these Terms, contact us at <a href="mailto:hello@plzgo.me">hello@plzgo.me</a>.</p>
 
           </div>
         </template>
@@ -100,7 +100,7 @@ const lang = ref('en')
             <p>ข้อตกลงนี้อยู่ภายใต้กฎหมายไทย ข้อพิพาทใด ๆ ให้อยู่ในเขตอำนาจของศาลไทย</p>
 
             <h2>8. ติดต่อเรา</h2>
-            <p>หากมีคำถามเกี่ยวกับข้อตกลงนี้ ติดต่อได้ที่ <a href="mailto:worapun.ld@gmail.com">worapun.ld@gmail.com</a></p>
+            <p>หากมีคำถามเกี่ยวกับข้อตกลงนี้ ติดต่อได้ที่ <a href="mailto:hello@plzgo.me">hello@plzgo.me</a></p>
 
           </div>
         </template>

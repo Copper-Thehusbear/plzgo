@@ -156,17 +156,14 @@ function starStr(stars) {
 </template>
 
 <style scoped>
-/* Receipt — real prices and a Book button, so it gets the full printed-slip
-   treatment: tilted on the desk, deep shadow, straightens when you reach
-   for it. */
+/* Deliberately NOT tilted — this card holds live prices and the revenue
+   CTA, so it stays square and legible. The stamp still overhangs, which
+   keeps it in the same visual family as the tilted paper elsewhere. */
 .bc-card {
   padding: 24px 22px 18px;
   position: relative;
-  transform: rotate(-2.2deg);
   box-shadow: var(--shadow-lift);
-  transition: transform 0.4s cubic-bezier(.2,.8,.3,1);
 }
-.bc-card:hover { transform: rotate(0deg); }
 .bc-stamp { top: -13px; right: -10px; transform: rotate(9deg); }
 .bc-eyebrow {
   font-size: 10px; text-transform: uppercase;

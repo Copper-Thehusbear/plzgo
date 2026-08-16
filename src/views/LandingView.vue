@@ -627,7 +627,7 @@ onUnmounted(() => {
             <p class="lv-foot-tag">Curated by people who actually live in Bangkok.</p>
           </div>
           <div class="flex flex-wrap gap-6">
-            <a href="mailto:worapun.ld@gmail.com" class="footer-link">Contact Us</a>
+            <a href="mailto:hello@plzgo.me" class="footer-link">Contact Us</a>
             <router-link to="/privacy" class="footer-link">Privacy Policy</router-link>
             <router-link to="/terms" class="footer-link">Terms of Use</router-link>
           </div>

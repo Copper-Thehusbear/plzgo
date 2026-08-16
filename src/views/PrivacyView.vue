@@ -69,7 +69,7 @@ const lang = ref('en')
             <p>Routes saved in Firestore are retained for as long as necessary to support shared links. We may periodically remove old, unused route data.</p>
 
             <h2>6. Your Rights</h2>
-            <p>To view, correct, or delete any data associated with your use of plzgo, contact us at <a href="mailto:worapun.ld@gmail.com">worapun.ld@gmail.com</a>.</p>
+            <p>To view, correct, or delete any data associated with your use of plzgo, contact us at <a href="mailto:hello@plzgo.me">hello@plzgo.me</a>.</p>
 
             <h2>7. Changes to This Policy</h2>
             <p>We may update this policy from time to time. The "Last updated" date at the top of this page reflects the most recent revision. Continued use of plzgo after changes constitutes acceptance of the updated policy.</p>
@@ -111,7 +111,7 @@ const lang = ref('en')
             <p>Route ที่บันทึกใน Firestore จะถูกเก็บไว้ตามระยะเวลาที่จำเป็น เราอาจลบข้อมูลเก่าที่ไม่มีการใช้งานเป็นระยะ</p>
 
             <h2>6. สิทธิ์ของคุณ</h2>
-            <p>หากคุณต้องการขอดู แก้ไข หรือลบข้อมูล ติดต่อเราได้ที่ <a href="mailto:worapun.ld@gmail.com">worapun.ld@gmail.com</a></p>
+            <p>หากคุณต้องการขอดู แก้ไข หรือลบข้อมูล ติดต่อเราได้ที่ <a href="mailto:hello@plzgo.me">hello@plzgo.me</a></p>
 
             <h2>7. การเปลี่ยนแปลงนโยบาย</h2>
             <p>เราอาจปรับปรุงนโยบายนี้เป็นครั้งคราว โดยจะแจ้งวันที่อัปเดตไว้ที่ด้านบนของหน้านี้</p>

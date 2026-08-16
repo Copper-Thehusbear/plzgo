@@ -424,7 +424,7 @@ async function copyLink() {
           <div class="rv-col-side">
 
             <!-- Weather panel -->
-            <div v-if="weather && weather.precipProb !== null" class="glass-panel p-4">
+            <div v-if="weather && weather.precipProb !== null" class="glass-panel p-4 rv-weather-card">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <i :class="`fa-solid ${weather.weatherIcon} text-xl`" style="color:var(--muted)"></i>
@@ -522,6 +522,7 @@ async function copyLink() {
                  has been itemised rather than before. Still nothing
                  interruptive: no modal until the user taps the tip line. -->
             <div class="rv-bill">
+              <span class="plz-stamp plz-stamp-green rv-bill-stamp">Free</span>
               <p class="rv-bill-head data-mono">Your bill</p>
               <div class="rv-bill-line data-mono">
                 <span>{{ numDays }}-day route · {{ store.swipedPlaces.length }} stops</span><b>฿0</b>
@@ -832,6 +833,14 @@ async function copyLink() {
 }
 .rv-retry-btn:active { transform: translateY(1px); }
 
+/* A small aside, so it can afford the tilt the BaseCamp card can't. */
+.rv-weather-card {
+  transform: rotate(-1.6deg);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.4s cubic-bezier(.2,.8,.3,1);
+}
+.rv-weather-card:hover { transform: rotate(0deg); }
+
 /* Thermal-printed slip. Tilts on the desk, straightens when reached for. */
 .rv-bill {
   position: relative;
@@ -844,6 +853,15 @@ async function copyLink() {
   transition: transform 0.4s cubic-bezier(.2,.8,.3,1);
 }
 .rv-bill:hover { transform: rotate(0deg); }
+/* Stamped across the top-right corner, like a paid-in-full mark */
+.rv-bill-stamp {
+  top: -14px;
+  right: -8px;
+  transform: rotate(11deg);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  padding: 6px 14px;
+}
 .rv-bill-head {
   font-size: 10px;
   letter-spacing: 0.22em;
